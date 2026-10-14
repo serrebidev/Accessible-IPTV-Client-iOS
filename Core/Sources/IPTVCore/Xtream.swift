@@ -44,7 +44,9 @@ public enum Xtream {
 			else if segs.count == 4 && streamPrefixes.contains(first) { offset = 1 }
 			else if segs.count == 6 && first == "timeshift" { offset = 1 }
 			else { return nil }
-			let user = dec(segs[offset]), pass = dec(segs[offset + 1])
+			// Path segments: %20 is a space, "+" is a plus (unlike the query above).
+			func pdec(_ s: String) -> String { (s.removingPercentEncoding ?? s).trimmingCharacters(in: .whitespaces) }
+			let user = pdec(segs[offset]), pass = pdec(segs[offset + 1])
 			if !user.isEmpty && !pass.isEmpty { return (root, user, pass) }
 		}
 		return nil
@@ -70,7 +72,7 @@ public enum Xtream {
 		let epg = o["epg_channel_id"]
 		return Channel(
 			sourceId: src.id, itemId: id, name: o["name"] ?? "", group: cats[o["category_id"] ?? ""] ?? ungrouped,
-			url: "\(src.url)/live/\(Source.enc(src.username))/\(Source.enc(src.password))/\(id).ts",
+			url: "\(src.url)/live/\(Source.pathEnc(src.username))/\(Source.pathEnc(src.password))/\(id).ts",
 			tvgId: epg == "null" ? "" : epg ?? "", attrs: attrs
 		)
 	}
@@ -95,7 +97,7 @@ public enum Xtream {
 		let id = o["stream_id"] ?? ""
 		let ext = (o["container_extension"] ?? "").isEmpty ? "mp4" : o["container_extension"]!
 		return Channel(sourceId: src.id, itemId: "m\(id)", name: o["name"] ?? "", group: cats[o["category_id"] ?? ""] ?? ungrouped,
-			url: "\(src.url)/movie/\(Source.enc(src.username))/\(Source.enc(src.password))/\(id).\(ext)", kind: Channel.kindMovie)
+			url: "\(src.url)/movie/\(Source.pathEnc(src.username))/\(Source.pathEnc(src.password))/\(id).\(ext)", kind: Channel.kindMovie)
 	}
 
 	public static func series(_ src: Source) async throws -> [Channel] {
@@ -157,7 +159,7 @@ public enum Xtream {
 				var plot = ""
 				if case .object(let info)? = e["info"] { plot = info["plot"]?.text ?? "" }
 				out.append(Channel(sourceId: src.id, itemId: "e\(id)", name: label, group: show.name,
-					url: "\(src.url)/series/\(Source.enc(src.username))/\(Source.enc(src.password))/\(id).\(ext)",
+					url: "\(src.url)/series/\(Source.pathEnc(src.username))/\(Source.pathEnc(src.password))/\(id).\(ext)",
 					attrs: ["plot": plot], kind: Channel.kindEpisode))
 			}
 		}

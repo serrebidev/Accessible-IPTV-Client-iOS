@@ -286,6 +286,8 @@ final class ParsingTests: XCTestCase {
 		XCTAssertEqual(c("http://h/u/p/123"), ["http://h", "u", "p"])
 		XCTAssertEqual(c("http://h/timeshift/u/p/60/2025-10-09:09-00/1.ts"), ["http://h", "u", "p"])
 		XCTAssertEqual(c("http://h/get.php?username=a%20b&password=p"), ["http://h", "a b", "p"])
+		// In a path "+" is a plus; the stream URL this app builds round-trips.
+		XCTAssertEqual(c("http://h/live/a%20b/p+q/1.ts"), ["http://h", "a b", "p+q"])
 		// False matches would show an account that does not exist.
 		XCTAssertNil(c("http://h/playlist.m3u"))
 		XCTAssertNil(c("http://h/a/b/c/d/123.ts"))
@@ -298,12 +300,12 @@ final class ParsingTests: XCTestCase {
 		var out: [Channel] = []
 		try JsonStream(DataSource(Data(#"[{"stream_id":5,"num":42,"name":"X","category_id":"1","epg_channel_id":null,"tv_archive":1,"tv_archive_duration":"3"}]"#.utf8)))
 			.forEachObject { out.append(Xtream.live(src, $0, ["1": "News"])) }
-		XCTAssertEqual(out[0].url, "http://h/live/u+s/p/5.ts")
+		XCTAssertEqual(out[0].url, "http://h/live/u%20s/p/5.ts")
 		XCTAssertEqual(out[0].number, "42")
 		XCTAssertEqual(out[0].group, "News")
 		XCTAssertEqual(out[0].tvgId, "")
 		XCTAssertEqual(out[0].catchupDays, 3)
-		XCTAssertEqual(Xtream.movie(src, ["stream_id": "9", "name": "M"], [:]).url, "http://h/movie/u+s/p/9.mp4")
+		XCTAssertEqual(Xtream.movie(src, ["stream_id": "9", "name": "M"], [:]).url, "http://h/movie/u%20s/p/9.mp4")
 		XCTAssertEqual(Xtream.show(src, ["series_id": "4", "name": "S", "plot": "P"], [:]).attrs["plot"], "P")
 	}
 

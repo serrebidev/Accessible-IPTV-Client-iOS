@@ -51,6 +51,14 @@ public struct Source: Codable, Hashable, Identifiable {
 		return ""
 	}
 
+	/// A URL path segment: only unreserved characters kept, so a space is %20, not "+".
+	/// (The Android app form-encodes path segments; a password with a space or "+" broke there.)
+	public static func pathEnc(_ s: String) -> String {
+		var allowed = CharacterSet.alphanumerics.intersection(CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"))
+		allowed.insert(charactersIn: "-._~")
+		return s.addingPercentEncoding(withAllowedCharacters: allowed) ?? s
+	}
+
 	/// Form encoding as java.net.URLEncoder does it: space is "+", only A-Z a-z 0-9 . - * _ kept.
 	public static func enc(_ s: String) -> String {
 		var out = ""

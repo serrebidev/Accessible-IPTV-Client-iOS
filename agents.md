@@ -47,6 +47,9 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
 
 1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in project.yml, add a `## X.Y.Z` section to
    CHANGELOG.md, commit, tag `vX.Y.Z`, push with the tag.
+   Builds are signed with the owner's AltStore Apple Development certificate (team J7645K945T) from repo
+   secrets IOS_SIGNING_P12 / IOS_SIGNING_P12_PASSWORD; entitlements are only application-identifier and
+   team-identifier, so the AltStore source lists none. No secrets (fork PR) = unsigned build.
 2. The Build workflow (macos runner) publishes `AccessibleIPTV-X.Y.Z-{iOS,tvOS,visionOS}.ipa` to the release.
 3. In `../serrebiALT`: `python add_app.py AccessibleIPTV-X.Y.Z-iOS.ipa --url <release asset url> --notes "..."`,
-   commit and push apps.json. The .ipa is unsigned; AltStore signs it.
+   commit and push apps.json. AltStore re-signs the .ipa with the user’s own profile on install.

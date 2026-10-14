@@ -52,17 +52,54 @@ jobs:
           path: SourcePackages
           key: spm-${{ hashFiles('project.yml') }}
 
+      # The owner's Apple Development certificate (the one AltStore made), from repo secrets.
+      # No provisioning profile: AltStore re-signs with its own on install.
+      - name: Signing keychain
+        env:
+          P12: ${{ secrets.IOS_SIGNING_P12 }}
+          P12_PASSWORD: ${{ secrets.IOS_SIGNING_P12_PASSWORD }}
+        run: |
+          [ -n "$P12" ] || { echo "No certificate secret (fork PR): build unsigned"; exit 0; }
+          KC="$RUNNER_TEMP/sign.keychain-db"
+          security create-keychain -p ci "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p ci "$KC"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          curl -fsSL https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o "$RUNNER_TEMP/wwdr.cer"
+          security import "$RUNNER_TEMP/wwdr.cer" -k "$KC" -T /usr/bin/codesign || true
+          security import "$RUNNER_TEMP/cert.p12" -k "$KC" -P "$P12_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci "$KC" > /dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          ID=$(security find-identity -p codesigning "$KC" | awk '/\)/{print $2; exit}')
+          TEAM=$(security find-certificate -c "$ID" -p "$KC" 2>/dev/null | openssl x509 -noout -subject | sed -n 's/.*OU *= *\([A-Z0-9]*\).*/\1/p')
+          [ -n "$TEAM" ] || TEAM=J7645K945T
+          echo "Signing with $ID, team $TEAM"
+          echo "SIGN_ID=$ID" >> "$GITHUB_ENV"
+          echo "SIGN_TEAM=$TEAM" >> "$GITHUB_ENV"
+          echo "KEYCHAIN=$KC" >> "$GITHUB_ENV"
+          rm "$RUNNER_TEMP/cert.p12"
+
       - name: Build
         run: |
           set -o pipefail
           VERSION=$(sed -n 's/ *MARKETING_VERSION: *//p' project.yml)
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          sign() { # app bundle: nested code first, then the app with its identifier
+            [ -n "$SIGN_ID" ] || { echo "No signing certificate: unsigned"; return; }
+            find "$1" -depth \( -name "*.framework" -o -name "*.dylib" -o -name "*.appex" \) -print0 |
+              xargs -0 -I{} codesign --force --timestamp=none --keychain "$KEYCHAIN" --sign "$SIGN_ID" {}
+            /usr/libexec/PlistBuddy -c "Add :application-identifier string $SIGN_TEAM.dev.serrebi.accessibleiptv" \
+              -c "Add :com.apple.developer.team-identifier string $SIGN_TEAM" "$RUNNER_TEMP/app.entitlements" > /dev/null 2>&1 || true
+            codesign --force --timestamp=none --keychain "$KEYCHAIN" --sign "$SIGN_ID" --entitlements "$RUNNER_TEMP/app.entitlements" "$1"
+            codesign --verify --deep --strict "$1" && codesign -dv "$1" 2>&1 | grep -E "Authority|TeamIdentifier" | head -3
+          }
           build() { # platform, products folder, file suffix
             xcodebuild -project AccessibleIPTV.xcodeproj -scheme AccessibleIPTV -configuration Release \
               -destination "generic/platform=$1" -derivedDataPath build -clonedSourcePackagesDirPath SourcePackages \
               CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -60
             rm -rf Payload && mkdir Payload
             cp -R "build/Build/Products/Release-$2/AccessibleIPTV.app" Payload/
+            sign Payload/AccessibleIPTV.app
             zip -qry "AccessibleIPTV-$VERSION-$3.ipa" Payload
           }
           build iOS iphoneos iOS
