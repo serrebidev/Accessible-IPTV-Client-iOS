@@ -11,6 +11,8 @@ struct SourcesView: View {
 	@State private var editing: Editing?
 	@State private var deleting: Source?
 	@State private var picking = false
+	/// After a confirmation closes, VoiceOver goes back to the list heading.
+	@AccessibilityFocusState private var headingFocus: Bool
 
 	struct Editing: Identifiable {
 		let id = UUID()
@@ -32,7 +34,7 @@ struct SourcesView: View {
 				.buttonStyle(.bordered)
 			}
 			StatusLine(text: status)
-			Text(P("source_count", sources.count)).font(.headline).heading()
+			Text(P("source_count", sources.count)).font(.headline).accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocus)
 			List(sources) { s in
 				let kind = s.isXtream ? L("xtream_at", s.url) : s.isStalker ? L("stalker_at", s.url) : s.isFile ? L("m3u_file") : L("m3u_playlist")
 				Button { editing = Editing(existing: s, type: s.type) } label: { RowLabel(line1: s.name, line2: kind) }
@@ -54,8 +56,9 @@ struct SourcesView: View {
 				model.sourcesChanged = true
 				refresh()
 				say(L("source_deleted", s.name))
+				headingFocus = true
 			}
-			Button(L("cancel"), role: .cancel) {}
+			Button(L("cancel"), role: .cancel) { headingFocus = true }
 		} message: { s in
 			Text(L("delete_source_q", s.name))
 		}

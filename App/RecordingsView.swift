@@ -9,6 +9,8 @@ struct RecordingsView: View {
 	@State private var status = ""
 	@State private var cancelling: Recording.Scheduled?
 	@State private var deleting: RecorderCenter.Saved?
+	/// After a confirmation closes, VoiceOver goes back to the list heading.
+	@AccessibilityFocusState private var headingFocus: Bool
 
 	private var now: [RecorderCenter.Active] { recorder.active.values.sorted { $0.started < $1.started } }
 
@@ -20,7 +22,7 @@ struct RecordingsView: View {
 			}
 			.buttonStyle(.bordered)
 			StatusLine(text: status)
-			Text(L("recordings_heading", now.count, recorder.scheduled.count, saved.count)).font(.headline).heading()
+			Text(L("recordings_heading", now.count, recorder.scheduled.count, saved.count)).font(.headline).accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocus)
 			List {
 				ForEach(now) { a in
 					let line2 = a.end > 0 ? L("recording_until", Format.time(a.end)) : L("recording_now")
@@ -50,8 +52,9 @@ struct RecordingsView: View {
 			Button(L("cancel_recording"), role: .destructive) {
 				recorder.cancel(s.id)
 				say(L("recording_cancelled"))
+				headingFocus = true
 			}
-			Button(L("keep"), role: .cancel) {}
+			Button(L("keep"), role: .cancel) { headingFocus = true }
 		} message: { s in
 			Text(L("cancel_recording_q", s.title.isEmpty ? s.name : s.title))
 		}
@@ -60,8 +63,9 @@ struct RecordingsView: View {
 				recorder.delete(f)
 				saved = recorder.saved()
 				say(L("recording_deleted", f.name))
+				headingFocus = true
 			}
-			Button(L("cancel"), role: .cancel) {}
+			Button(L("cancel"), role: .cancel) { headingFocus = true }
 		} message: { f in
 			Text(L("delete_recording_q", f.name))
 		}

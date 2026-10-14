@@ -34,12 +34,19 @@ jobs:
         working-directory: Core
         run: swift test 2>&1 | tail -40
 
+      - name: a11y-check source
+        run: git clone --depth 1 https://github.com/cvs-health/ios-swiftui-accessibility-techniques.git "$RUNNER_TEMP/cvs"
+
+      - name: a11y-check build cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/cvs/a11y-check/.build
+          key: a11ycheck-${{ runner.os }}-v1
+
       - name: Accessibility check (a11y-check, CVS Health)
-        continue-on-error: true
         run: |
-          brew tap cvs-health/ios-swiftui-accessibility-techniques https://github.com/cvs-health/ios-swiftui-accessibility-techniques.git
-          brew install --HEAD cvs-health/ios-swiftui-accessibility-techniques/a11y-check
-          a11y-check App | tee a11y-report.txt
+          cd "$RUNNER_TEMP/cvs/a11y-check" && swift build -c release 2>&1 | tail -3
+          "$RUNNER_TEMP/cvs/a11y-check/.build/release/a11y-check" "$GITHUB_WORKSPACE/App" | tee "$GITHUB_WORKSPACE/a11y-report.txt"
 
       - name: Generate project
         run: |
@@ -64,7 +71,13 @@ jobs:
           security create-keychain -p ci "$KC"
           security set-keychain-settings -lut 21600 "$KC"
           security unlock-keychain -p ci "$KC"
-          echo "$P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          echo "$P12" | base64 --decode > "$RUNNER_TEMP/new.p12"
+          # macOS security cannot read OpenSSL 3's AES/SHA-256 PKCS#12 (MAC verification failed):
+          # re-pack it with 3DES and a SHA-1 MAC.
+          OSSL="$(brew --prefix openssl@3)/bin/openssl"
+          "$OSSL" pkcs12 -in "$RUNNER_TEMP/new.p12" -passin env:P12_PASSWORD -nodes -out "$RUNNER_TEMP/pem"
+          "$OSSL" pkcs12 -export -in "$RUNNER_TEMP/pem" -out "$RUNNER_TEMP/cert.p12" -passout env:P12_PASSWORD -certpbe PBE-SHA1-3DES -keypbe PBE-SHA1-3DES -macalg sha1
+          rm "$RUNNER_TEMP/new.p12" "$RUNNER_TEMP/pem"
           curl -fsSL https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer -o "$RUNNER_TEMP/wwdr.cer"
           security import "$RUNNER_TEMP/wwdr.cer" -k "$KC" -T /usr/bin/codesign || true
           security import "$RUNNER_TEMP/cert.p12" -k "$KC" -P "$P12_PASSWORD" -T /usr/bin/codesign

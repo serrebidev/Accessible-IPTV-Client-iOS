@@ -20,7 +20,7 @@ struct EpisodesView: View {
 				.autocorrectionDisabled()
 				.accessibilityLabel(L("filter"))
 			StatusLine(text: status)
-			Text(P("episode_count", shown.count)).font(.headline).heading()
+			Text(P("episode_count", shown.count)).font(.headline).accessibilityAddTraits(.isHeader)
 			List(shown) { ep in
 				Button { model.open(ep) } label: { RowLabel(line1: ep.name) }
 					.row(ep.name, actions: actions(ep))

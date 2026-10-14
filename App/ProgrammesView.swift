@@ -40,7 +40,7 @@ struct ProgrammesView: View {
 						.accessibilityLabel(L(mode == .search ? "search" : "filter"))
 				}
 				StatusLine(text: status)
-				Text(P("programme_count", shown.count)).font(.headline).heading()
+				Text(P("programme_count", shown.count)).font(.headline).accessibilityAddTraits(.isHeader)
 				List(shown) { item in row(item).id(item.id) }.listStyle(.plain)
 			}
 			.padding(.horizontal)

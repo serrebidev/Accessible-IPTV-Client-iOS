@@ -117,10 +117,10 @@ struct MainView: View {
 		.sheet(isPresented: $showNumber) { NumberSheet() }
 		.alert(update.map { L("update_available", $0.version) } ?? "", isPresented: Binding(get: { update != nil }, set: { if !$0 { update = nil } })) {
 			#if os(iOS)
-			Button(L("install")) { if let u = update { install(u) } }
-			Button(L("later"), role: .cancel) {}
+			Button(L("install")) { if let u = update { install(u) }; headingFocused = true }
+			Button(L("later"), role: .cancel) { headingFocused = true }
 			#else
-			Button(L("ok"), role: .cancel) {}
+			Button(L("ok"), role: .cancel) { headingFocused = true }
 			#endif
 		} message: {
 			Text(String((update?.notes ?? "").prefix(1500)))
@@ -203,7 +203,7 @@ struct MainView: View {
 		if wide {
 			HStack(alignment: .top, spacing: 16) {
 				VStack(alignment: .leading) {
-					Text(L("groups")).font(.headline).heading()
+					Text(L("groups")).font(.headline).accessibilityAddTraits(.isHeader)
 					List(groups) { g in groupRow(g) }.listStyle(.plain)
 				}
 				.frame(maxWidth: 360)
@@ -216,6 +216,7 @@ struct MainView: View {
 					ForEach(groups) { g in Text("\(groupLabel(g.name)), \(g.count)").tag(g.name) }
 				}
 				.pickerStyle(.menu)
+				.accessibilityLabel(L("groups"))
 				channelColumn
 			}
 		}
@@ -230,7 +231,7 @@ struct MainView: View {
 	private var channelColumn: some View {
 		let _ = model.revision
 		return VStack(alignment: .leading) {
-			Text(heading).font(.headline).heading().accessibilityFocused($headingFocused)
+			Text(heading).font(.headline).accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocused)
 			List(channels) { ch in channelRow(ch) }
 				.listStyle(.plain)
 				.accessibilityLabel(sectionName())

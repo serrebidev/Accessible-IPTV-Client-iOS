@@ -16,9 +16,6 @@ extension View {
 	func row(_ speech: String, actions: [RowAction]) -> some View {
 		modifier(RowModifier(speech: speech, actions: actions))
 	}
-
-	/// Section titles are headings, so the VoiceOver rotor can jump between them.
-	func heading() -> some View { accessibilityAddTraits(.isHeader) }
 }
 
 private struct RowModifier: ViewModifier {
@@ -45,7 +42,7 @@ struct RowLabel: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: 2) {
 			Text(line1).font(.body).frame(maxWidth: .infinity, alignment: .leading)
-			if !line2.isEmpty { Text(line2).font(.subheadline).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading) }
+			if !line2.isEmpty { Text(line2).font(.callout).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading) }
 		}
 		.multilineTextAlignment(.leading)
 		.contentShape(Rectangle())
@@ -128,12 +125,15 @@ struct LabeledField: View {
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 4) {
-			Text(label).font(.subheadline).accessibilityHidden(true)
+			Text(label).font(.callout).accessibilityHidden(true)
 			Group {
 				if secure {
 					SecureField(label, text: $text, prompt: Text(prompt))
+						.textContentType(.password)
+						.accessibilityLabel(label)
 				} else {
 					TextField(label, text: $text, prompt: Text(prompt))
+						.accessibilityLabel(label)
 				}
 			}
 			.textInputAutocapitalization(.never)
@@ -141,12 +141,11 @@ struct LabeledField: View {
 			#if !os(tvOS) && !os(macOS)
 			.keyboardType(keyboard)
 			#endif
-			.accessibilityLabel(label)
 			// The error sits right after the field, so VoiceOver reads it next; the form also
 			// moves focus to the field and speaks the error when Save finds it.
 			if let error {
 				// Bold keeps system red above 3:1 (large-text contrast) in light and dark mode.
-				Text(error).font(.subheadline.bold()).foregroundStyle(.red)
+				Text(error).font(.callout.bold()).foregroundStyle(.red)
 			}
 		}
 	}

@@ -52,7 +52,7 @@ struct PlayerScreen: View {
 			video
 			if !c.subtitle.isEmpty {
 				// Subtitle text for everyone; spoken by the controller when Speak subtitles is on.
-				Text(c.subtitle).font(.title3).multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.horizontal)
+				Text(c.subtitle).font(.body.weight(.semibold)).multilineTextAlignment(.center).frame(maxWidth: .infinity).padding(.horizontal)
 			}
 			if !c.fullscreen {
 				VStack(alignment: .leading, spacing: 4) {

@@ -28,14 +28,14 @@ struct SettingsView: View {
 	var body: some View {
 		Form {
 			Section {
-				Toggle(L("prefer_ad"), isOn: $preferAd)
+				Toggle(L("prefer_ad"), isOn: $preferAd).accessibilityLabel(L("prefer_ad"))
 				LabeledField(label: L("preferred_tracks"), text: $keywords, prompt: L("preferred_tracks_hint"))
-			} header: { Text(L("audio_heading")).heading() }
+			} header: { Text(L("audio_heading")).accessibilityAddTraits(.isHeader) }
 
 			Section {
-				Toggle(L("use_external_player"), isOn: $external)
-				Toggle(L("show_stream_url"), isOn: $showUrl)
-				Toggle(L("speak_subtitles"), isOn: $speakSubs)
+				Toggle(L("use_external_player"), isOn: $external).accessibilityLabel(L("use_external_player"))
+				Toggle(L("show_stream_url"), isOn: $showUrl).accessibilityLabel(L("show_stream_url"))
+				Toggle(L("speak_subtitles"), isOn: $speakSubs).accessibilityLabel(L("speak_subtitles"))
 				Picker(L("announcements"), selection: $announceLevel) {
 					Text(L("announce_none")).tag(0)
 					Text(L("announce_errors")).tag(1)
@@ -47,18 +47,19 @@ struct SettingsView: View {
 				#else
 				.pickerStyle(.inline)
 				#endif
+				.accessibilityLabel(L("announcements"))
 				numberField(L("buffer_seconds"), $buffer, decimal: true)
 				numberField(L("max_buffer_seconds"), $maxBuffer, decimal: true)
-			} header: { Text(L("playback_heading")).heading() }
+			} header: { Text(L("playback_heading")).accessibilityAddTraits(.isHeader) }
 
 			Section {
 				numberField(L("guide_days"), $days)
-			} header: { Text(L("guide_heading")).heading() }
+			} header: { Text(L("guide_heading")).accessibilityAddTraits(.isHeader) }
 
 			Section {
 				numberField(L("pre_padding"), $prePad)
 				numberField(L("post_padding"), $postPad)
-			} header: { Text(L("recordings")).heading() }
+			} header: { Text(L("recordings")).accessibilityAddTraits(.isHeader) }
 
 			Section {
 				#if os(tvOS)
@@ -76,7 +77,7 @@ struct SettingsView: View {
 				Button(L("import_settings")) { importing = true }
 				#endif
 				StatusLine(text: status)
-			} header: { Text(L("backup_heading")).heading() }
+			} header: { Text(L("backup_heading")).accessibilityAddTraits(.isHeader) }
 		}
 		.navigationTitle(L("settings"))
 		.onAppear(perform: load)
