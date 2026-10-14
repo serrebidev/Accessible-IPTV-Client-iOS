@@ -21,6 +21,8 @@ extension View {
 private struct RowModifier: ViewModifier {
 	let speech: String
 	let actions: [RowAction]
+	/// After a long-press menu item runs, VoiceOver stays on the row it came from.
+	@AccessibilityFocusState private var focused: Bool
 
 	func body(content: Content) -> some View {
 		if actions.isEmpty {
@@ -29,7 +31,8 @@ private struct RowModifier: ViewModifier {
 			content
 				.accessibilityLabel(speech)
 				.accessibilityActions { ForEach(actions) { a in Button(a.label, action: a.run) } }
-				.contextMenu { ForEach(actions) { a in Button(a.label, action: a.run) } }
+				.contextMenu { ForEach(actions) { a in Button(a.label) { a.run(); focused = true } } }
+				.accessibilityFocused($focused)
 		}
 	}
 }

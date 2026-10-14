@@ -36,7 +36,7 @@ final class RecorderCenter: ObservableObject {
 	private var ticker: Timer?
 	private let keepAlive = KeepAlive()
 
-	static var folder: URL {
+	nonisolated static var folder: URL {
 		#if os(tvOS)
 		let base = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
 		#else

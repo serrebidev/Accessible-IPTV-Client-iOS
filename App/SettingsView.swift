@@ -42,12 +42,12 @@ struct SettingsView: View {
 					Text(L("announce_important")).tag(2)
 					Text(L("announce_detailed")).tag(3)
 				}
+				.accessibilityLabel(L("announcements"))
 				#if os(tvOS)
 				.pickerStyle(.navigationLink)
 				#else
 				.pickerStyle(.inline)
 				#endif
-				.accessibilityLabel(L("announcements"))
 				numberField(L("buffer_seconds"), $buffer, decimal: true)
 				numberField(L("max_buffer_seconds"), $maxBuffer, decimal: true)
 			} header: { Text(L("playback_heading")).accessibilityAddTraits(.isHeader) }
