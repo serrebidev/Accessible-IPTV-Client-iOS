@@ -1,0 +1,10 @@
+*.xcodeproj/
+Generated/
+build/
+SourcePackages/
+.build/
+Core/.build/
+*.ipa
+Payload/
+.swiftpm/
+DerivedData/

@@ -1,0 +1,67 @@
+# Start
+
+Open Playlists. Add an Xtream login, an M3U URL, an M3U file, or a Stalker portal (address and MAC). Xtream and Stalker bring their own guide. An M3U that names its guide brings it too; otherwise add its guide URL. A whole Xtream panel link pasted as the server fills in the login.
+
+# Main screen
+
+Search is at the top. It searches every group in the section; exact names come first. Voice, next to it, fills it by speech. Clear empties it.
+
+Below: Live TV, Movies, Series. Then Playlists, On now, Guide search, Recordings, More.
+
+On iPad, Apple TV and Vision Pro, the groups are on the left and the list on the right. On iPhone, Groups is a menu above the list. Both lists have headings. Picking a group moves you to the list.
+
+Number keys on a keyboard jump to that channel number.
+
+# More
+
+Previous channel, Recently watched, Go to channel number, Refresh playlists, Refresh guide, Account, Settings, Check for updates, Help.
+
+# Items
+
+Activate to play. A series opens its episodes.
+
+Actions rotor: play in another app, favourite, details, guide, record or stop recording, download. Without VoiceOver: touch and hold. On Apple TV: hold Select.
+
+# Guide
+
+On now lists everything airing. A channel's guide plays past programmes marked catch-up, and schedules future ones. Guide search finds upcoming programmes.
+
+# Player
+
+Buttons: Pause, Audio, Subtitles, Record, Cast, Full screen, Close. Keys: A for audio, S for subtitles, F for full screen, Escape to close. With VoiceOver, a two-finger double tap plays and pauses.
+
+Full screen hides the buttons. A tap, Escape or the remote’s Back button brings them back.
+
+Audio description is picked when a channel has it. A track you pick is remembered per channel.
+
+Subtitles from the stream are shown in the picture. A Subtitle file shows under the video and, for SRT and WebVTT, is spoken, unless Speak subtitles is off in Settings.
+
+When the programme changes, the player says what is on now. Settings, Announcements sets how much the player says.
+
+A live stream that drops reconnects by itself. Sound keeps playing with the screen locked.
+
+Cast sends the stream to a Chromecast on the same network.
+
+# Recordings
+
+Saved in the Files app: On My iPhone (or iPad), Accessible IPTV, Recordings. Recordings in progress are listed first; activate one to stop it.
+
+Scheduled recordings run 2 minutes past the end. Change the minutes before and after in Settings. The app stays awake in the background while it records, and when a recording starts within six hours. If the app was closed, a notification at the start time asks you to open it.
+
+A catch-up download that ends early is fetched again.
+
+# Settings
+
+Export settings saves playlists, logins, favourites and options to a file. Import settings loads one from this device, another one, or the Android app. Language opens this app’s page in the Settings app.
+
+# Updates
+
+The app checks for a new version once a day. More, Check for updates checks now. Install opens AltStore, which installs it.
+
+# CarPlay
+
+CarPlay lists favourite and recently watched live channels and plays their sound. It needs a build signed with Apple’s CarPlay audio permission.
+
+# Apple TV
+
+Apple TV has no voice search, M3U files or settings files. The system can clear the app’s storage; lists and the guide then download again, and recordings can be lost.

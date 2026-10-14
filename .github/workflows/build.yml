@@ -1,0 +1,87 @@
+name: Build
+
+# Every push: core tests, accessibility check, and unsigned .ipa files for iPhone/iPad,
+# Apple TV and Vision Pro. A v* tag also publishes them as a GitHub release.
+# AltStore (and other sideloading tools) sign the .ipa on the device, so none is signed here.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Core tests
+        working-directory: Core
+        run: swift test 2>&1 | tail -40
+
+      - name: Accessibility check (a11y-check, CVS Health)
+        continue-on-error: true
+        run: |
+          brew tap cvs-health/ios-swiftui-accessibility-techniques https://github.com/cvs-health/ios-swiftui-accessibility-techniques.git
+          brew install --HEAD cvs-health/ios-swiftui-accessibility-techniques/a11y-check
+          a11y-check App | tee a11y-report.txt
+
+      - name: Generate project
+        run: |
+          brew install xcodegen
+          xcodegen generate
+
+      - name: Package cache (VLCKit is an 800 MB download)
+        uses: actions/cache@v4
+        with:
+          path: SourcePackages
+          key: spm-${{ hashFiles('project.yml') }}
+
+      - name: Build
+        run: |
+          set -o pipefail
+          VERSION=$(sed -n 's/ *MARKETING_VERSION: *//p' project.yml)
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          build() { # platform, products folder, file suffix
+            xcodebuild -project AccessibleIPTV.xcodeproj -scheme AccessibleIPTV -configuration Release \
+              -destination "generic/platform=$1" -derivedDataPath build -clonedSourcePackagesDirPath SourcePackages \
+              CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -60
+            rm -rf Payload && mkdir Payload
+            cp -R "build/Build/Products/Release-$2/AccessibleIPTV.app" Payload/
+            zip -qry "AccessibleIPTV-$VERSION-$3.ipa" Payload
+          }
+          build iOS iphoneos iOS
+          build tvOS appletvos tvOS
+          build visionOS xros visionOS
+          ls -la *.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ipa
+          path: |
+            *.ipa
+            a11y-report.txt
+          if-no-files-found: warn
+
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          awk "/^## $VERSION/{f=1;next}/^## /{f=0}f" CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" *.ipa --title "Accessible IPTV Client for iOS $VERSION" --notes-file notes.md --latest

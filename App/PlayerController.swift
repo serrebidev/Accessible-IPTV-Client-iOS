@@ -1,0 +1,400 @@
+import AVFoundation
+import MediaPlayer
+import SwiftUI
+import UIKit
+import VLCKit
+import IPTVCore
+
+/// libVLC playback for every stream an IPTV provider sends (raw MPEG-TS, HLS, MKV, MP4),
+/// with the desktop client's live cushion and reconnects. AVPlayer cannot play raw TS.
+@MainActor
+final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate {
+	@Published var status = ""
+	@Published var isPlaying = false
+	@Published var failed = false
+	@Published var nowPlaying = ""
+	@Published var subtitle = ""
+	@Published var casting: String?
+	@Published var fullscreen = false
+
+	let player = VLCMediaPlayer()
+	let request: PlayRequest
+	private let model = AppModel.shared
+	private var prefs: Prefs { model.prefs }
+	/// A live channel (not catch-up, a file or VOD): drops are reconnected like the desktop.
+	let live: Bool
+	let localFile: Bool
+	private let reconnect = Reconnect(clock: nowMs)
+	private var hasPlayed = false
+	private var buffering = false
+	private var stalls = 0
+	private var cacheSeconds = Cushion.quickStartSeconds
+	private var paced: Float = 1
+	private var closing = false
+	private var retryTask: Task<Void, Never>?
+	private var timers: [Timer] = []
+	private var programmeTimer: Timer?
+	private var autoTrackTries = 0
+	private var autoTrackDone = false
+	private var cues: [SubtitleCues.Cue] = []
+	private var cueIndex: Int?
+	private var videoOff = false
+	#if !os(tvOS)
+	private var discoverers: [VLCRendererDiscoverer] = []
+	#endif
+
+	init(request: PlayRequest) {
+		self.request = request
+		let ch = request.channelKey.isEmpty ? nil : AppModel.shared.library.channel(request.channelKey)
+		live = !request.catchup && ch?.isLive == true
+		localFile = request.url.hasPrefix("file:")
+		super.init()
+		player.delegate = self
+	}
+
+	var channel: Channel? { request.channelKey.isEmpty ? nil : model.library.channel(request.channelKey) }
+
+	// MARK: lifecycle
+
+	func start() {
+		#if os(iOS)
+		CarAudio.shared.stop()
+		#endif
+		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+		try? AVAudioSession.sharedInstance().setActive(true)
+		UIApplication.shared.isIdleTimerDisabled = true
+		showProgramme(announce: false)
+		open()
+		say(L("connecting"), 2)
+		// Quick start, then build the cushion: a live stream plays 5% slow until it is held.
+		timers.append(Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.pace() } })
+		timers.append(Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } })
+		timers.append(Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in Task { @MainActor in self?.cueTick() } })
+		nowPlayingInfo()
+		#if !os(tvOS)
+		// Warm the cast device list so Cast has names to offer straight away.
+		if !localFile {
+			for d in VLCRendererDiscoverer.list() ?? [] {
+				if let r = VLCRendererDiscoverer(name: d.name), r.start() { discoverers.append(r) }
+			}
+		}
+		#endif
+	}
+
+	func close() {
+		closing = true
+		retryTask?.cancel()
+		timers.forEach { $0.invalidate() }
+		programmeTimer?.invalidate()
+		player.stop()
+		player.delegate = nil
+		#if !os(tvOS)
+		discoverers.forEach { $0.stop() }
+		#endif
+		UIApplication.shared.isIdleTimerDisabled = false
+		MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+		let rc = MPRemoteCommandCenter.shared()
+		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
+	}
+
+	/// Opens the stream. A first start and a reconnect wait for half a second of cache; the
+	/// rest of the cushion is built by pace().
+	private func open() {
+		let (plain, headers) = M3U.splitHeaders(request.url)
+		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
+			say(L("play_failed", plain), 1)
+			failed = true
+			return
+		}
+		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
+		if let ref = headers["Referer"] { media.addOption(":http-referrer=\(ref)") }
+		if let cookie = headers["Cookie"], let host = url.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
+		let ms: Int
+		if live {
+			let target = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
+			cacheSeconds = min(target, Cushion.quickStartSeconds)
+			ms = Int(cacheSeconds * 1000)
+			// Live: drop late frames so playback stays at real time instead of drifting behind.
+			media.addOption(":clock-jitter=1500")
+		} else {
+			// ponytail: VOD and catch-up start on a fixed 2 s cache; files seek, so no cushion is built.
+			ms = localFile ? 300 : 2000
+			media.addOption(":clock-jitter=0")
+			media.addOption(":clock-synchro=0")
+			media.addOption(":drop-late-frames=0")
+			media.addOption(":skip-frames=0")
+		}
+		for opt in ["network-caching", "live-caching", "file-caching"] { media.addOption(":\(opt)=\(ms)") }
+		media.addOption(":adaptive-use-access=1")
+		hasPlayed = false
+		buffering = false
+		paced = 1
+		player.media = media
+		player.play()
+	}
+
+	// MARK: VLC events
+
+	nonisolated func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
+		Task { @MainActor in self.stateChanged(newState) }
+	}
+
+	nonisolated func mediaPlayerBufferingChanged(_ progress: Float) {
+		Task { @MainActor in self.bufferingChanged(progress) }
+	}
+
+	private func stateChanged(_ s: VLCMediaPlayerState) {
+		guard !closing else { return }
+		let playing = s == .playing
+		if playing != isPlaying {
+			isPlaying = playing
+			if playing { say(L("playing"), 3) }
+			nowPlayingInfo()
+		}
+		switch s {
+		case .playing:
+			hasPlayed = true
+			failed = false
+		case .error:
+			if tryReconnect() { return }
+			say(L("play_failed", VLCLibrary.currentErrorMessage ?? ""), 1)
+			failed = true
+		case .stopped:
+			// A live stream that ends was dropped by the server: reconnect, as the desktop does.
+			if retryTask != nil || tryReconnect() { return }
+			say(L("stream_ended"), 1)
+			failed = true
+		default:
+			break
+		}
+	}
+
+	/// Buffering after playback began is a stall: the cushion grows a second, like the desktop.
+	private func bufferingChanged(_ progress: Float) {
+		guard hasPlayed, !closing else { return }
+		if progress < 100 && !buffering {
+			buffering = true
+			stalls += 1
+			say(L("buffering"), 3)
+		} else if progress >= 100 {
+			buffering = false
+		}
+	}
+
+	/// Schedules the next reconnect of a live stream; false when this stream does not get one.
+	private func tryReconnect() -> Bool {
+		guard live, casting == nil, let delay = reconnect.next() else { return false }
+		say(L("reconnecting"), 2)
+		retryTask?.cancel()
+		retryTask = Task {
+			try? await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000)
+			guard !Task.isCancelled, !closing else { return }
+			retryTask = nil
+			// Behind the live window after a drop: start again at the live edge.
+			open()
+		}
+		return true
+	}
+
+	// MARK: controls
+
+	func togglePause() {
+		if player.isPlaying { player.pause(); return }
+		if failed || player.state == .stopped || player.state == .error {
+			// Retry after a failure: a live stream starts again at the live edge.
+			retryTask?.cancel()
+			retryTask = nil
+			reconnect.reset()
+			failed = false
+			open()
+			return
+		}
+		player.play()
+	}
+
+	/// A status line, spoken only up to the Announcements level in Settings
+	/// (desktop: 1 errors, 2 important events, 3 detailed status). The text always updates.
+	func say(_ text: String, _ priority: Int) {
+		status = text
+		if prefs.announceLevel >= priority { announce(text) }
+	}
+
+	/// Shows what is on and, when the guide says the programme changed, says "Now: ..."
+	/// as an important event. Re-arms itself for the end of the programme. Live only.
+	private func showProgramme(announce: Bool) {
+		programmeTimer?.invalidate()
+		guard live, let ch = channel else { nowPlaying = request.title; return }
+		let nn = model.library.epg.nowNext(ch)
+		if let on = nn.now {
+			nowPlaying = Format.sentences([request.title, L("now_programme", Format.programme(on))])
+			if announce { say(L("now_programme", Format.programme(on)), 2) }
+		} else {
+			nowPlaying = request.title
+		}
+		guard let change = nn.now?.stop ?? nn.next?.start else { return }
+		let wait = max(1, Double(change - nowMs() + 2_000) / 1000)
+		programmeTimer = Timer.scheduledTimer(withTimeInterval: wait, repeats: false) { [weak self] _ in Task { @MainActor in self?.showProgramme(announce: true) } }
+		nowPlayingInfo()
+	}
+
+	/// Plays a live stream slightly slow until the buffer setting is held locally.
+	private func pace() {
+		guard live, casting == nil, player.isPlaying, let media = player.media else { return }
+		let stats = media.statistics
+		let cushion = Cushion.liveCushionSeconds(readBytes: stats.readBytes, demuxBytes: stats.demuxReadBytes,
+			playedMs: Int64(player.time.intValue), cacheSeconds: cacheSeconds)
+		let want = Cushion.paceRate(cushion: cushion, target: Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls), current: paced)
+		if want != paced {
+			paced = want
+			player.rate = want
+		}
+	}
+
+	// MARK: audio tracks
+
+	struct TrackChoice { let name: String; let track: VLCMediaPlayer.Track }
+
+	func audioTracks() -> [TrackChoice] { named(player.audioTracks) }
+	func textTracks() -> [TrackChoice] { named(player.textTracks) }
+
+	private func named(_ tracks: [VLCMediaPlayer.Track]) -> [TrackChoice] {
+		tracks.enumerated().map { i, t in
+			var parts = [t.trackName]
+			if let l = t.language, !l.isEmpty { parts.append(Locale.current.localizedString(forLanguageCode: l) ?? l) }
+			if let d = t.trackDescription, !d.isEmpty { parts.append(d) }
+			var seen = Set<String>()
+			let name = parts.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty && seen.insert($0.lowercased()).inserted }.joined(separator: ", ")
+			return TrackChoice(name: name.isEmpty ? L("track_n", i + 1) : name, track: t)
+		}
+	}
+
+	/// Audio description, a remembered track or a preferred language, picked once the
+	/// stream's tracks are known (they arrive late: tried for ten seconds, like the desktop).
+	private func autoTrack() {
+		guard !autoTrackDone, hasPlayed else { return }
+		autoTrackTries += 1
+		let audio = audioTracks()
+		if autoTrackTries > 20 { autoTrackDone = true; return }
+		guard !audio.isEmpty else { return }
+		let idx = AudioTracks.choose(
+			names: audio.map(\.name),
+			describesVideo: audio.map { _ in false },
+			remembered: prefs.rememberedTrack(request.channelKey),
+			preferAd: prefs.preferAudioDescription,
+			keywords: prefs.audioKeywords.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+		)
+		if idx >= 0 {
+			if !audio[idx].track.isSelected { audio[idx].track.isSelectedExclusively = true }
+			autoTrackDone = true
+		} else if autoTrackTries >= 6 {
+			autoTrackDone = true
+		}
+	}
+
+	func selectAudio(_ c: TrackChoice) {
+		c.track.isSelectedExclusively = true
+		autoTrackDone = true
+		// Remembered per channel, ahead of every other rule, like the desktop app.
+		if !request.channelKey.isEmpty { prefs.rememberTrack(request.channelKey, c.name) }
+		say(L("audio_track_set", c.name), 2)
+	}
+
+	// MARK: subtitles
+
+	func selectSubtitle(_ c: TrackChoice?) {
+		if let c {
+			c.track.isSelectedExclusively = true
+			say(L("subtitles_set", c.name), 2)
+		} else {
+			player.deselectAllTextTracks()
+			subtitle = ""
+			say(L("subtitles_set", L("subtitles_off")), 2)
+		}
+	}
+
+	/// Loads an SRT/VTT (or other) subtitle file. libVLC shows it; SRT and WebVTT are also
+	/// spoken, since only their text can be read back (desktop subtitle_cues).
+	func loadSubtitle(_ picked: URL) {
+		let ok = picked.startAccessingSecurityScopedResource()
+		defer { if ok { picked.stopAccessingSecurityScopedResource() } }
+		let copy = FileManager.default.temporaryDirectory.appendingPathComponent(picked.lastPathComponent)
+		try? FileManager.default.removeItem(at: copy)
+		do {
+			try FileManager.default.copyItem(at: picked, to: copy)
+		} catch {
+			say(L("play_failed", error.localizedDescription), 1)
+			return
+		}
+		_ = player.addPlaybackSlave(copy, type: .subtitle, enforce: true)
+		say(L("subtitles_set", picked.lastPathComponent), 2)
+		cues = []
+		cueIndex = nil
+		if SubtitleCues.speakableExtensions.contains(copy.pathExtension.lowercased()), let raw = try? Data(contentsOf: copy) {
+			cues = SubtitleCues.parse(String(data: raw, encoding: .utf8) ?? String(decoding: raw, as: UTF8.self))
+		} else if prefs.speakSubtitles {
+			say(L("subtitle_speech_needs_text"), 1)
+		}
+	}
+
+	private func cueTick() {
+		guard !cues.isEmpty else { return }
+		let off = !player.textTracks.contains { $0.isSelected }
+		// The subtitle delay is in microseconds; a positive delay shows cues later.
+		let ms = Int64(player.time.intValue) - Int64(player.currentVideoSubTitleDelay / 1000)
+		let index = off || ms < 0 ? nil : SubtitleCues.active(cues, ms)
+		guard index != cueIndex else { return }
+		cueIndex = index
+		let text = index.map { cues[$0].text } ?? ""
+		subtitle = text
+		if !text.isEmpty && prefs.speakSubtitles && player.isPlaying { announce(text) }
+	}
+
+	// MARK: cast
+
+	#if !os(tvOS)
+	struct Renderer { let name: String; let item: VLCRendererItem }
+
+	func renderers() -> [Renderer] {
+		var seen = Set<String>()
+		return discoverers.flatMap { $0.renderers }.filter { seen.insert($0.name).inserted }.map { Renderer(name: $0.name, item: $0) }
+	}
+
+	/// Moves playback to a Chromecast (libVLC's renderer), or back to this device.
+	func cast(to r: Renderer?) {
+		let position = player.position
+		player.stop()
+		_ = player.setRendererItem(r?.item)
+		casting = r?.name
+		open()
+		if !live && position > 0 { player.position = position }
+		say(r.map { L("casting_to", $0.name) } ?? L("cast_stopped"), 2)
+	}
+	#endif
+
+	// MARK: background and lock screen
+
+	/// In the background the video is switched off and the sound keeps playing; back in the
+	/// app, the picture returns.
+	func scene(_ phase: ScenePhase) {
+		if phase == .background && casting == nil && !videoOff {
+			videoOff = true
+			player.deselectAllVideoTracks()
+		} else if phase == .active && videoOff {
+			videoOff = false
+			if !player.videoTracks.isEmpty { player.selectTrack(at: 0, type: .video) }
+		}
+	}
+
+	private func nowPlayingInfo() {
+		MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+			MPMediaItemPropertyTitle: nowPlaying.isEmpty ? request.title : nowPlaying,
+			MPNowPlayingInfoPropertyIsLiveStream: live,
+			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
+		]
+		let rc = MPRemoteCommandCenter.shared()
+		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
+		rc.playCommand.addTarget { [weak self] _ in Task { @MainActor in if self?.player.isPlaying == false { self?.togglePause() } }; return .success }
+		rc.pauseCommand.addTarget { [weak self] _ in Task { @MainActor in self?.player.pause() }; return .success }
+		rc.togglePlayPauseCommand.addTarget { [weak self] _ in Task { @MainActor in self?.togglePause() }; return .success }
+	}
+}

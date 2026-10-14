@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "Accessible IPTV";
+"NSLocalNetworkUsageDescription" = "Yayın için Chromecast cihazlarını bulur.";
+"NSMicrophoneUsageDescription" = "Sesli arama bir kanal adını dinler.";
+"NSSpeechRecognitionUsageDescription" = "Sesli arama söylediğinizi aramaya çevirir.";

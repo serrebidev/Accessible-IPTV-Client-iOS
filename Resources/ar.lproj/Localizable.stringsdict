@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>channel_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا قنوات</string>
+			<key>one</key>
+			<string>قناة واحدة</string>
+			<key>two</key>
+			<string>قناتان</string>
+			<key>few</key>
+			<string>%ld قنوات</string>
+			<key>many</key>
+			<string>%ld قناة</string>
+			<key>other</key>
+			<string>%ld قناة</string>
+		</dict>
+	</dict>
+	<key>episode_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا حلقات</string>
+			<key>one</key>
+			<string>حلقة واحدة</string>
+			<key>two</key>
+			<string>حلقتان</string>
+			<key>few</key>
+			<string>%ld حلقات</string>
+			<key>many</key>
+			<string>%ld حلقة</string>
+			<key>other</key>
+			<string>%ld حلقة</string>
+		</dict>
+	</dict>
+	<key>movie_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا أفلام</string>
+			<key>one</key>
+			<string>فيلم واحد</string>
+			<key>two</key>
+			<string>فيلمان</string>
+			<key>few</key>
+			<string>%ld أفلام</string>
+			<key>many</key>
+			<string>%ld فيلمًا</string>
+			<key>other</key>
+			<string>%ld فيلم</string>
+		</dict>
+	</dict>
+	<key>programme_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا برامج</string>
+			<key>one</key>
+			<string>برنامج واحد</string>
+			<key>two</key>
+			<string>برنامجان</string>
+			<key>few</key>
+			<string>%ld برامج</string>
+			<key>many</key>
+			<string>%ld برنامجًا</string>
+			<key>other</key>
+			<string>%ld برنامج</string>
+		</dict>
+	</dict>
+	<key>result_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا نتائج</string>
+			<key>one</key>
+			<string>نتيجة واحدة</string>
+			<key>two</key>
+			<string>نتيجتان</string>
+			<key>few</key>
+			<string>%ld نتائج</string>
+			<key>many</key>
+			<string>%ld نتيجة</string>
+			<key>other</key>
+			<string>%ld نتيجة</string>
+		</dict>
+	</dict>
+	<key>series_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا مسلسلات</string>
+			<key>one</key>
+			<string>مسلسل واحد</string>
+			<key>two</key>
+			<string>مسلسلان</string>
+			<key>few</key>
+			<string>%ld مسلسلات</string>
+			<key>many</key>
+			<string>%ld مسلسلًا</string>
+			<key>other</key>
+			<string>%ld مسلسل</string>
+		</dict>
+	</dict>
+	<key>source_count</key>
+	<dict>
+		<key>NSStringLocalizedFormatKey</key>
+		<string>%#@n@</string>
+		<key>n</key>
+		<dict>
+			<key>NSStringFormatSpecTypeKey</key>
+			<string>NSStringPluralRuleType</string>
+			<key>NSStringFormatValueTypeKey</key>
+			<string>ld</string>
+			<key>zero</key>
+			<string>لا قوائم</string>
+			<key>one</key>
+			<string>قائمة واحدة</string>
+			<key>two</key>
+			<string>قائمتان</string>
+			<key>few</key>
+			<string>%ld قوائم</string>
+			<key>many</key>
+			<string>%ld قائمة</string>
+			<key>other</key>
+			<string>%ld قائمة</string>
+		</dict>
+	</dict>
+</dict>
+</plist>

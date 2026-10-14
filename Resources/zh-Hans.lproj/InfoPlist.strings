@@ -1,0 +1,4 @@
+"CFBundleDisplayName" = "Accessible IPTV";
+"NSLocalNetworkUsageDescription" = "查找可投屏的 Chromecast 设备。";
+"NSMicrophoneUsageDescription" = "语音搜索会聆听频道名称。";
+"NSSpeechRecognitionUsageDescription" = "语音搜索会将你说的话转为搜索。";

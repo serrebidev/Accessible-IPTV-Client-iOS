@@ -1,0 +1,74 @@
+# XcodeGen spec: `xcodegen generate` writes AccessibleIPTV.xcodeproj (not committed).
+# One multiplatform target: iPhone, iPad (with CarPlay), Apple TV and Apple Vision Pro.
+name: AccessibleIPTV
+options:
+  bundleIdPrefix: dev.serrebi
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "17.0"
+    tvOS: "17.0"
+    visionOS: "1.0"
+packages:
+  IPTVCore:
+    path: Core
+  VLCKit:
+    url: https://code.videolan.org/videolan/VLCKit.git
+    exactVersion: 4.0.0-a22
+settings:
+  base:
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    SWIFT_VERSION: "5.0"
+targets:
+  AccessibleIPTV:
+    type: application
+    platform: auto
+    supportedDestinations: [iOS, tvOS, visionOS]
+    sources:
+      - path: App
+      - path: Resources
+    scheme: {}
+    dependencies:
+      - package: IPTVCore
+      - package: VLCKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.serrebi.accessibleiptv
+        PRODUCT_NAME: AccessibleIPTV
+        TARGETED_DEVICE_FAMILY: "1,2,3,7"
+        # One 1024 px icon for iPhone and iPad; Apple TV and Vision Pro use the system placeholder.
+        "ASSETCATALOG_COMPILER_APPICON_NAME[sdk=iphone*]": AppIcon
+        ENABLE_PREVIEWS: NO
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+    info:
+      path: Generated/Info.plist
+      properties:
+        CFBundleDisplayName: Accessible IPTV
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, ar, de, es, fr, hi, hu, it, ja, pl, pt-BR, ru, tr, zh-Hans]
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: true
+        # Wheelchair mounts and TV stands: every orientation.
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        # Sound keeps playing with the screen locked; recordings keep running in the background.
+        UIBackgroundModes: [audio]
+        # IPTV providers serve plain http.
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        NSLocalNetworkUsageDescription: Finds Chromecast devices to cast to.
+        NSBonjourServices: [_googlecast._tcp]
+        NSMicrophoneUsageDescription: Voice search listens for a channel name.
+        NSSpeechRecognitionUsageDescription: Voice search turns what you say into a search.
+        # Recordings appear in the Files app under On My iPhone.
+        UIFileSharingEnabled: true
+        LSSupportsOpeningDocumentsInPlace: true
+        LSApplicationQueriesSchemes: [vlc-x-callback, infuse, nplayer-http, nplayer-https, outplayer, altstore, sidestore]
