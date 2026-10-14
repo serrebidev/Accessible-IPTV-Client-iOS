@@ -120,7 +120,7 @@ struct PlayerScreen: View {
 			}
 			.buttonStyle(.plain)
 			.accessibilityLabel(L("video_full_screen"))
-			.keyboardShortcut(.escape, modifiers: [])
+			.key(.escape)
 			.focused($focus, equals: .video)
 			.accessibilityFocused($voFocus, equals: .video)
 			.ignoresSafeArea()
@@ -139,19 +139,19 @@ struct PlayerScreen: View {
 					.focused($focus, equals: .pause)
 					.accessibilityFocused($voFocus, equals: .pause)
 				Button(L("audio_track")) { chooseAudio() }
-					.keyboardShortcut("a", modifiers: [])
+					.key("a")
 				Button(L("subtitles")) { chooseSubtitles() }
-					.keyboardShortcut("s", modifiers: [])
+					.key("s")
 				Button(L("record")) { record() }
 				#if !os(tvOS)
 				Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
 				#endif
 				Button(L("full_screen")) { setFullscreen(true) }
-					.keyboardShortcut("f", modifiers: [])
+					.key("f")
 					.focused($focus, equals: .full)
 					.accessibilityFocused($voFocus, equals: .full)
 				Button(L("close")) { dismiss() }
-					.keyboardShortcut(.escape, modifiers: [])
+					.key(.escape)
 			}
 			.buttonStyle(.bordered)
 			.padding(6)
@@ -192,4 +192,15 @@ struct PlayerScreen: View {
 		if list.isEmpty { c.say(L("cast_none"), 1) } else { choosing = .cast(list) }
 	}
 	#endif
+}
+
+private extension View {
+	/// A plain-key shortcut on iPad and Vision Pro keyboards; Apple TV has none.
+	@ViewBuilder func key(_ k: KeyEquivalent) -> some View {
+		#if os(tvOS)
+		self
+		#else
+		keyboardShortcut(k, modifiers: [])
+		#endif
+	}
 }

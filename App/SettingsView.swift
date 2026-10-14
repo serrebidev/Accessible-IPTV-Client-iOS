@@ -21,7 +21,9 @@ struct SettingsView: View {
 	@State private var status = ""
 	@State private var exporting = false
 	@State private var importing = false
+	#if !os(tvOS)
 	@State private var exportDoc = SettingsFile(data: Data())
+	#endif
 
 	private var prefs: Prefs { model.prefs }
 
@@ -161,6 +163,7 @@ struct SettingsView: View {
 	private func plain(_ v: Double) -> String { v.truncatingRemainder(dividingBy: 1) == 0 ? String(Int(v)) : String(v) }
 }
 
+#if !os(tvOS)
 /// The exported settings JSON, for the system file exporter.
 struct SettingsFile: FileDocument {
 	static var readableContentTypes: [UTType] { [.json] }
@@ -169,3 +172,4 @@ struct SettingsFile: FileDocument {
 	init(configuration: ReadConfiguration) throws { data = configuration.file.regularFileContents ?? Data() }
 	func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper { FileWrapper(regularFileWithContents: data) }
 }
+#endif
