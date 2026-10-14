@@ -31,14 +31,14 @@ struct PlayerScreen: View {
 
 	private enum Choosing: Identifiable {
 		case audio([PlayerController.TrackChoice]), subtitles([PlayerController.TrackChoice])
-		#if !os(tvOS)
+		#if os(iOS)
 		case cast([PlayerController.Renderer])
 		#endif
 		var id: Int {
 			switch self {
 			case .audio: return 0
 			case .subtitles: return 1
-			#if !os(tvOS)
+			#if os(iOS)
 			case .cast: return 2
 			#endif
 			}
@@ -90,7 +90,7 @@ struct PlayerScreen: View {
 					selected: list.firstIndex { $0.track.isSelected }.map { $0 + 1 } ?? 0) { i in
 					if i == 0 { c.selectSubtitle(nil) } else if i <= list.count { c.selectSubtitle(list[i - 1]) } else { pickingSubtitle = true }
 				}
-			#if !os(tvOS)
+			#if os(iOS)
 			case .cast(let list):
 				ChoiceSheet(title: L("cast"), options: list.map(\.name)) { c.cast(to: list[$0]) }
 			#endif
@@ -143,7 +143,7 @@ struct PlayerScreen: View {
 				Button(L("subtitles")) { chooseSubtitles() }
 					.key("s")
 				Button(L("record")) { record() }
-				#if !os(tvOS)
+				#if os(iOS)
 				Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
 				#endif
 				Button(L("full_screen")) { setFullscreen(true) }
@@ -184,7 +184,7 @@ struct PlayerScreen: View {
 		c.say(L("recording_channel", ch.name), 2)
 	}
 
-	#if !os(tvOS)
+	#if os(iOS)
 	private func cast() {
 		if c.localFile { c.say(L("cast_local_file"), 1); return }
 		if c.casting != nil { c.cast(to: nil); return }

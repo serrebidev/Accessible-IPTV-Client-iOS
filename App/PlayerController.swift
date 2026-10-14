@@ -39,7 +39,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var cues: [SubtitleCues.Cue] = []
 	private var cueIndex: Int?
 	private var videoOff = false
-	#if !os(tvOS)
+	#if os(iOS)
 	private var discoverers: [VLCRendererDiscoverer] = []
 	#endif
 
@@ -71,7 +71,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		timers.append(Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } })
 		timers.append(Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in Task { @MainActor in self?.cueTick() } })
 		nowPlayingInfo()
-		#if !os(tvOS)
+		#if os(iOS)
 		// Warm the cast device list so Cast has names to offer straight away.
 		if !localFile {
 			for d in VLCRendererDiscoverer.list() ?? [] {
@@ -88,7 +88,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		programmeTimer?.invalidate()
 		player.stop()
 		player.delegate = nil
-		#if !os(tvOS)
+		#if os(iOS)
 		discoverers.forEach { $0.stop() }
 		#endif
 		UIApplication.shared.isIdleTimerDisabled = false
@@ -351,7 +351,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	// MARK: cast
 
-	#if !os(tvOS)
+	#if os(iOS)
 	struct Renderer { let name: String; let item: VLCRendererItem }
 
 	func renderers() -> [Renderer] {
