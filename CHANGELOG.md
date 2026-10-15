@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0
+
+- Native iPhone and iPad navigation: Browse, Guide, Recordings and Settings tabs, system search, and playlist controls in the navigation bar. Categories open first; All channels is an explicit choice.
+- Minimize playback into a persistent video miniplayer while browsing. Expanding it keeps the same player and stream. Pause and Stop playback are separate controls.
+- Playback survives closing the expanded player and uses the iOS background audio session, lock-screen and headset controls. Calls interrupt playback, automatic resume respects an explicit pause, and disconnecting headphones pauses playback.
+- Siri and Shortcuts on iPhone can tune channels by name or number, read the current and next programme, search the imported guide, open a channel guide, and pause, resume or stop playback. Favourites and recent channels provide bounded suggestions; duplicate channel numbers remain separate choices.
+- Channel rows and the player expose onscreen App Entity context on iOS 18.4 or later. Apple Intelligence experiences depend on device, language and system support; the actions also work without Apple Intelligence. Guide answers use imported XMLTV data.
+- New controls, shortcut phrases and help are translated into all 14 app languages.
+
 ## 0.1.9
 
 - A category opens in a fraction of a second again. The measurement added in 0.1.8 found why: the channel list built a row for every entry in the category rather than only the rows on screen, and one category of 93,816 channels spent 5.8 seconds building them before anything appeared. The list is now built from 2,000 rows at a time; where there are more, the end of the list carries a More button that says how many are left and doubles what is shown, so the whole category stays reachable.
