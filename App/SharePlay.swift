@@ -6,6 +6,12 @@ import IPTVCore
 struct WatchTVActivity: GroupActivity {
 	static let activityIdentifier = "dev.serrebi.accessibleiptv.watch"
 	let content: ShareContent
+	let activationID: UUID
+
+	init(content: ShareContent, activationID: UUID = UUID()) {
+		self.content = content
+		self.activationID = activationID
+	}
 
 	var metadata: GroupActivityMetadata {
 		var metadata = GroupActivityMetadata()
@@ -30,9 +36,9 @@ final class SharePlayCenter: ObservableObject {
 	private var currentContent: ShareContent?
 	private var activation: Task<Void, Never>?
 	private var activationToken = UUID()
-	private var activationContent: ShareContent?
+	private var activationID: UUID?
 	private var activationIssued = false
-	private var declinedActivation: ShareContent?
+	private var declinedActivations = Set<UUID>()
 
 	func listen() {
 		guard listener == nil else { return }
@@ -55,21 +61,29 @@ final class SharePlayCenter: ObservableObject {
 		guard let content = content(for: player) else { report(L("shareplay_unavailable")); return }
 		starting = true
 		let token = UUID()
+		let activity = WatchTVActivity(content: content)
 		activationToken = token
-		activationContent = content
-		declinedActivation = nil
+		activationID = activity.activationID
 		activation = Task {
 			defer {
-				if activationToken == token { starting = false; activation = nil; activationContent = nil; activationIssued = false }
+				if activationToken == token {
+					activation = nil
+					// activate() can return before its session arrives on the separate sequence.
+					if !activationIssued { starting = false; activationID = nil }
+				}
 			}
-			let activity = WatchTVActivity(content: content)
 			let result = await activity.prepareForActivation()
 			guard !Task.isCancelled, activationToken == token, AppModel.shared.player === player else { return }
 			switch result {
 			case .activationPreferred:
 				activationIssued = true
-				do { try await activity.activate() }
-				catch { if activationToken == token { report(L("shareplay_failed")) } }
+				do {
+					let activated = try await activity.activate()
+					if activationToken == token && !activated { activationIssued = false }
+				}
+				catch {
+					if activationToken == token { activationIssued = false; report(L("shareplay_failed")) }
+				}
 			case .activationDisabled: report(L("shareplay_call"))
 			case .cancelled: break
 			@unknown default: report(L("shareplay_failed"))
@@ -78,13 +92,13 @@ final class SharePlayCenter: ObservableObject {
 	}
 
 	func cancelActivation() {
-		guard starting else { return }
+		guard starting || activationID != nil else { return }
 		// An already-issued system activation may still deliver a session after cancellation.
-		if activationIssued { declinedActivation = activationContent }
+		if activationIssued, let activationID { declinedActivations.insert(activationID) }
 		activationToken = UUID()
 		activation?.cancel()
 		activation = nil
-		activationContent = nil
+		activationID = nil
 		activationIssued = false
 		starting = false
 	}
@@ -103,7 +117,9 @@ final class SharePlayCenter: ObservableObject {
 		let shared = fromSession ? session.activity.content : content
 		currentContent = shared
 		player.joinSharePlay(session, identifier: shared.identifier)
-		if !fromSession && session.activity.content != content { session.activity = WatchTVActivity(content: content) }
+		if !fromSession && session.activity.content != content {
+			session.activity = WatchTVActivity(content: content, activationID: session.activity.activationID)
+		}
 	}
 
 	func leave(endForEveryone: Bool = false) {
@@ -115,14 +131,14 @@ final class SharePlayCenter: ObservableObject {
 	}
 
 	private func configure(_ session: GroupSession<WatchTVActivity>) {
-		if declinedActivation == session.activity.content {
-			declinedActivation = nil
+		if declinedActivations.remove(session.activity.activationID) != nil {
 			session.leave()
 			return
 		}
+		if let activationID, activationID != session.activity.activationID { cancelActivation() }
 		// Receiving the session completes activation before any remote playback can replace its player.
 		starting = false
-		activationContent = nil
+		activationID = nil
 		activationIssued = false
 		guard self.session !== session else { return }
 		if let old = self.session { clear(); old.leave() }
