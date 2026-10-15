@@ -160,7 +160,7 @@ public enum Xtream {
 				if case .object(let info)? = e["info"] { plot = info["plot"]?.text ?? "" }
 				out.append(Channel(sourceId: src.id, itemId: "e\(id)", name: label, group: show.name,
 					url: "\(src.url)/series/\(Source.pathEnc(src.username))/\(Source.pathEnc(src.password))/\(id).\(ext)",
-					attrs: ["plot": plot], kind: Channel.kindEpisode))
+					attrs: ["plot": plot, "season": season, "episode_num": num], kind: Channel.kindEpisode))
 			}
 		}
 		return out

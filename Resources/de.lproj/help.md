@@ -69,3 +69,7 @@ Apple TV hat keine Sprachsuche, keine M3U-Dateien und keine Einstellungsdateien.
 # Siri und Kurzbefehle
 
 Auf dem iPhone können Siri und Kurzbefehle Sender nach Name oder Nummer einschalten, das aktuelle und nächste Programm vorlesen, das Programm durchsuchen, den Senderplan öffnen und die Wiedergabe pausieren, fortsetzen oder stoppen. Nenne den App-Namen. Siri fragt nach dem Suchtext. Füge eine Liste hinzu und öffne die App zum Programmimport. Antworten nutzen das importierte Programm. Die Aktionen funktionieren ohne Apple Intelligence; Bildschirmkontext benötigt iOS 18.2 oder neuer und Systemunterstützung.
+
+# SharePlay
+
+Starte einen FaceTime-Anruf oder tritt einem bei, starte die Wiedergabe und wähle im Player SharePlay starten. Alle benötigen diese App sowie ihre eigene Liste und Anmeldung. URLs und Passwörter werden nie an andere Teilnehmende gesendet. Senderwechsel, Wiedergabe und Pause werden geteilt. Spulen wird nur synchronisiert, wenn die Quelle es unterstützt. Unterschiedliche Verzögerungen der Anbieter können bei Live-Sendern zu abweichenden Bildern führen. Minimieren und Hintergrundwiedergabe lassen SharePlay weiterlaufen. Wiedergabe stoppen verlässt die Sitzung auf diesem Gerät. SharePlay verlassen beendet nur deine Teilnahme; Für alle beenden beendet die Sitzung für alle. Die signierte App und ihr Installationsprofil müssen SharePlay-Gruppensitzungen erlauben.

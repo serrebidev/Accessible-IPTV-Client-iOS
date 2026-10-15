@@ -14,6 +14,7 @@ struct AccessibleIPTVApp: App {
 		WindowGroup {
 			MainView()
 				.environmentObject(model)
+				.task { SharePlayCenter.shared.listen() }
 				.fullScreenCover(isPresented: $model.playerPresented) {
 					if let player = model.player {
 						PlayerScreen(c: player).id(player.request.id).environmentObject(model)

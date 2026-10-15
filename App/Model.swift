@@ -64,6 +64,9 @@ struct PlayRequest: Identifiable, Equatable {
 	let channelKey: String
 	/// Catch-up, a recording or a file: not the live edge, no reconnects.
 	let catchup: Bool
+	let channel: Channel?
+	let archiveStart: Int64?
+	let archiveStop: Int64?
 }
 
 /// A title and a block of text in a sheet: details, account info, release notes.
@@ -104,6 +107,7 @@ final class AppModel: ObservableObject {
 	@Published var externalChoice: [(String, URL)]?
 	/// Set when playlists change so the main screen reloads on return.
 	var sourcesChanged = false
+	private var opening: Task<Void, Never>?
 
 	/// Where lists, the guide and (tvOS) recordings live. tvOS has no persistent app storage
 	/// beyond the cache, so it re-downloads after the system clears it.
@@ -150,34 +154,40 @@ final class AppModel: ObservableObject {
 
 	/// Plays any list entry: shows open their episode list; Stalker links are fetched first.
 	func open(_ ch: Channel, external: Bool = false) {
+		opening?.cancel()
 		if ch.kind == Channel.kindSeries { path.append(.episodes(ch.key)); return }
 		// Recently watched / Previous channel: live channels only, as on the desktop.
 		if ch.isLive { prefs.addRecent(ch.key) }
 		if !ch.needsResolve {
-			external ? ExternalPlayers.offer(ch.url, title: ch.name) : play(ch.url, title: ch.name, key: ch.key)
+			external ? ExternalPlayers.offer(ch.url, title: ch.name) : play(ch.url, title: ch.name, key: ch.key, channel: ch)
 			return
 		}
 		setStatus(L("connecting"))
-		Task {
+		opening = Task {
 			do {
 				let url = try await library.resolveUrl(ch)
-				external ? ExternalPlayers.offer(url, title: ch.name) : play(url, title: ch.name, key: ch.key)
+				guard !Task.isCancelled else { return }
+				external ? ExternalPlayers.offer(url, title: ch.name) : play(url, title: ch.name, key: ch.key, channel: ch)
 				status = ""
 			} catch {
+				guard !Task.isCancelled else { return }
 				setStatus(L("play_failed", error.localizedDescription))
 			}
 		}
 	}
 
-	func play(_ url: String, title: String, key: String, catchup: Bool = false) {
-		if prefs.useExternalPlayer { ExternalPlayers.offer(url, title: title); return }
-		stopPlayback()
-		let request = PlayRequest(url: url, title: title, channelKey: key, catchup: catchup)
+	func play(_ url: String, title: String, key: String, catchup: Bool = false, channel: Channel? = nil,
+		archiveStart: Int64? = nil, archiveStop: Int64? = nil, fromSharePlay: Bool = false) {
+		if prefs.useExternalPlayer && !fromSharePlay && !SharePlayCenter.shared.isActive { ExternalPlayers.offer(url, title: title); return }
+		stopPlayback(leavingSharePlay: false)
+		let request = PlayRequest(url: url, title: title, channelKey: key, catchup: catchup,
+			channel: channel ?? library.channel(key), archiveStart: archiveStart, archiveStop: archiveStop)
 		let controller = PlayerController(request: request)
 		player = controller
 		controller.start()
 		controller.scene(UIApplication.shared.applicationState == .background ? .background : .active)
 		playerPresented = true
+		SharePlayCenter.shared.playerChanged(controller, fromSession: fromSharePlay)
 	}
 
 	func minimizePlayer() {
@@ -185,7 +195,11 @@ final class AppModel: ObservableObject {
 		playerPresented = false
 	}
 
-	func stopPlayback() {
+	func stopPlayback(leavingSharePlay: Bool = true) {
+		SharePlayCenter.shared.cancelActivation()
+		opening?.cancel()
+		opening = nil
+		if leavingSharePlay { SharePlayCenter.shared.leave() }
 		player?.close()
 		player = nil
 		playerPresented = false

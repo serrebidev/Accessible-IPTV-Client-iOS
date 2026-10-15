@@ -13,7 +13,7 @@ public final class Prefs {
 	private func bool(_ k: String, _ def: Bool) -> Bool { d.object(forKey: k) == nil ? def : d.bool(forKey: k) }
 	private func int(_ k: String, _ def: Int) -> Int { d.object(forKey: k) == nil ? def : d.integer(forKey: k) }
 	private func double(_ k: String, _ def: Double) -> Double { d.object(forKey: k) == nil ? def : d.double(forKey: k) }
-	private func long(_ k: String) -> Int64 { Int64(d.object(forKey: k) as? NSNumber ?? 0) }
+	private func long(_ k: String) -> Int64 { Int64(truncating: d.object(forKey: k) as? NSNumber ?? 0) }
 
 	public var sources: [Source] {
 		get { (try? JSONDecoder().decode([Source].self, from: Data(str("sources", "[]").utf8))) ?? [] }

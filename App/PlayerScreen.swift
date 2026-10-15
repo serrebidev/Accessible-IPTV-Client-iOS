@@ -133,6 +133,7 @@ struct PlayerScreen: View {
 						}
 						.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
 						nativeControls
+						SharePlayControls(player: c)
 					}
 					.padding(.vertical)
 				}
@@ -152,6 +153,7 @@ struct PlayerScreen: View {
 				.padding(.horizontal)
 				.padding(.top, 6)
 				controls
+				SharePlayControls(player: c)
 			}
 		}
 			#endif

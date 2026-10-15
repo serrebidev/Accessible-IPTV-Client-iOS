@@ -4,6 +4,7 @@ import SwiftUI
 import UIKit
 import VLCKit
 import IPTVCore
+import GroupActivities
 
 /// libVLC playback for every stream an IPTV provider sends (raw MPEG-TS, HLS, MKV, MP4),
 /// with the desktop client's live cushion and reconnects. AVPlayer cannot play raw TS.
@@ -49,13 +50,17 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var cues: [SubtitleCues.Cue] = []
 	private var cueIndex: Int?
 	private var videoOff = false
+	private var sharePlayback: SharePlaybackCoordinator?
+	private var sharedPausePending = false
+	private var sharedPauseTemporary = false
+	private var sharedSeekTarget: Double?
 	#if os(iOS)
 	private var discoverers: [VLCRendererDiscoverer] = []
 	#endif
 
 	init(request: PlayRequest) {
 		self.request = request
-		let ch = request.channelKey.isEmpty ? nil : AppModel.shared.library.channel(request.channelKey)
+		let ch = request.channel
 		channel = ch
 		live = !request.catchup && ch?.isLive == true
 		localFile = request.url.hasPrefix("file:")
@@ -103,6 +108,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	func close() {
 		guard !closing else { return }
 		closing = true
+		leaveSharePlay()
 		intent.pause()
 		observers.forEach { NotificationCenter.default.removeObserver($0) }
 		observers.removeAll()
@@ -186,6 +192,13 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func stateChanged(_ s: VLCMediaPlayerState) {
 		guard !closing else { return }
+		if s == .playing {
+			let becameReady = !hasPlayed
+			hasPlayed = true
+			failed = false
+			if sharedPausePending { performSharedPause(temporary: sharedPauseTemporary) }
+			if becameReady { sharePlayback?.reapply() }
+		}
 		if s == .playing && !intent.canPlay { player.pause(); return }
 		let playing = s == .playing
 		if playing != isPlaying {
@@ -222,7 +235,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			stalls += 1
 			say(L("buffering"), 3)
 		} else if progress >= 100 {
+			let recovered = buffering
 			buffering = false
+			if recovered { sharePlayback?.reapply() }
 		}
 	}
 
@@ -249,6 +264,16 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func pause() {
 		guard !closing else { return }
+		if let sharePlayback {
+			intent.pause()
+			isPaused = true
+			sharePlayback.pause()
+			return
+		}
+		pauseLocally()
+	}
+
+	private func pauseLocally() {
 		intent.pause()
 		isPaused = true
 		UIApplication.shared.isIdleTimerDisabled = false
@@ -261,6 +286,18 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func resume() {
 		guard !closing else { return }
+		if let sharePlayback {
+			intent.play()
+			isPaused = false
+			guard activateAudio() else { return }
+			sharePlayback.endSuspension()
+			sharePlayback.play()
+			return
+		}
+		resumeLocally()
+	}
+
+	private func resumeLocally() {
 		intent.play()
 		guard intent.canPlay, activateAudio() else { return }
 		isPaused = false
@@ -305,7 +342,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Plays a live stream slightly slow until the buffer setting is held locally.
 	private func pace() {
-		guard live, casting == nil, player.isPlaying, let media = player.media else { return }
+		guard live, sharePlayback == nil, casting == nil, player.isPlaying, let media = player.media else { return }
 		let stats = media.statistics
 		let cushion = Cushion.liveCushionSeconds(readBytes: stats.readBytes, demuxBytes: stats.demuxReadBytes,
 			playedMs: Int64(player.time.intValue), cacheSeconds: cacheSeconds)
@@ -431,6 +468,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Moves playback to a Chromecast (libVLC's renderer), or back to this device.
 	func cast(to r: Renderer?) {
+		if sharePlayback != nil { SharePlayCenter.shared.leave() }
 		let position = player.position
 		player.stop()
 		_ = player.setRendererItem(r?.item)
@@ -479,7 +517,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		observers.append(center.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main) { [weak self] note in
 			guard let raw = note.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
 				AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable else { return }
-			Task { @MainActor in self?.pause() }
+			Task { @MainActor in
+				guard let self else { return }
+				sharePlayback?.suspend()
+				pauseLocally()
+			}
 		})
 	}
 
@@ -487,6 +529,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		guard !closing, let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
 			let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
 		if type == .began {
+			sharePlayback?.suspend()
 			intent.beginInterruption()
 			isPaused = true
 			retryTask?.cancel()
@@ -497,11 +540,92 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		} else {
 			let options = (note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0
 			if intent.endInterruption(shouldResume: AVAudioSession.InterruptionOptions(rawValue: options).contains(.shouldResume)) {
-				resume()
+				if let sharePlayback {
+					if activateAudio() { sharePlayback.endSuspension(); sharePlayback.reapply() }
+				} else { resume() }
 			} else {
 				isPaused = true
 			}
 		}
+	}
+
+	// MARK: SharePlay's native custom-player adapter
+
+	var isSharingPlayback: Bool { sharePlayback != nil }
+	var sharedPlaybackTime: Double { max(0, Double(player.time.intValue) / 1000) }
+	var sharedPlaybackRate: Float { isPaused ? 0 : 1 }
+	var sharedPlaybackReady: Bool {
+		guard hasPlayed, !buffering, !failed, !closing, retryTask == nil,
+			player.state == .playing || player.state == .paused else { return false }
+		if let target = sharedSeekTarget {
+			guard abs(sharedPlaybackTime - target) < 0.5 else { return false }
+			sharedSeekTarget = nil
+		}
+		return true
+	}
+	var sharedPlaybackSeekable: Bool { !live && player.isSeekable }
+	var sharedPlaybackFailed: Bool { failed || closing }
+
+	func joinSharePlay(_ session: GroupSession<WatchTVActivity>, identifier: String) {
+		leaveSharePlay()
+		player.rate = 1
+		paced = 1
+		let adapter = SharePlaybackCoordinator(controller: self, identifier: identifier)
+		sharePlayback = adapter
+		adapter.join(session)
+	}
+
+	func leaveSharePlay() {
+		let resume = sharePlayback != nil && sharedPausePending && sharedPauseTemporary && intent.canPlay && !closing
+		sharePlayback?.close()
+		sharePlayback = nil
+		sharedPausePending = false
+		sharedSeekTarget = nil
+		if resume { resumeLocally() }
+	}
+
+	func performSharedPause(temporary: Bool = false) {
+		guard !closing else { return }
+		sharedPausePending = true
+		sharedPauseTemporary = temporary
+		if !temporary { intent.pause(); isPaused = true }
+		// Let VLC finish opening before pausing, so it can report readiness to SharePlay.
+		if hasPlayed {
+			if temporary {
+				player.pause()
+				isPlaying = false
+				nowPlayingInfo()
+			} else { pauseLocally() }
+		}
+	}
+
+	func performSharedPlay(rate: Float) {
+		guard !closing else { return }
+		sharedPausePending = false
+		resumeLocally()
+		player.rate = rate
+	}
+
+	func performSharedSeek(seconds: Double) {
+		guard sharedPlaybackSeekable, seconds.isFinite else { return }
+		let target = min(Double(Int32.max) / 1000, max(0, seconds))
+		guard abs(sharedPlaybackTime - target) > 0.2 else { return }
+		sharedSeekTarget = target
+		player.time = VLCTime(int: Int32(target * 1000))
+	}
+
+	func recoverSharedPlayback() {
+		guard !closing, sharePlayback != nil else { return }
+		intent.play()
+		guard intent.canPlay, activateAudio() else { return }
+		retryTask?.cancel()
+		retryTask = nil
+		reconnect.reset()
+		failed = false
+		sharedPausePending = true
+		sharedPauseTemporary = true
+		sharedSeekTarget = nil
+		open()
 	}
 
 	private func registerRemoteCommands() {

@@ -317,6 +317,10 @@ final class ParsingTests: XCTestCase {
 		XCTAssertEqual(keyed[0].url, "http://h/series/u/p/a.mkv")
 		XCTAssertEqual(keyed[0].attrs["plot"], "P")
 		let listed = try Xtream.parseEpisodes(src, show: show, body: Data(#"{"episodes":[[{"id":"a"}],[{"id":"b"},{"id":""}]]}"#.utf8))
+		XCTAssertEqual(keyed[0].attrs["season"], "2")
+		XCTAssertEqual(keyed[0].attrs["episode_num"], "3")
+		XCTAssertEqual(listed[1].attrs["season"], "2")
+		XCTAssertEqual(listed[1].attrs["episode_num"], "1")
 		XCTAssertEqual(listed.map(\.name), ["Season 1, Episode 1", "Season 2, Episode 1"])
 	}
 

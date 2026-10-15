@@ -2,6 +2,7 @@
 
 ## 0.2.0
 
+- SharePlay uses FaceTime and Apple's native custom-player coordinator for shared channel selection, play and pause, and seekable movie, episode and catch-up timing. Each participant resolves content through their own playlist and login; stream URLs and credentials are never shared. Leave and End for everyone are separate controls. Live streams share controls, with timing limited by provider buffering.
 - Native iPhone and iPad navigation: Browse, Guide, Recordings and Settings tabs, system search, and playlist controls in the navigation bar. Categories open first; All channels is an explicit choice.
 - Minimize playback into a persistent video miniplayer while browsing. Expanding it keeps the same player and stream. Pause and Stop playback are separate controls.
 - Playback survives closing the expanded player and uses the iOS background audio session, lock-screen and headset controls. Calls interrupt playback, automatic resume respects an explicit pause, and disconnecting headphones pauses playback.

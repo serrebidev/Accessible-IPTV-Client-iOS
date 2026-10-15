@@ -69,3 +69,7 @@ Apple TV nie ma wyszukiwania głosowego, plików M3U ani plików ustawień. Syst
 # Siri i Skróty
 
 Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.2 lub nowszego i wsparcia systemu.
+
+# SharePlay
+
+Rozpocznij rozmowę FaceTime lub dołącz do niej, włącz odtwarzanie i wybierz Rozpocznij SharePlay w odtwarzaczu. Każdy musi zainstalować tę aplikację oraz dodać własną listę i dane logowania. Adresy URL i hasła nigdy nie są wysyłane innym uczestnikom. Zmiany kanałów, odtwarzanie i pauza są wspólne. Przewijanie jest synchronizowane tylko wtedy, gdy źródło je obsługuje. Różne opóźnienia dostawców oznaczają, że obraz na żywo może różnić się między uczestnikami. Minimalizacja i odtwarzanie w tle nie przerywają SharePlay. Zatrzymanie odtwarzania opuszcza sesję na tym urządzeniu. Opuść SharePlay kończy tylko twój udział; Zakończ dla wszystkich kończy sesję wszystkim. Podpisana aplikacja i jej profil instalacyjny muszą zezwalać na sesje grupowe SharePlay.

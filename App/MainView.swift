@@ -11,6 +11,7 @@ private struct GroupItem: Identifiable, Equatable {
 /// Search, sections, the button bar, groups and the channel list. Port of MainActivity.
 struct MainView: View {
 	@EnvironmentObject private var model: AppModel
+	@ObservedObject private var sharePlay = SharePlayCenter.shared
 	@Environment(\.horizontalSizeClass) private var sizeClass
 	@Environment(\.openURL) private var openURL
 
@@ -95,6 +96,7 @@ struct MainView: View {
 
 	@ViewBuilder private var miniPlayer: some View {
 		if let player = model.player, !model.playerPresented { MiniPlayer(c: player) }
+		if sharePlay.isActive && model.player == nil { SharePlaySessionControls().padding() }
 	}
 
 	@ViewBuilder private func destination(_ r: Route) -> some View {

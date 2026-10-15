@@ -69,3 +69,7 @@ Apple TV has no voice search, M3U files or settings files. The system can clear 
 # Siri and Shortcuts
 
 On iPhone, Siri and Shortcuts can tune channels by name or number, read what’s on now and next, search the guide, open a channel guide, and pause, resume or stop playback. Include the app name in your request. Siri asks for the search text. Add a playlist and open the app once to import its guide. Answers use the imported guide. These actions also work without Apple Intelligence; onscreen channel context needs iOS 18.2 or later and system support.
+
+# SharePlay
+
+Start or join a FaceTime call, start playback, then choose Start SharePlay in the player. Everyone needs this app and their own playlist and login. URLs and passwords are never sent to other participants. Channel changes, play and pause are shared. Seeking is synchronized only when the source supports seeking. Different provider delays mean live playback may not match frame for frame. Minimize and background playback keep SharePlay running. Stop playback leaves the session on this device. Leave SharePlay leaves just you; End for everyone ends the session for all participants. The signed app and its installation profile must include permission for SharePlay group sessions.

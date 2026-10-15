@@ -41,6 +41,14 @@ All seven actions also appear in Shortcuts and can be combined with its Apple In
 
 Implementation references: [Apple’s entity and intent sample](https://developer.apple.com/documentation/appintents/acceleratingappinteractionswithappintents/), [onscreen entity context](https://developer.apple.com/documentation/appintents/providing-contextual-cues-to-apple-intelligence-and-siri), and [RetroArch’s App Intents integration on GitHub](https://github.com/libretro/RetroArch/blob/master/pkg/apple/AppIntents/RetroArchAppShortcuts.swift). No third-party AI package is required.
 
+## SharePlay
+
+Start a FaceTime call, play a channel or video, then choose **Start SharePlay** in the expanded player. Everyone needs the app and their own playlist and login. Channel changes, play and pause are shared; movies, numbered series episodes and catch-up programmes use native playback coordination when the source can seek. Each device resolves its own stream. The activity contains public channel metadata and archive times, never stream URLs or provider credentials. Missing or ambiguous matches show an error instead of choosing another provider's stream.
+
+**Minimize** keeps the session playing. **Stop playback** leaves locally; **Leave SharePlay** keeps local playback, and **End for everyone** ends the shared session. Recordings, local files and Chromecast playback cannot join. Live streams share controls; different providers and buffers prevent frame-perfect live timing. VLC starts and seeks asynchronously, so seekable sources also have some timing tolerance.
+
+The build and installation profile must retain Apple's `com.apple.developer.group-session` entitlement. The release includes that entitlement, and the AltStore source declares it. A sideloading tool must support provisioning it. References: [Apple's Group Activities setup](https://developer.apple.com/documentation/xcode/configuring-group-activities), [custom-player playback coordinator](https://developer.apple.com/documentation/avfoundation/avdelegatingplaybackcoordinator), and [an independent VLC coordinator implementation on GitHub](https://github.com/marvinvr/dusk-player/blob/main/Dusk/Sources/Playback/VLCKitEngine.swift).
+
 ## Accessibility
 
 Built for VoiceOver following the [CVS Health iOS SwiftUI accessibility techniques](https://github.com/cvs-health/ios-swiftui-accessibility-techniques); every build runs their `a11y-check`.

@@ -69,3 +69,7 @@ Az Apple TV-n nincs hangalapú keresés, M3U fájl és beállításfájl. A rend
 # Siri és Parancsok
 
 iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.2-et vagy újabbat és rendszertámogatást igényel.
+
+# SharePlay
+
+Indítson FaceTime-hívást, vagy csatlakozzon egyhez, indítsa el a lejátszást, majd válassza a SharePlay indítása lehetőséget a lejátszóban. Mindenkinek telepítenie kell ezt az alkalmazást, és hozzá kell adnia saját listáját és fiókját. Az URL-ek és jelszavak soha nem kerülnek a többi résztvevőhöz. A csatornaváltás, indítás és szüneteltetés közös. A tekerés csak akkor szinkronizálódik, ha a forrás támogatja. A szolgáltatók eltérő késleltetése miatt az élő adás képkockái eltérhetnek. A kis méret és a háttérben lejátszás alatt a SharePlay működik. A lejátszás leállítása ezen az eszközön kilép a munkamenetből. A Kilépés a SharePlayből csak Önt lépteti ki; a Befejezés mindenkinél az összes résztvevőnél befejezi. Az aláírt alkalmazásnak és telepítési profiljának engedélyeznie kell a SharePlay csoportos munkameneteket.

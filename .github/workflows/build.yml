@@ -1,8 +1,8 @@
 name: Build
 
-# Every push: core tests, accessibility check, and unsigned .ipa files for iPhone/iPad,
+# Every push: core tests, accessibility check, and .ipa files for iPhone/iPad,
 # Apple TV and Vision Pro. A v* tag also publishes them as a GitHub release.
-# AltStore (and other sideloading tools) sign the .ipa on the device, so none is signed here.
+# The owner's certificate signs builds; AltStore re-signs with a profile on installation.
 on:
   push:
     branches: [main]
@@ -106,8 +106,9 @@ jobs:
             [ -n "$SIGN_ID" ] || { echo "No signing certificate: unsigned"; return; }
             find "$1" -depth \( -name "*.framework" -o -name "*.dylib" -o -name "*.appex" \) -print0 |
               xargs -0 -I{} codesign --force --timestamp=none --keychain "$KEYCHAIN" --sign "$SIGN_ID" {}
+            cp App/AccessibleIPTV.entitlements "$RUNNER_TEMP/app.entitlements"
             /usr/libexec/PlistBuddy -c "Add :application-identifier string $SIGN_TEAM.dev.serrebi.accessibleiptv" \
-              -c "Add :com.apple.developer.team-identifier string $SIGN_TEAM" "$RUNNER_TEMP/app.entitlements" > /dev/null 2>&1 || true
+              -c "Add :com.apple.developer.team-identifier string $SIGN_TEAM" "$RUNNER_TEMP/app.entitlements"
             codesign --force --timestamp=none --keychain "$KEYCHAIN" --sign "$SIGN_ID" --entitlements "$RUNNER_TEMP/app.entitlements" "$1"
             codesign --verify --deep --strict "$1" && codesign -dv "$1" 2>&1 | grep -E "Authority|TeamIdentifier" | head -3
           }

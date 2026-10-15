@@ -275,6 +275,7 @@ def main():
                 out.append(t["cast"])
         out += ["# CarPlay", t["carplay"], "# Apple TV", t["tv"]]
         out += ["# " + EXTRA["siri_shortcuts"][ORDER.index(lang)], EXTRA["siri_help"][ORDER.index(lang)]]
+        out += ["# " + EXTRA["shareplay_help"][ORDER.index(lang)], EXTRA["shareplay_help_body"][ORDER.index(lang)]]
         dest = ROOT / "Resources" / f"{lang}.lproj" / "help.md"
         dest.write_text("\n\n".join(out) + "\n", encoding="utf-8", newline="\n")
         print(lang, len(out), "blocks")

@@ -69,3 +69,7 @@ Apple TV non ha ricerca vocale, file M3U né file di impostazioni. Il sistema pu
 # Siri e Comandi Rapidi
 
 Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.2 o successivo e supporto del sistema.
+
+# SharePlay
+
+Avvia o partecipa a una chiamata FaceTime, avvia la riproduzione e scegli Avvia SharePlay nel lettore. Tutti devono installare questa app e aggiungere la propria lista e le proprie credenziali. URL e password non vengono mai inviati agli altri partecipanti. Cambi di canale, riproduzione e pausa sono condivisi. Gli spostamenti nella riproduzione sono sincronizzati solo se la sorgente li supporta. I diversi ritardi dei fornitori possono impedire che la diretta coincida fotogramma per fotogramma. Riduzione del lettore e riproduzione in background mantengono SharePlay attivo. Interrompere la riproduzione abbandona la sessione su questo dispositivo. Esci da SharePlay fa uscire solo te; Termina per tutti conclude la sessione per tutti. L’app firmata e il suo profilo di installazione devono consentire le sessioni di gruppo SharePlay.

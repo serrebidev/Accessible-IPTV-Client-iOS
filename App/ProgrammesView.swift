@@ -144,7 +144,10 @@ struct ProgrammesView: View {
 
 	private func open(_ p: Programme, _ ch: Channel) {
 		if p.stop > nowMs() { model.open(ch); return }
-		withCatchup(p, ch) { url in model.play(url, title: "\(ch.name): \(p.title)", key: ch.key, catchup: true) }
+		withCatchup(p, ch) { url in
+			model.play(url, title: "\(ch.name): \(p.title)", key: ch.key, catchup: true, channel: ch,
+				archiveStart: p.start, archiveStop: p.stop)
+		}
 	}
 
 	/// Builds the archive URL off the main thread (Stalker asks the portal) and hands it on.
