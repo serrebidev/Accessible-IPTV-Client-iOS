@@ -519,8 +519,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 				AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable else { return }
 			Task { @MainActor in
 				guard let self else { return }
-				sharePlayback?.suspend()
-				pauseLocally()
+				self.sharePlayback?.suspend()
+				self.pauseLocally()
 			}
 		})
 	}
