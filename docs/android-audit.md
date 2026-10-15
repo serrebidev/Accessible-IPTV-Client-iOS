@@ -165,9 +165,22 @@ Left alone, deliberately:
 - Reading a section's cache is one JSON decode of up to 50 MB, off the main thread. It is why the
   list itself can take a moment to appear on a big account; the screen stays responsive and says
   Loading. ponytail: a binary cache if that ever measures badly on a phone.
-- The phone's category picker builds its entries as a menu. A provider with hundreds of categories
-  means hundreds of entries built when it opens. If the freeze is felt when *opening* the category
-  list rather than after choosing, that is the next thing to change: a lazy list, which is what the
-  wide layout (iPad, Apple TV) already uses.
+- The phone's category picker built an entry for every category as a menu, on every redraw. Fixed in
+  0.1.4, below.
 - `List` still works out the rows for the new list on every change, proportional to the list. That
   is SwiftUI's own work and there is nothing to remove without giving up the list.
+
+# iOS category list (0.1.4)
+
+Follow-up from the 0.1.3 audit. The phone showed the categories as a menu picker, so every redraw of
+the screen - every keystroke in the search field, every status-line change - built an entry for every
+category the provider has, which is hundreds on Xtream. Those entries were built merely to show the
+screen, and the menu was built again every time it was opened.
+
+It is now one button showing the current category and its entry count, opening the lazy `List` sheet
+(`ChoiceSheet`) the app already uses for recently watched and external players. Only the rows in view
+exist, and the entries are built when the sheet opens rather than on every redraw. iPad, Apple TV and
+Vision Pro already used a `List` and are unchanged.
+
+The sheet is still one swipe per category with VoiceOver. ponytail: a filter field in it, if finding
+one of 500 categories by swiping is as bad as it sounds.

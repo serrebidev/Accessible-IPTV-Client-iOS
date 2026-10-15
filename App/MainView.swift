@@ -26,6 +26,7 @@ struct MainView: View {
 	@State private var listVersion = 0
 	@State private var searchTask: Task<Void, Never>?
 	@State private var showRecent = false
+	@State private var showGroups = false
 	@State private var showNumber = false
 	@State private var update: Updater.Release?
 	@State private var digits = ""
@@ -116,6 +117,16 @@ struct MainView: View {
 		.sheet(isPresented: $showRecent) {
 			let recent = recentChannels()
 			ChoiceSheet(title: L("recently_watched"), options: recent.map(\.name)) { model.open(recent[$0]) }
+		}
+		.sheet(isPresented: $showGroups) {
+			// The rows are built by the List as they come into view, so a provider with hundreds
+			// of categories costs the same as one with a handful. [list] is this presentation's
+			// copy, so a refresh behind the sheet cannot move the row out from under the tap.
+			let list = groups
+			ChoiceSheet(title: L("groups"), options: list.map { "\(groupLabel($0.name)), \($0.count)" },
+				selected: list.firstIndex { $0.name == group }) { i in
+				selectGroup(list[i].name)
+			}
 		}
 		.sheet(isPresented: $showNumber) { NumberSheet() }
 		.alert(update.map { L("update_available", $0.version) } ?? "", isPresented: Binding(get: { update != nil }, set: { if !$0 { update = nil } })) {
@@ -214,16 +225,17 @@ struct MainView: View {
 			}
 		} else {
 			VStack(alignment: .leading) {
-				// A phone has no room for two lists side by side: the groups are one picker.
-				Picker(L("groups"), selection: Binding(get: { group }, set: { selectGroup($0) })) {
-					ForEach(groups) { g in Text("\(groupLabel(g.name)), \(g.count)").tag(g.name) }
-				}
-				.pickerStyle(.menu)
-				.accessibilityLabel(L("groups"))
+				// A phone has no room for two lists side by side: one button opens the categories.
+				// A menu would build an entry for every one of them on every redraw, and providers
+				// have hundreds; the sheet is a List, so only the rows in view exist.
+				Button("\(L("groups")), \(groupLabel(group)), \(groupCount)") { showGroups = true }
+					.buttonStyle(.bordered)
 				channelColumn
 			}
 		}
 	}
+
+	private var groupCount: Int { groups.first { $0.name == group }?.count ?? 0 }
 
 	private func groupRow(_ g: GroupItem) -> some View {
 		Button { selectGroup(g.name) } label: { RowLabel(line1: groupLabel(g.name), line2: String(g.count)) }
