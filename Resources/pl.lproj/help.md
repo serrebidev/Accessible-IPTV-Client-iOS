@@ -8,7 +8,7 @@ Szukaj jest na górze. Przeszukuje wszystkie grupy w sekcji; dokładne nazwy są
 
 Poniżej: TV na żywo, Filmy, Seriale. Potem Listy, Teraz, Szukaj w programie, Nagrania, Więcej.
 
-Na iPadzie, Apple TV i Vision Pro grupy są po lewej, a lista po prawej. Na iPhonie Grupy to menu nad listą. Obie listy mają nagłówki. Wybranie grupy przenosi do listy.
+Najpierw otwierają się kategorie. Wybierz kategorię, aby zobaczyć jej kanały; Wszystkie wymaga osobnego wyboru. Na iPhonie i iPadzie są karty Przeglądaj, Program, Nagrania i Ustawienia. Na iPadzie, Apple TV i Vision Pro kategorie są po lewej. Obie listy mają nagłówki. Wybór kategorii przenosi do jej kanałów.
 
 Klawisze cyfr na klawiaturze przechodzą do kanału o tym numerze.
 
@@ -28,7 +28,7 @@ Teraz pokazuje wszystko, co jest nadawane. Program kanału odtwarza minione audy
 
 # Odtwarzacz
 
-Przyciski: Pauza, Dźwięk, Napisy, Nagraj, Przesyłaj, Pełny ekran, Zamknij. Klawisze: A dla dźwięku, S dla napisów, F dla pełnego ekranu, Escape zamyka. Z VoiceOver podwójne stuknięcie dwoma palcami odtwarza i wstrzymuje.
+Na iPhonie i iPadzie Minimalizuj utrzymuje odtwarzanie w miniodtwarzaczu nad kartami. Stuknij tytuł lub wideo, aby go rozwinąć. Pauza i Zatrzymaj odtwarzanie to osobne przyciski. Rozwinięty odtwarzacz oferuje Dźwięk, Napisy, Nagraj, Przesyłaj i Pełny ekran. Klawisze: A dźwięk, S napisy, F pełny ekran, Escape minimalizuje. Z VoiceOver dwukrotne stuknięcie dwoma palcami odtwarza i wstrzymuje.
 
 Pełny ekran ukrywa przyciski. Stuknięcie, Escape lub przycisk Wstecz pilota przywraca je.
 
@@ -65,3 +65,7 @@ CarPlay pokazuje ulubione i ostatnio oglądane kanały na żywo i odtwarza ich d
 # Apple TV
 
 Apple TV nie ma wyszukiwania głosowego, plików M3U ani plików ustawień. System może wyczyścić pamięć aplikacji; listy i program pobiorą się wtedy ponownie, a nagrania mogą zniknąć.
+
+# Siri i Skróty
+
+Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.4 lub nowszego i wsparcia systemu.

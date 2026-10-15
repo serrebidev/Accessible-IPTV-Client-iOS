@@ -59,7 +59,7 @@ final class CarAudio {
 
 	func play(_ ch: Channel) async {
 		let model = AppModel.shared
-		model.playing = nil
+		model.stopPlayback()
 		model.prefs.addRecent(ch.key)
 		guard let raw = try? await model.library.resolveUrl(ch) else { return }
 		let (plain, headers) = M3U.splitHeaders(raw)

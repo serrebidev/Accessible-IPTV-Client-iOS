@@ -8,18 +8,25 @@ struct AccessibleIPTVApp: App {
 	@UIApplicationDelegateAdaptor(AppDelegate.self) private var delegate
 	#endif
 	@StateObject private var model = AppModel.shared
+	@Environment(\.scenePhase) private var phase
 
 	var body: some Scene {
 		WindowGroup {
 			MainView()
 				.environmentObject(model)
-				.fullScreenCover(item: $model.playing) { r in
-					PlayerScreen(request: r).environmentObject(model)
+				.fullScreenCover(isPresented: $model.playerPresented) {
+					if let player = model.player {
+						PlayerScreen(c: player).id(player.request.id).environmentObject(model)
+					}
 				}
+				.onChange(of: phase) { _, p in model.player?.scene(p) }
 				.sheet(item: $model.info) { InfoSheet(info: $0) }
 				.sheet(isPresented: Binding(get: { model.externalChoice != nil }, set: { if !$0 { model.externalChoice = nil } })) {
 					let list = model.externalChoice ?? []
-					ChoiceSheet(title: L("play_external"), options: list.map(\.0)) { UIApplication.shared.open(list[$0].1) }
+					ChoiceSheet(title: L("play_external"), options: list.map(\.0)) {
+						model.stopPlayback()
+						UIApplication.shared.open(list[$0].1)
+					}
 				}
 		}
 	}

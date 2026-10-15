@@ -1,0 +1,7 @@
+"Pause playback in ${applicationName}" = "${applicationName} içinde oynatmayı duraklat";
+"Play ${channel} in ${applicationName}" = "${applicationName} ile ${channel} oynat";
+"Resume playback in ${applicationName}" = "${applicationName} içinde oynatmaya devam et";
+"Search the guide in ${applicationName}" = "${applicationName} içinde rehberde ara";
+"Show the guide for ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} rehberini göster";
+"Stop playback in ${applicationName}" = "${applicationName} içinde oynatmayı durdur";
+"What is on ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalında ne var";

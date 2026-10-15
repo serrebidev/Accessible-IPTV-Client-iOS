@@ -30,6 +30,7 @@
 "audio_track" = "Dźwięk";
 "audio_track_set" = "Dźwięk: %1$@";
 "backup_heading" = "Kopia zapasowa";
+"browse" = "Przeglądaj";
 "buffer_seconds" = "Bufor (sekundy)";
 "buffering" = "Buforowanie…";
 "cancel" = "Anuluj";
@@ -44,9 +45,11 @@
 "casting_to" = "Przesyłanie na %1$@";
 "catchup_available" = "archiwum";
 "catchup_title" = "%1$@, archiwum";
+"channel" = "Kanał";
 "channel_guide" = "Program";
 "channel_number" = "Numer";
 "channel_typed" = "Kanał %1$@";
+"channel_unavailable" = "Ten kanał nie jest już dostępny. Wybierz inny.";
 "channels" = "Kanały";
 "check_updates" = "Sprawdź aktualizacje";
 "checking_updates" = "Sprawdzanie…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "MAC musi wyglądać jak 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "Maksymalny bufor (sekundy)";
+"minimize_player" = "Minimalizuj";
 "more" = "Więcej";
 "movies" = "Filmy";
 "n_of_m" = "%1$@ z %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "Brak kanału %1$@.";
 "ok" = "OK";
 "on_now" = "teraz";
+"open_player" = "Otwórz odtwarzacz";
 "pause" = "Pauza";
 "play" = "Odtwórz";
 "play_external" = "Odtwórz w innej aplikacji";
 "play_failed" = "Błąd: %1$@";
 "playback_heading" = "Odtwarzanie";
+"playback_unavailable" = "Nic nie jest odtwarzane. Najpierw wybierz kanał.";
 "player_title" = "%1$@";
 "playing" = "Odtwarzanie";
 "playlist_removed" = "Lista usunięta";
@@ -179,12 +185,15 @@
 "settings_failed" = "Błąd: %1$@";
 "settings_imported" = "Ustawienia wczytane.";
 "show_stream_url" = "Pokaż URL strumienia";
+"siri_help" = "Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.4 lub nowszego i wsparcia systemu.";
+"siri_shortcuts" = "Siri i Skróty";
 "source_deleted" = "Usunięto %1$@.";
 "source_saved" = "Zapisano %1$@.";
 "speak_subtitles" = "Czytaj napisy";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Zatrzymaj wszystko";
 "stop_casting" = "Zatrzymaj przesyłanie";
+"stop_playback" = "Zatrzymaj odtwarzanie";
 "stop_recording" = "Zatrzymaj";
 "stop_recording_channel" = "Zatrzymaj nagrywanie";
 "stream_ended" = "Zakończono";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Wyłączone";
 "subtitles_set" = "Napisy: %1$@";
 "track_n" = "Ścieżka %1$ld";
+"tune_channel" = "Włącz kanał";
 "until" = "%1$@, do %2$@";
 "up_to_date" = "Aktualna wersja.";
 "update_available" = "Dostępna wersja %1$@";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Powiedz nazwę";
 "voice_search" = "Głos";
 "voice_unavailable" = "Brak wyszukiwania głosowego na tym urządzeniu.";
+"whats_on_channel" = "Co jest na tym kanale";
 "whats_on_now" = "Teraz";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Tak";

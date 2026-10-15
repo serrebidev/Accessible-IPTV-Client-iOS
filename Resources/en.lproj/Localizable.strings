@@ -30,6 +30,7 @@
 "audio_track" = "Audio";
 "audio_track_set" = "Audio: %1$@";
 "backup_heading" = "Backup";
+"browse" = "Browse";
 "buffer_seconds" = "Buffer (seconds)";
 "buffering" = "Buffering…";
 "cancel" = "Cancel";
@@ -44,9 +45,11 @@
 "casting_to" = "Casting to %1$@";
 "catchup_available" = "catch-up";
 "catchup_title" = "%1$@, catch-up";
+"channel" = "Channel";
 "channel_guide" = "Guide";
 "channel_number" = "Number";
 "channel_typed" = "Channel %1$@";
+"channel_unavailable" = "This channel is no longer available. Choose another channel.";
 "channels" = "Channels";
 "check_updates" = "Check for updates";
 "checking_updates" = "Checking…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "MAC must look like 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "Maximum buffer (seconds)";
+"minimize_player" = "Minimize";
 "more" = "More";
 "movies" = "Movies";
 "n_of_m" = "%1$@ of %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "No channel %1$@.";
 "ok" = "OK";
 "on_now" = "on now";
+"open_player" = "Open player";
 "pause" = "Pause";
 "play" = "Play";
 "play_external" = "Play in another app";
 "play_failed" = "Failed: %1$@";
 "playback_heading" = "Playback";
+"playback_unavailable" = "Nothing is playing. Choose a channel first.";
 "player_title" = "%1$@";
 "playing" = "Playing";
 "playlist_removed" = "Playlist removed";
@@ -179,12 +185,15 @@
 "settings_failed" = "Failed: %1$@";
 "settings_imported" = "Settings loaded.";
 "show_stream_url" = "Show stream URL";
+"siri_help" = "On iPhone, Siri and Shortcuts can tune channels by name or number, read what’s on now and next, search the guide, open a channel guide, and pause, resume or stop playback. Include the app name in your request. Siri asks for the search text. Add a playlist and open the app once to import its guide. Answers use the imported guide. These actions also work without Apple Intelligence; onscreen channel context needs iOS 18.4 or later and system support.";
+"siri_shortcuts" = "Siri and Shortcuts";
 "source_deleted" = "Deleted %1$@.";
 "source_saved" = "Saved %1$@.";
 "speak_subtitles" = "Speak subtitles";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Stop all";
 "stop_casting" = "Stop casting";
+"stop_playback" = "Stop playback";
 "stop_recording" = "Stop";
 "stop_recording_channel" = "Stop recording";
 "stream_ended" = "Ended";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Off";
 "subtitles_set" = "Subtitles: %1$@";
 "track_n" = "Track %1$ld";
+"tune_channel" = "Tune channel";
 "until" = "%1$@, until %2$@";
 "up_to_date" = "Up to date.";
 "update_available" = "Version %1$@ available";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Say a name";
 "voice_search" = "Voice";
 "voice_unavailable" = "No voice search on this device.";
+"whats_on_channel" = "What’s on this channel";
 "whats_on_now" = "On now";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Yes";

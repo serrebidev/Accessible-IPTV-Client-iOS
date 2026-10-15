@@ -8,7 +8,7 @@ Buscar está arriba. Busca en todos los grupos de la sección; los nombres exact
 
 Debajo: TV en directo, Películas, Series. Luego Listas, Ahora, Buscar en la guía, Grabaciones, Más.
 
-En iPad, Apple TV y Vision Pro, los grupos están a la izquierda y la lista a la derecha. En iPhone, Grupos es un menú encima de la lista. Ambas listas tienen encabezado. Elegir un grupo te lleva a la lista.
+Primero aparecen las categorías. Elige una para ver sus canales; Todos debe seleccionarse expresamente. En iPhone y iPad hay pestañas Explorar, Guía, Grabaciones y Ajustes. En iPad, Apple TV y Vision Pro, las categorías aparecen a la izquierda. Ambas listas tienen encabezados. Elegir una categoría lleva a sus canales.
 
 Las teclas numéricas de un teclado saltan a ese número de canal.
 
@@ -28,7 +28,7 @@ Ahora muestra todo lo que se emite. La guía de un canal reproduce los programas
 
 # Reproductor
 
-Botones: Pausa, Audio, Subtítulos, Grabar, Enviar, Pantalla completa, Cerrar. Teclas: A para el audio, S para los subtítulos, F para pantalla completa, Escape para cerrar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.
+En iPhone y iPad, Minimizar mantiene la reproducción en un minirreproductor sobre las pestañas. Toca su título o vídeo para ampliarlo. Pausa y Detener reproducción son controles separados. El reproductor ampliado ofrece Audio, Subtítulos, Grabar, Enviar y Pantalla completa. Teclas: A para audio, S para subtítulos, F para pantalla completa, Escape para minimizar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.
 
 La pantalla completa oculta los botones. Un toque, Escape o el botón Atrás del mando los vuelve a mostrar.
 
@@ -65,3 +65,7 @@ CarPlay muestra los canales en directo favoritos y vistos hace poco y reproduce 
 # Apple TV
 
 Apple TV no tiene búsqueda por voz, archivos M3U ni archivos de ajustes. El sistema puede vaciar el almacenamiento de la app; entonces las listas y la guía se descargan de nuevo y las grabaciones pueden perderse.
+
+# Siri y Atajos
+
+En iPhone, Siri y Atajos pueden sintonizar canales por nombre o número, leer el programa actual y siguiente, buscar en la guía, abrir la guía de un canal y pausar, reanudar o detener la reproducción. Incluye el nombre de la app. Siri pide el texto de búsqueda. Añade una lista y abre la app para importar su guía. Las respuestas usan la guía importada. Las acciones funcionan sin Apple Intelligence; el contexto en pantalla requiere iOS 18.4 o posterior y soporte del sistema.

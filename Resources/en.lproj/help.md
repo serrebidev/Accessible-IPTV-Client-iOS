@@ -8,7 +8,7 @@ Search is at the top. It searches every group in the section; exact names come f
 
 Below: Live TV, Movies, Series. Then Playlists, On now, Guide search, Recordings, More.
 
-On iPad, Apple TV and Vision Pro, the groups are on the left and the list on the right. On iPhone, Groups is a menu above the list. Both lists have headings. Picking a group moves you to the list.
+Categories open first. Choose a category to see its channels; All is an explicit choice. On iPhone and iPad, the tabs are Browse, Guide, Recordings and Settings. On iPad, Apple TV and Vision Pro, categories appear on the left. Both lists have headings. Picking a category moves you to its channels.
 
 Number keys on a keyboard jump to that channel number.
 
@@ -28,7 +28,7 @@ On now lists everything airing. A channel's guide plays past programmes marked c
 
 # Player
 
-Buttons: Pause, Audio, Subtitles, Record, Cast, Full screen, Close. Keys: A for audio, S for subtitles, F for full screen, Escape to close. With VoiceOver, a two-finger double tap plays and pauses.
+On iPhone and iPad, Minimize keeps playback running in a miniplayer above the tabs. Tap its title or video to expand it. Pause and Stop playback are separate controls. The expanded player has Audio, Subtitles, Record, Cast and Full screen. Keys: A for audio, S for subtitles, F for full screen, Escape to minimize. With VoiceOver, a two-finger double tap plays and pauses.
 
 Full screen hides the buttons. A tap, Escape or the remote’s Back button brings them back.
 
@@ -65,3 +65,7 @@ CarPlay lists favourite and recently watched live channels and plays their sound
 # Apple TV
 
 Apple TV has no voice search, M3U files or settings files. The system can clear the app’s storage; lists and the guide then download again, and recordings can be lost.
+
+# Siri and Shortcuts
+
+On iPhone, Siri and Shortcuts can tune channels by name or number, read what’s on now and next, search the guide, open a channel guide, and pause, resume or stop playback. Include the app name in your request. Siri asks for the search text. Add a playlist and open the app once to import its guide. Answers use the imported guide. These actions also work without Apple Intelligence; onscreen channel context needs iOS 18.4 or later and system support.

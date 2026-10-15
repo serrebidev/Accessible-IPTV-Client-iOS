@@ -7,6 +7,7 @@ are replaced with the iOS wording below; the rest stays as the translators wrote
 import re
 import sys
 from pathlib import Path
+from android_strings import EXTRA, ORDER
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_RES = ROOT.parent / "accessible IPTV client Android" / "app" / "src" / "main" / "res"
@@ -20,10 +21,10 @@ KEYS = {3: "s3", 5: "s5", 6: "s6", 11: "s11", 15: "s15", 16: "s16", 18: "s18", 2
 IOS = {
     "en": {
         "s3": "Search is at the top. It searches every group in the section; exact names come first. Voice, next to it, fills it by speech. Clear empties it.",
-        "s5": "On iPad, Apple TV and Vision Pro, the groups are on the left and the list on the right. On iPhone, Groups is a menu above the list. Both lists have headings. Picking a group moves you to the list.",
+        "s5": "Categories open first. Choose a category to see its channels; All is an explicit choice. On iPhone and iPad, the tabs are Browse, Guide, Recordings and Settings. On iPad, Apple TV and Vision Pro, categories appear on the left. Both lists have headings. Picking a category moves you to its channels.",
         "s6": "Number keys on a keyboard jump to that channel number.",
         "s11": "Actions rotor: play in another app, favourite, details, guide, record or stop recording, download. Without VoiceOver: touch and hold. On Apple TV: hold Select.",
-        "s15": "Buttons: Pause, Audio, Subtitles, Record, Cast, Full screen, Close. Keys: A for audio, S for subtitles, F for full screen, Escape to close. With VoiceOver, a two-finger double tap plays and pauses.",
+        "s15": "On iPhone and iPad, Minimize keeps playback running in a miniplayer above the tabs. Tap its title or video to expand it. Pause and Stop playback are separate controls. The expanded player has Audio, Subtitles, Record, Cast and Full screen. Keys: A for audio, S for subtitles, F for full screen, Escape to minimize. With VoiceOver, a two-finger double tap plays and pauses.",
         "s16": "Full screen hides the buttons. A tap, Escape or the remote’s Back button brings them back.",
         "s18": "Subtitles from the stream are shown in the picture. A Subtitle file shows under the video and, for SRT and WebVTT, is spoken, unless Speak subtitles is off in Settings.",
         "s20": "A live stream that drops reconnects by itself. Sound keeps playing with the screen locked.",
@@ -37,10 +38,10 @@ IOS = {
     },
     "de": {
         "s3": "Suchen ist oben. Es durchsucht alle Gruppen des Bereichs; exakte Namen zuerst. Sprache daneben füllt es per Spracheingabe. Löschen leert es.",
-        "s5": "Auf iPad, Apple TV und Vision Pro stehen die Gruppen links, die Liste rechts. Auf dem iPhone ist Gruppen ein Menü über der Liste. Beide Listen haben Überschriften. Eine Gruppe wählen führt zur Liste.",
+        "s5": "Zuerst erscheinen Kategorien. Wähle eine Kategorie für ihre Sender; Alle muss ausdrücklich gewählt werden. Auf iPhone und iPad gibt es die Tabs Durchsuchen, Programm, Aufnahmen und Einstellungen. Auf iPad, Apple TV und Vision Pro stehen Kategorien links. Beide Listen haben Überschriften. Eine Kategorie wählen führt zu ihren Sendern.",
         "s6": "Zifferntasten einer Tastatur springen zu dieser Sendernummer.",
         "s11": "Aktionen-Rotor: in anderer App abspielen, Favorit, Details, Programm, aufnehmen oder Aufnahme stoppen, herunterladen. Ohne VoiceOver: gedrückt halten. Auf Apple TV: Auswahltaste gedrückt halten.",
-        "s15": "Tasten: Pause, Ton, Untertitel, Aufnehmen, Streamen, Vollbild, Schließen. Tastatur: A für Ton, S für Untertitel, F für Vollbild, Escape zum Schließen. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.",
+        "s15": "Auf iPhone und iPad läuft die Wiedergabe nach Minimieren im Miniplayer über den Tabs weiter. Titel oder Video antippen öffnet den Player. Pause und Wiedergabe stoppen sind getrennt. Der große Player bietet Ton, Untertitel, Aufnehmen, Streamen und Vollbild. Tasten: A für Ton, S für Untertitel, F für Vollbild, Escape zum Minimieren. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.",
         "s16": "Vollbild blendet die Tasten aus. Tippen, Escape oder die Zurück-Taste der Fernbedienung holt sie zurück.",
         "s18": "Untertitel aus dem Stream erscheinen im Bild. Eine Untertiteldatei erscheint unter dem Video und wird bei SRT und WebVTT vorgelesen, außer Untertitel vorlesen ist in den Einstellungen aus.",
         "s20": "Ein abgebrochener Livestream verbindet sich selbst neu. Der Ton läuft bei gesperrtem Bildschirm weiter.",
@@ -54,10 +55,10 @@ IOS = {
     },
     "fr": {
         "s3": "Rechercher est en haut. La recherche couvre tous les groupes de la section ; les noms exacts viennent en premier. Voix, à côté, la remplit par la parole. Effacer la vide.",
-        "s5": "Sur iPad, Apple TV et Vision Pro, les groupes sont à gauche et la liste à droite. Sur iPhone, Groupes est un menu au-dessus de la liste. Les deux listes ont un titre. Choisir un groupe vous amène à la liste.",
+        "s5": "Les catégories s’ouvrent en premier. Choisissez une catégorie pour voir ses chaînes ; Toutes reste un choix explicite. Sur iPhone et iPad, les onglets sont Parcourir, Guide, Enregistrements et Réglages. Sur iPad, Apple TV et Vision Pro, les catégories sont à gauche. Les deux listes ont des titres. Choisir une catégorie mène à ses chaînes.",
         "s6": "Les touches numériques d’un clavier sautent à ce numéro de chaîne.",
         "s11": "Rotor Actions : lire dans une autre app, favori, détails, guide, enregistrer ou arrêter l’enregistrement, télécharger. Sans VoiceOver : toucher longuement. Sur Apple TV : maintenir Sélectionner.",
-        "s15": "Boutons : Pause, Audio, Sous-titres, Enregistrer, Caster, Plein écran, Fermer. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour fermer. Avec VoiceOver, un double toucher à deux doigts lance et met en pause.",
+        "s15": "Sur iPhone et iPad, Réduire maintient la lecture dans un mini-lecteur au-dessus des onglets. Touchez son titre ou sa vidéo pour l’agrandir. Pause et Arrêter la lecture sont distincts. Le grand lecteur propose Audio, Sous-titres, Enregistrer, Caster et Plein écran. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour réduire. Avec VoiceOver, un double toucher à deux doigts lance ou met en pause.",
         "s16": "Le plein écran masque les boutons. Un toucher, Échap ou le bouton Retour de la télécommande les ramène.",
         "s18": "Les sous-titres du flux s’affichent dans l’image. Un fichier de sous-titres s’affiche sous la vidéo et, en SRT ou WebVTT, est lu à voix haute, sauf si Lire les sous-titres est désactivé dans Réglages.",
         "s20": "Un direct coupé se reconnecte tout seul. Le son continue écran verrouillé.",
@@ -71,10 +72,10 @@ IOS = {
     },
     "es": {
         "s3": "Buscar está arriba. Busca en todos los grupos de la sección; los nombres exactos van primero. Voz, al lado, lo rellena hablando. Borrar lo vacía.",
-        "s5": "En iPad, Apple TV y Vision Pro, los grupos están a la izquierda y la lista a la derecha. En iPhone, Grupos es un menú encima de la lista. Ambas listas tienen encabezado. Elegir un grupo te lleva a la lista.",
+        "s5": "Primero aparecen las categorías. Elige una para ver sus canales; Todos debe seleccionarse expresamente. En iPhone y iPad hay pestañas Explorar, Guía, Grabaciones y Ajustes. En iPad, Apple TV y Vision Pro, las categorías aparecen a la izquierda. Ambas listas tienen encabezados. Elegir una categoría lleva a sus canales.",
         "s6": "Las teclas numéricas de un teclado saltan a ese número de canal.",
         "s11": "Rotor de acciones: reproducir en otra app, favorito, detalles, guía, grabar o detener la grabación, descargar. Sin VoiceOver: mantén pulsado. En Apple TV: mantén pulsado Seleccionar.",
-        "s15": "Botones: Pausa, Audio, Subtítulos, Grabar, Enviar, Pantalla completa, Cerrar. Teclas: A para el audio, S para los subtítulos, F para pantalla completa, Escape para cerrar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.",
+        "s15": "En iPhone y iPad, Minimizar mantiene la reproducción en un minirreproductor sobre las pestañas. Toca su título o vídeo para ampliarlo. Pausa y Detener reproducción son controles separados. El reproductor ampliado ofrece Audio, Subtítulos, Grabar, Enviar y Pantalla completa. Teclas: A para audio, S para subtítulos, F para pantalla completa, Escape para minimizar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.",
         "s16": "La pantalla completa oculta los botones. Un toque, Escape o el botón Atrás del mando los vuelve a mostrar.",
         "s18": "Los subtítulos de la emisión se ven en la imagen. Un archivo de subtítulos se muestra bajo el vídeo y, si es SRT o WebVTT, se lee en voz alta, salvo que Leer subtítulos esté desactivado en Ajustes.",
         "s20": "Un directo que se corta se reconecta solo. El sonido sigue con la pantalla bloqueada.",
@@ -88,10 +89,10 @@ IOS = {
     },
     "it": {
         "s3": "Cerca è in alto. Cerca in tutti i gruppi della sezione; i nomi esatti vengono prima. Voce, accanto, la compila parlando. Cancella la svuota.",
-        "s5": "Su iPad, Apple TV e Vision Pro i gruppi sono a sinistra e la lista a destra. Su iPhone, Gruppi è un menu sopra la lista. Entrambe le liste hanno un titolo. Scegliere un gruppo porta alla lista.",
+        "s5": "Si aprono prima le categorie. Scegline una per vedere i canali; Tutti va scelto esplicitamente. Su iPhone e iPad ci sono le schede Sfoglia, Guida, Registrazioni e Impostazioni. Su iPad, Apple TV e Vision Pro le categorie sono a sinistra. Entrambi gli elenchi hanno intestazioni. Scegliere una categoria porta ai suoi canali.",
         "s6": "I tasti numerici di una tastiera saltano a quel numero di canale.",
         "s11": "Rotore Azioni: riproduci in un’altra app, preferito, dettagli, guida, registra o ferma registrazione, scarica. Senza VoiceOver: tocca e tieni premuto. Su Apple TV: tieni premuto Seleziona.",
-        "s15": "Pulsanti: Pausa, Audio, Sottotitoli, Registra, Trasmetti, Schermo intero, Chiudi. Tasti: A per l’audio, S per i sottotitoli, F per lo schermo intero, Esc per chiudere. Con VoiceOver, un doppio tocco con due dita avvia e mette in pausa.",
+        "s15": "Su iPhone e iPad, Riduci mantiene la riproduzione nel mini lettore sopra le schede. Tocca titolo o video per espanderlo. Pausa e Interrompi riproduzione sono separati. Il lettore espanso offre Audio, Sottotitoli, Registra, Trasmetti e Schermo intero. Tasti: A per audio, S per sottotitoli, F per schermo intero, Escape per ridurre. Con VoiceOver, un doppio tocco con due dita riproduce e mette in pausa.",
         "s16": "Lo schermo intero nasconde i pulsanti. Un tocco, Esc o il tasto Indietro del telecomando li riporta.",
         "s18": "I sottotitoli del flusso compaiono nell’immagine. Un file di sottotitoli compare sotto il video e, se SRT o WebVTT, viene letto, salvo che Leggi i sottotitoli sia disattivato in Impostazioni.",
         "s20": "Una diretta interrotta si ricollega da sola. L’audio continua a schermo bloccato.",
@@ -105,10 +106,10 @@ IOS = {
     },
     "pt-BR": {
         "s3": "A Busca fica no topo. Busca em todos os grupos da seção; nomes exatos vêm primeiro. Voz, ao lado, preenche falando. Limpar apaga.",
-        "s5": "No iPad, Apple TV e Vision Pro, os grupos ficam à esquerda e a lista à direita. No iPhone, Grupos é um menu acima da lista. As duas listas têm título. Escolher um grupo leva você à lista.",
+        "s5": "As categorias aparecem primeiro. Escolha uma para ver os canais; Todos precisa ser escolhido explicitamente. No iPhone e iPad há abas Explorar, Guia, Gravações e Ajustes. No iPad, Apple TV e Vision Pro, as categorias ficam à esquerda. As duas listas têm títulos. Escolher uma categoria leva aos seus canais.",
         "s6": "As teclas numéricas de um teclado pulam para esse número de canal.",
         "s11": "Rotor de ações: reproduzir em outro app, favorito, detalhes, guia, gravar ou parar gravação, baixar. Sem VoiceOver: toque e segure. Na Apple TV: segure Selecionar.",
-        "s15": "Botões: Pausar, Áudio, Legendas, Gravar, Transmitir, Tela cheia, Fechar. Teclas: A para áudio, S para legendas, F para tela cheia, Esc para fechar. Com o VoiceOver, um toque duplo com dois dedos reproduz e pausa.",
+        "s15": "No iPhone e iPad, Minimizar mantém a reprodução em um miniplayer acima das abas. Toque no título ou vídeo para expandir. Pausar e Parar reprodução são controles separados. O player expandido oferece Áudio, Legendas, Gravar, Transmitir e Tela cheia. Teclas: A para áudio, S para legendas, F para tela cheia, Escape para minimizar. Com VoiceOver, um toque duplo com dois dedos reproduz e pausa.",
         "s16": "A tela cheia esconde os botões. Um toque, Esc ou o botão Voltar do controle traz de volta.",
         "s18": "Legendas do canal aparecem na imagem. Um arquivo de legendas aparece abaixo do vídeo e, se for SRT ou WebVTT, é lido em voz alta, a menos que Ler legendas esteja desativado em Configurações.",
         "s20": "Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada.",
@@ -122,10 +123,10 @@ IOS = {
     },
     "pl": {
         "s3": "Szukaj jest na górze. Przeszukuje wszystkie grupy w sekcji; dokładne nazwy są pierwsze. Głos obok wypełnia je mową. Wyczyść je opróżnia.",
-        "s5": "Na iPadzie, Apple TV i Vision Pro grupy są po lewej, a lista po prawej. Na iPhonie Grupy to menu nad listą. Obie listy mają nagłówki. Wybranie grupy przenosi do listy.",
+        "s5": "Najpierw otwierają się kategorie. Wybierz kategorię, aby zobaczyć jej kanały; Wszystkie wymaga osobnego wyboru. Na iPhonie i iPadzie są karty Przeglądaj, Program, Nagrania i Ustawienia. Na iPadzie, Apple TV i Vision Pro kategorie są po lewej. Obie listy mają nagłówki. Wybór kategorii przenosi do jej kanałów.",
         "s6": "Klawisze cyfr na klawiaturze przechodzą do kanału o tym numerze.",
         "s11": "Pokrętło Czynności: odtwórz w innej aplikacji, ulubiony, szczegóły, program, nagraj lub zatrzymaj nagrywanie, pobierz. Bez VoiceOver: dotknij i przytrzymaj. Na Apple TV: przytrzymaj Wybierz.",
-        "s15": "Przyciski: Pauza, Dźwięk, Napisy, Nagraj, Przesyłaj, Pełny ekran, Zamknij. Klawisze: A dla dźwięku, S dla napisów, F dla pełnego ekranu, Escape zamyka. Z VoiceOver podwójne stuknięcie dwoma palcami odtwarza i wstrzymuje.",
+        "s15": "Na iPhonie i iPadzie Minimalizuj utrzymuje odtwarzanie w miniodtwarzaczu nad kartami. Stuknij tytuł lub wideo, aby go rozwinąć. Pauza i Zatrzymaj odtwarzanie to osobne przyciski. Rozwinięty odtwarzacz oferuje Dźwięk, Napisy, Nagraj, Przesyłaj i Pełny ekran. Klawisze: A dźwięk, S napisy, F pełny ekran, Escape minimalizuje. Z VoiceOver dwukrotne stuknięcie dwoma palcami odtwarza i wstrzymuje.",
         "s16": "Pełny ekran ukrywa przyciski. Stuknięcie, Escape lub przycisk Wstecz pilota przywraca je.",
         "s18": "Napisy ze strumienia widać na obrazie. Plik napisów jest widoczny pod wideo, a SRT i WebVTT są też czytane, chyba że Czytaj napisy jest wyłączone w Ustawieniach.",
         "s20": "Przerwany kanał na żywo sam łączy się ponownie. Dźwięk gra dalej przy zablokowanym ekranie.",
@@ -139,10 +140,10 @@ IOS = {
     },
     "ru": {
         "s3": "Поиск вверху. Он ищет во всех группах раздела; точные названия первыми. Голос рядом заполняет его речью. Очистить стирает.",
-        "s5": "На iPad, Apple TV и Vision Pro группы слева, а список справа. На iPhone Группы — это меню над списком. У обоих списков есть заголовки. Выбор группы переводит к списку.",
+        "s5": "Сначала открываются категории. Выберите категорию для просмотра её каналов; Все нужно выбрать отдельно. На iPhone и iPad доступны вкладки Обзор, Программа, Записи и Настройки. На iPad, Apple TV и Vision Pro категории слева. У обоих списков есть заголовки. Выбор категории переводит к её каналам.",
         "s6": "Цифровые клавиши клавиатуры переходят к каналу с этим номером.",
         "s11": "Ротор действий: открыть в другом приложении, избранное, подробно, программа, записать или остановить запись, скачать. Без VoiceOver: коснитесь и удерживайте. На Apple TV: удерживайте кнопку выбора.",
-        "s15": "Кнопки: Пауза, Звук, Субтитры, Запись, Трансляция, Во весь экран, Закрыть. Клавиши: A — звук, S — субтитры, F — во весь экран, Escape — закрыть. С VoiceOver двойное касание двумя пальцами запускает и ставит на паузу.",
+        "s15": "На iPhone и iPad кнопка Свернуть оставляет воспроизведение в мини-плеере над вкладками. Нажмите название или видео, чтобы развернуть. Пауза и Остановить воспроизведение — отдельные кнопки. В развёрнутом плеере доступны Звук, Субтитры, Запись, Трансляция и Полный экран. Клавиши: A звук, S субтитры, F полный экран, Escape свернуть. С VoiceOver двойное касание двумя пальцами запускает и приостанавливает воспроизведение.",
         "s16": "Полный экран скрывает кнопки. Касание, Escape или кнопка «Назад» на пульте возвращает их.",
         "s18": "Субтитры потока показываются на изображении. Файл субтитров показывается под видео, а SRT и WebVTT ещё и озвучиваются, если в Настройках не выключено «Озвучивать субтитры».",
         "s20": "Прервавшийся эфир переподключается сам. Звук продолжает играть при заблокированном экране.",
@@ -156,10 +157,10 @@ IOS = {
     },
     "tr": {
         "s3": "Arama en üstte. Bölümdeki tüm gruplarda arar; tam eşleşen adlar önce gelir. Yanındaki Ses, konuşarak doldurur. Temizle boşaltır.",
-        "s5": "iPad, Apple TV ve Vision Pro’da gruplar solda, liste sağdadır. iPhone’da Gruplar, listenin üstünde bir menüdür. İki listenin de başlığı vardır. Bir grup seçmek sizi listeye götürür.",
+        "s5": "Önce kategoriler açılır. Kanalları görmek için kategori seçin; Tümü ayrıca seçilmelidir. iPhone ve iPad’de Göz at, Rehber, Kayıtlar ve Ayarlar sekmeleri vardır. iPad, Apple TV ve Vision Pro’da kategoriler soldadır. Her iki listenin başlığı vardır. Kategori seçmek kanallarına götürür.",
         "s6": "Klavyedeki rakam tuşları o kanal numarasına atlar.",
         "s11": "Eylemler rotoru: başka uygulamada oynat, favori, ayrıntılar, rehber, kaydet veya kaydı durdur, indir. VoiceOver olmadan: dokunup basılı tutun. Apple TV’de: Seç’i basılı tutun.",
-        "s15": "Düğmeler: Duraklat, Ses, Altyazı, Kaydet, Yayınla, Tam ekran, Kapat. Tuşlar: ses için A, altyazı için S, tam ekran için F, kapatmak için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.",
+        "s15": "iPhone ve iPad’de Küçült, oynatmayı sekmelerin üzerindeki mini oynatıcıda sürdürür. Genişletmek için başlığa veya videoya dokunun. Duraklat ve Oynatmayı durdur ayrı denetimlerdir. Büyük oynatıcıda Ses, Altyazılar, Kaydet, Yayınla ve Tam ekran bulunur. Tuşlar: ses için A, altyazı için S, tam ekran için F, küçültmek için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.",
         "s16": "Tam ekran düğmeleri gizler. Dokunma, Escape veya kumandanın Geri düğmesi onları geri getirir.",
         "s18": "Yayındaki altyazılar görüntüde gösterilir. Bir altyazı dosyası videonun altında gösterilir; SRT ve WebVTT ise ayrıca seslendirilir, Ayarlar’da Altyazıları seslendir kapalı değilse.",
         "s20": "Kopan canlı yayın kendiliğinden yeniden bağlanır. Ekran kilitliyken ses çalmaya devam eder.",
@@ -173,10 +174,10 @@ IOS = {
     },
     "hu": {
         "s3": "A Keresés felül van. A szakasz összes csoportjában keres; a pontos nevek elöl vannak. A mellette lévő Hang beszéddel tölti ki. A Törlés kiüríti.",
-        "s5": "iPaden, Apple TV-n és Vision Prón a csoportok balra, a lista jobbra van. iPhone-on a Csoportok egy menü a lista fölött. Mindkét listának van címsora. Egy csoport kiválasztása a listára visz.",
+        "s5": "Először a kategóriák jelennek meg. Válasszon kategóriát a csatornáihoz; az Összes külön választás. iPhone-on és iPaden a lapfülek: Böngészés, Műsorújság, Rögzítések és Beállítások. iPaden, Apple TV-n és Vision Prón a kategóriák bal oldalon vannak. Mindkét listának van címsora. A kategória kiválasztása a csatornáihoz vezet.",
         "s6": "A billentyűzet számgombjai az adott csatornaszámra ugranak.",
         "s11": "Műveletek rotor: lejátszás másik alkalmazásban, kedvenc, részletek, műsorújság, rögzítés vagy rögzítés leállítása, letöltés. VoiceOver nélkül: érintse meg és tartsa. Apple TV-n: tartsa lenyomva a Kiválasztás gombot.",
-        "s15": "Gombok: Szünet, Hang, Feliratok, Rögzítés, Átküldés, Teljes képernyő, Bezárás. Billentyűk: A a hanghoz, S a feliratokhoz, F a teljes képernyőhöz, Escape a bezáráshoz. VoiceOverrel a kétujjas dupla koppintás lejátszik és szüneteltet.",
+        "s15": "iPhone-on és iPaden a Kis méret gomb után a lejátszás a lapfülek feletti minilejátszóban folytatódik. A címre vagy videóra koppintva újra megnyitható. A szüneteltetés és a lejátszás leállítása külön vezérlő. A nagy lejátszóban hangsáv, felirat, rögzítés, átküldés és teljes képernyő érhető el. Billentyűk: A hangsáv, S felirat, F teljes képernyő, Escape kis méret. VoiceOverrel a kétujjas dupla koppintás indít és szüneteltet.",
         "s16": "A teljes képernyő elrejti a gombokat. Koppintás, Escape vagy a távirányító Vissza gombja visszahozza őket.",
         "s18": "Az adás feliratai a képen jelennek meg. A Feliratfájl a videó alatt jelenik meg, SRT és WebVTT esetén fel is olvassa, kivéve ha a Feliratok felolvasása ki van kapcsolva a Beállításokban.",
         "s20": "A megszakadt élő adás magától újrakapcsolódik. Lezárt képernyőnél a hang tovább szól.",
@@ -190,10 +191,10 @@ IOS = {
     },
     "ja": {
         "s3": "検索は一番上です。セクション内のすべてのグループを検索し、完全に一致する名前が先に出ます。隣の音声で話して入力できます。クリアで消えます。",
-        "s5": "iPad、Apple TV、Vision Pro ではグループが左、リストが右にあります。iPhone ではグループはリストの上のメニューです。どちらのリストにも見出しがあります。グループを選ぶとリストに移動します。",
+        "s5": "最初にカテゴリが開きます。カテゴリを選ぶと、そのチャンネルが表示されます。すべて表示する場合は「すべて」を選びます。iPhoneとiPadにはブラウズ、番組表、録画、設定のタブがあります。iPad、Apple TV、Vision Proではカテゴリは左側です。両方のリストに見出しがあります。カテゴリを選ぶとチャンネルに移動します。",
         "s6": "キーボードの数字キーでそのチャンネル番号に移動します。",
         "s11": "アクションローター: 他のアプリで再生、お気に入り、詳細、番組表、録画または録画停止、ダウンロード。VoiceOver なしでは長押し。Apple TV では選択ボタンを長押し。",
-        "s15": "ボタン: 一時停止、音声、字幕、録画、キャスト、全画面、閉じる。キー: A で音声、S で字幕、F で全画面、Escape で閉じる。VoiceOver では 2 本指のダブルタップで再生と一時停止。",
+        "s15": "iPhoneとiPadでは「最小化」でタブの上のミニプレーヤーに再生を続けられます。タイトルや映像をタップすると開きます。一時停止と再生停止は別の操作です。開いたプレーヤーには音声、字幕、録画、キャスト、全画面があります。キーは音声がA、字幕がS、全画面がF、最小化がEscapeです。VoiceOverでは2本指のダブルタップで再生と一時停止を切り替えます。",
         "s16": "全画面ではボタンが隠れます。タップ、Escape、またはリモコンの戻るボタンで戻ります。",
         "s18": "ストリームの字幕は映像に表示されます。字幕ファイルは映像の下に表示され、SRT と WebVTT は読み上げもされます (設定の字幕を読み上げるがオフの場合を除く)。",
         "s20": "途切れたライブ配信は自動で再接続します。画面をロックしても音声は流れ続けます。",
@@ -207,10 +208,10 @@ IOS = {
     },
     "zh-Hans": {
         "s3": "搜索在顶部。它搜索本分区的所有分组；完全匹配的名称排在前面。旁边的语音可通过说话填写。清除会清空它。",
-        "s5": "在 iPad、Apple TV 和 Vision Pro 上，分组在左边，列表在右边。在 iPhone 上，分组是列表上方的菜单。两个列表都有标题。选择分组会转到列表。",
+        "s5": "首先显示分类。选择分类查看其中的频道；查看全部需要单独选择。iPhone 和 iPad 提供浏览、节目指南、录制和设置标签页。iPad、Apple TV 和 Vision Pro 的分类位于左侧。两个列表都有标题。选择分类后移至其频道。",
         "s6": "键盘上的数字键会跳到对应编号的频道。",
         "s11": "操作转子：用其他应用播放、收藏、详情、节目单、录制或停止录制、下载。不用 VoiceOver 时：按住。在 Apple TV 上：按住选择键。",
-        "s15": "按钮：暂停、音轨、字幕、录制、投屏、全屏、关闭。按键：A 选音轨，S 选字幕，F 全屏，Escape 关闭。使用 VoiceOver 时，双指轻点两下可播放和暂停。",
+        "s15": "在 iPhone 和 iPad 上，最小化会在标签页上方的迷你播放器中继续播放。轻点标题或视频可展开。暂停和停止播放是独立控件。展开的播放器提供音频、字幕、录制、投屏和全屏。快捷键：A 选择音频，S 选择字幕，F 全屏，Escape 最小化。使用 VoiceOver 时，双指轻点两次可播放或暂停。",
         "s16": "全屏会隐藏按钮。轻点、Escape 或遥控器的返回键可让它们回来。",
         "s18": "流中的字幕显示在画面里。字幕文件显示在视频下方，SRT 和 WebVTT 还会朗读，除非设置中关闭了朗读字幕。",
         "s20": "中断的直播会自动重新连接。锁屏后声音继续播放。",
@@ -224,10 +225,10 @@ IOS = {
     },
     "ar": {
         "s3": "البحث في الأعلى. يبحث في كل مجموعات القسم؛ الأسماء المطابقة تمامًا أولًا. زر صوت بجانبه يملؤه بالكلام. مسح يفرغه.",
-        "s5": "على iPad وApple TV وVision Pro تكون المجموعات يسارًا والقائمة يمينًا. على iPhone تكون المجموعات قائمة منسدلة فوق القائمة. لكلتا القائمتين عنوان. اختيار مجموعة ينقلك إلى القائمة.",
+        "s5": "تفتح الفئات أولًا. اختر فئة لعرض قنواتها؛ عرض الكل يحتاج إلى اختيار صريح. على iPhone وiPad توجد علامات تبويب تصفح والدليل والتسجيلات والإعدادات. على iPad وApple TV وVision Pro تظهر الفئات على اليسار. لكلتا القائمتين عناوين. اختيار فئة ينقلك إلى قنواتها.",
         "s6": "مفاتيح الأرقام في لوحة المفاتيح تنتقل إلى رقم القناة.",
         "s11": "دوار الإجراءات: تشغيل في تطبيق آخر، المفضلة، التفاصيل، الدليل، تسجيل أو إيقاف التسجيل، تنزيل. بدون VoiceOver: المس مع الاستمرار. على Apple TV: اضغط مطولًا على زر التحديد.",
-        "s15": "الأزرار: إيقاف مؤقت، الصوت، الترجمة، تسجيل، بث، ملء الشاشة، إغلاق. المفاتيح: A للصوت، S للترجمة، F لملء الشاشة، Escape للإغلاق. مع VoiceOver، النقر المزدوج بإصبعين يشغّل ويوقف مؤقتًا.",
+        "s15": "على iPhone وiPad يبقي تصغير التشغيل مستمرًا في مشغل مصغر فوق علامات التبويب. اضغط العنوان أو الفيديو لتوسيعه. الإيقاف المؤقت وإيقاف التشغيل عنصران منفصلان. يقدم المشغل الموسع الصوت والترجمة والتسجيل والبث وملء الشاشة. المفاتيح: A للصوت وS للترجمة وF لملء الشاشة وEscape للتصغير. مع VoiceOver، النقر المزدوج بإصبعين يشغّل ويوقف مؤقتًا.",
         "s16": "ملء الشاشة يخفي الأزرار. نقرة أو Escape أو زر الرجوع في جهاز التحكم يعيدها.",
         "s18": "ترجمة البث تظهر في الصورة. ملف الترجمة يظهر تحت الفيديو، ويُقرأ بصوت عالٍ إن كان SRT أو WebVTT، ما لم تكن قراءة الترجمة متوقفة في الإعدادات.",
         "s20": "البث المباشر الذي ينقطع يعيد الاتصال تلقائيًا. يستمر الصوت والشاشة مقفلة.",
@@ -241,10 +242,10 @@ IOS = {
     },
     "hi": {
         "s3": "खोज सबसे ऊपर है। यह सेक्शन के सभी समूहों में खोजती है; सटीक नाम पहले आते हैं। बगल का आवाज़ बटन बोलकर भरता है। साफ़ करें इसे खाली करता है।",
-        "s5": "iPad, Apple TV और Vision Pro पर समूह बाईं ओर और सूची दाईं ओर है। iPhone पर समूह सूची के ऊपर एक मेनू है। दोनों सूचियों के शीर्षक हैं। समूह चुनने पर आप सूची पर पहुँचते हैं।",
+        "s5": "पहले श्रेणियाँ खुलती हैं। चैनल देखने के लिए श्रेणी चुनें; सभी चैनल देखने के लिए सभी अलग से चुनना होगा। iPhone और iPad में ब्राउज़ करें, गाइड, रिकॉर्डिंग और सेटिंग्स टैब हैं। iPad, Apple TV और Vision Pro पर श्रेणियाँ बाईं ओर हैं। दोनों सूचियों में शीर्षक हैं। श्रेणी चुनने पर उसके चैनल खुलते हैं।",
         "s6": "कीबोर्ड की संख्या कुंजियाँ उस चैनल नंबर पर ले जाती हैं।",
         "s11": "क्रियाएँ रोटर: दूसरे ऐप में चलाएँ, पसंदीदा, विवरण, गाइड, रिकॉर्ड करें या रिकॉर्डिंग रोकें, डाउनलोड। VoiceOver के बिना: छूकर दबाए रखें। Apple TV पर: चुनें बटन दबाए रखें।",
-        "s15": "बटन: रोकें, ऑडियो, उपशीर्षक, रिकॉर्ड, कास्ट, पूर्ण स्क्रीन, बंद करें। कुंजियाँ: ऑडियो के लिए A, उपशीर्षक के लिए S, पूर्ण स्क्रीन के लिए F, बंद करने के लिए Escape। VoiceOver के साथ दो उँगलियों से दो बार टैप चलाता और रोकता है।",
+        "s15": "iPhone और iPad पर छोटा करें से टैब के ऊपर मिनी प्लेयर में चलना जारी रहता है। बड़ा करने के लिए उसके शीर्षक या वीडियो पर टैप करें। रोकें और चलाना बंद करें अलग नियंत्रण हैं। बड़े प्लेयर में ऑडियो, उपशीर्षक, रिकॉर्ड, कास्ट और पूर्ण स्क्रीन हैं। कुंजियाँ: ऑडियो के लिए A, उपशीर्षक के लिए S, पूर्ण स्क्रीन के लिए F, छोटा करने के लिए Escape। VoiceOver के साथ दो उँगलियों से दो बार टैप चलाता और रोकता है।",
         "s16": "पूर्ण स्क्रीन बटन छिपा देती है। टैप, Escape या रिमोट का वापस बटन उन्हें लौटाता है।",
         "s18": "स्ट्रीम के उपशीर्षक तस्वीर में दिखते हैं। उपशीर्षक फ़ाइल वीडियो के नीचे दिखती है, और SRT व WebVTT पढ़ी भी जाती है, जब तक सेटिंग्स में उपशीर्षक पढ़ें बंद न हो।",
         "s20": "टूटी हुई लाइव स्ट्रीम अपने आप फिर जुड़ जाती है। स्क्रीन लॉक होने पर भी आवाज़ चलती रहती है।",
@@ -273,6 +274,7 @@ def main():
             if i == 20:
                 out.append(t["cast"])
         out += ["# CarPlay", t["carplay"], "# Apple TV", t["tv"]]
+        out += ["# " + EXTRA["siri_shortcuts"][ORDER.index(lang)], EXTRA["siri_help"][ORDER.index(lang)]]
         dest = ROOT / "Resources" / f"{lang}.lproj" / "help.md"
         dest.write_text("\n\n".join(out) + "\n", encoding="utf-8", newline="\n")
         print(lang, len(out), "blocks")

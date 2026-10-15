@@ -30,6 +30,7 @@
 "audio_track" = "Ses";
 "audio_track_set" = "Ses: %1$@";
 "backup_heading" = "Yedek";
+"browse" = "Göz at";
 "buffer_seconds" = "Arabellek (saniye)";
 "buffering" = "Arabelleğe alınıyor…";
 "cancel" = "İptal";
@@ -44,9 +45,11 @@
 "casting_to" = "%1$@ cihazına yayınlanıyor";
 "catchup_available" = "geri izleme";
 "catchup_title" = "%1$@, geri izleme";
+"channel" = "Kanal";
 "channel_guide" = "Rehber";
 "channel_number" = "Numara";
 "channel_typed" = "Kanal %1$@";
+"channel_unavailable" = "Bu kanal artık kullanılamıyor. Başka bir kanal seçin.";
 "channels" = "Kanallar";
 "check_updates" = "Güncellemeleri denetle";
 "checking_updates" = "Denetleniyor…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "MAC şöyle olmalı: 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "En fazla arabellek (saniye)";
+"minimize_player" = "Küçült";
 "more" = "Diğer";
 "movies" = "Filmler";
 "n_of_m" = "%2$@ içinde %1$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "%1$@ numaralı kanal yok.";
 "ok" = "Tamam";
 "on_now" = "şimdi yayında";
+"open_player" = "Oynatıcıyı aç";
 "pause" = "Duraklat";
 "play" = "Oynat";
 "play_external" = "Başka uygulamada oynat";
 "play_failed" = "Başarısız: %1$@";
 "playback_heading" = "Oynatma";
+"playback_unavailable" = "Hiçbir şey oynatılmıyor. Önce bir kanal seçin.";
 "player_title" = "%1$@";
 "playing" = "Oynatılıyor";
 "playlist_removed" = "Liste kaldırıldı";
@@ -179,12 +185,15 @@
 "settings_failed" = "Başarısız: %1$@";
 "settings_imported" = "Ayarlar yüklendi.";
 "show_stream_url" = "Yayın URL’sini göster";
+"siri_help" = "iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.4 veya sonrası ve sistem desteği gerektirir.";
+"siri_shortcuts" = "Siri ve Kestirmeler";
 "source_deleted" = "%1$@ silindi.";
 "source_saved" = "%1$@ kaydedildi.";
 "speak_subtitles" = "Altyazıları seslendir";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Tümünü durdur";
 "stop_casting" = "Yayını durdur";
+"stop_playback" = "Oynatmayı durdur";
 "stop_recording" = "Durdur";
 "stop_recording_channel" = "Kaydı durdur";
 "stream_ended" = "Bitti";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Kapalı";
 "subtitles_set" = "Altyazı: %1$@";
 "track_n" = "Parça %1$ld";
+"tune_channel" = "Kanalı aç";
 "until" = "%1$@, %2$@ saatine kadar";
 "up_to_date" = "Güncel.";
 "update_available" = "%1$@ sürümü var";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Bir ad söyleyin";
 "voice_search" = "Ses";
 "voice_unavailable" = "Bu cihazda sesli arama yok.";
+"whats_on_channel" = "Bu kanalda ne var";
 "whats_on_now" = "Şimdi yayında";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Evet";

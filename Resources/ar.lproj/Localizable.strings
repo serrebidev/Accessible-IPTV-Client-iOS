@@ -30,6 +30,7 @@
 "audio_track" = "الصوت";
 "audio_track_set" = "الصوت: %1$@";
 "backup_heading" = "النسخ الاحتياطي";
+"browse" = "تصفح";
 "buffer_seconds" = "التخزين المؤقت (ثوانٍ)";
 "buffering" = "جارٍ التخزين المؤقت…";
 "cancel" = "إلغاء";
@@ -44,9 +45,11 @@
 "casting_to" = "جارٍ البث إلى %1$@";
 "catchup_available" = "مشاهدة لاحقة";
 "catchup_title" = "%1$@، مشاهدة لاحقة";
+"channel" = "قناة";
 "channel_guide" = "الدليل";
 "channel_number" = "الرقم";
 "channel_typed" = "القناة %1$@";
+"channel_unavailable" = "لم تعد هذه القناة متاحة. اختر قناة أخرى.";
 "channels" = "القنوات";
 "check_updates" = "التحقق من التحديثات";
 "checking_updates" = "جارٍ التحقق…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "يجب أن يكون MAC مثل 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "أقصى تخزين مؤقت (ثوانٍ)";
+"minimize_player" = "تصغير";
 "more" = "المزيد";
 "movies" = "أفلام";
 "n_of_m" = "%1$@ من %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "لا توجد القناة %1$@.";
 "ok" = "حسنًا";
 "on_now" = "يُعرض الآن";
+"open_player" = "فتح المشغل";
 "pause" = "إيقاف مؤقت";
 "play" = "تشغيل";
 "play_external" = "تشغيل في تطبيق آخر";
 "play_failed" = "فشل: %1$@";
 "playback_heading" = "التشغيل";
+"playback_unavailable" = "لا يوجد تشغيل. اختر قناة أولًا.";
 "player_title" = "%1$@";
 "playing" = "قيد التشغيل";
 "playlist_removed" = "أُزيلت القائمة";
@@ -179,12 +185,15 @@
 "settings_failed" = "فشل: %1$@";
 "settings_imported" = "تم تحميل الإعدادات.";
 "show_stream_url" = "إظهار رابط البث";
+"siri_help" = "على iPhone يستطيع Siri والاختصارات تشغيل القنوات بالاسم أو الرقم وقراءة البرنامج الحالي والتالي والبحث في الدليل وفتحه وإيقاف التشغيل مؤقتًا أو استئنافه أو إيقافه. اذكر اسم التطبيق في طلبك. يسأل Siri عن نص البحث. أضف قائمة وافتح التطبيق لاستيراد دليلها. الإجابات من الدليل المستورد. تعمل الإجراءات دون Apple Intelligence؛ سياق القناة على الشاشة يحتاج iOS 18.4 أو أحدث ودعم النظام.";
+"siri_shortcuts" = "Siri والاختصارات";
 "source_deleted" = "تم حذف %1$@.";
 "source_saved" = "تم حفظ %1$@.";
 "speak_subtitles" = "قراءة الترجمة";
 "stalker_at" = "Stalker، %1$@";
 "stop_all_recordings" = "إيقاف الكل";
 "stop_casting" = "إيقاف البث";
+"stop_playback" = "إيقاف التشغيل";
 "stop_recording" = "إيقاف";
 "stop_recording_channel" = "إيقاف التسجيل";
 "stream_ended" = "انتهى";
@@ -195,6 +204,7 @@
 "subtitles_off" = "إيقاف";
 "subtitles_set" = "الترجمة: %1$@";
 "track_n" = "المسار %1$ld";
+"tune_channel" = "تشغيل قناة";
 "until" = "%1$@، حتى %2$@";
 "up_to_date" = "محدث.";
 "update_available" = "الإصدار %1$@ متاح";
@@ -204,6 +214,7 @@
 "voice_prompt" = "قل اسمًا";
 "voice_search" = "صوت";
 "voice_unavailable" = "لا يوجد بحث صوتي على هذا الجهاز.";
+"whats_on_channel" = "ما يُعرض على هذه القناة";
 "whats_on_now" = "يُعرض الآن";
 "xtream_at" = "Xtream، %1$@";
 "yes" = "نعم";

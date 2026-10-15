@@ -8,7 +8,7 @@ Arama en üstte. Bölümdeki tüm gruplarda arar; tam eşleşen adlar önce geli
 
 Altında: Canlı TV, Filmler, Diziler. Sonra Listeler, Şimdi yayında, Rehberde ara, Kayıtlar, Diğer.
 
-iPad, Apple TV ve Vision Pro’da gruplar solda, liste sağdadır. iPhone’da Gruplar, listenin üstünde bir menüdür. İki listenin de başlığı vardır. Bir grup seçmek sizi listeye götürür.
+Önce kategoriler açılır. Kanalları görmek için kategori seçin; Tümü ayrıca seçilmelidir. iPhone ve iPad’de Göz at, Rehber, Kayıtlar ve Ayarlar sekmeleri vardır. iPad, Apple TV ve Vision Pro’da kategoriler soldadır. Her iki listenin başlığı vardır. Kategori seçmek kanallarına götürür.
 
 Klavyedeki rakam tuşları o kanal numarasına atlar.
 
@@ -28,7 +28,7 @@ Eylemler rotoru: başka uygulamada oynat, favori, ayrıntılar, rehber, kaydet v
 
 # Oynatıcı
 
-Düğmeler: Duraklat, Ses, Altyazı, Kaydet, Yayınla, Tam ekran, Kapat. Tuşlar: ses için A, altyazı için S, tam ekran için F, kapatmak için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.
+iPhone ve iPad’de Küçült, oynatmayı sekmelerin üzerindeki mini oynatıcıda sürdürür. Genişletmek için başlığa veya videoya dokunun. Duraklat ve Oynatmayı durdur ayrı denetimlerdir. Büyük oynatıcıda Ses, Altyazılar, Kaydet, Yayınla ve Tam ekran bulunur. Tuşlar: ses için A, altyazı için S, tam ekran için F, küçültmek için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.
 
 Tam ekran düğmeleri gizler. Dokunma, Escape veya kumandanın Geri düğmesi onları geri getirir.
 
@@ -65,3 +65,7 @@ CarPlay favori ve son izlenen canlı kanalları listeler ve seslerini çalar. Ap
 # Apple TV
 
 Apple TV’de sesli arama, M3U dosyası ve ayar dosyası yoktur. Sistem uygulamanın depolamasını temizleyebilir; o zaman listeler ve rehber yeniden indirilir, kayıtlar kaybolabilir.
+
+# Siri ve Kestirmeler
+
+iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.4 veya sonrası ve sistem desteği gerektirir.

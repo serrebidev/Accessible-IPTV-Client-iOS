@@ -13,6 +13,7 @@ struct ProgrammesView: View {
 	}
 
 	@EnvironmentObject private var model: AppModel
+	@Environment(\.dismiss) private var dismiss
 	@State private var all: [Item] = []
 	@State private var filter = ""
 	@State private var status = ""
@@ -89,7 +90,7 @@ struct ProgrammesView: View {
 		var ch: Channel?
 		if case .channel(let key) = mode {
 			ch = library.channel(key)
-			guard let c = ch else { model.path.removeLast(); return }
+			guard let c = ch else { dismiss(); return }
 			title = L("guide_for", c.name)
 		}
 		let lib = library, days = model.prefs.epgDaysAhead
@@ -135,7 +136,7 @@ struct ProgrammesView: View {
 				}
 			})
 		}
-		if !oneChannel { actions.append(RowAction(L("channel_guide")) { model.path.append(.channelGuide(ch.key)) }) }
+		if !oneChannel { actions.append(RowAction(L("channel_guide")) { model.navigate(.channelGuide(ch.key)) }) }
 		return Button { open(p, ch) } label: { RowLabel(line1: Format.programme(p), line2: line2) }
 			.row(speech, actions: actions)
 			.accessibilityFocused($focus, equals: item.id)

@@ -30,6 +30,7 @@
 "audio_track" = "音声";
 "audio_track_set" = "音声: %1$@";
 "backup_heading" = "バックアップ";
+"browse" = "ブラウズ";
 "buffer_seconds" = "バッファ (秒)";
 "buffering" = "バッファリング中…";
 "cancel" = "キャンセル";
@@ -44,9 +45,11 @@
 "casting_to" = "%1$@ にキャスト中";
 "catchup_available" = "見逃し";
 "catchup_title" = "%1$@、見逃し";
+"channel" = "チャンネル";
 "channel_guide" = "番組表";
 "channel_number" = "番号";
 "channel_typed" = "チャンネル %1$@";
+"channel_unavailable" = "このチャンネルは利用できなくなりました。別のチャンネルを選んでください。";
 "channels" = "チャンネル";
 "check_updates" = "アップデートを確認";
 "checking_updates" = "確認中…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "MAC は 00:1A:79:12:34:56 の形式にしてください。";
 "max_buffer_seconds" = "最大バッファ (秒)";
+"minimize_player" = "最小化";
 "more" = "その他";
 "movies" = "映画";
 "n_of_m" = "%2$@ 中 %1$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "チャンネル %1$@ はありません。";
 "ok" = "OK";
 "on_now" = "放送中";
+"open_player" = "プレーヤーを開く";
 "pause" = "一時停止";
 "play" = "再生";
 "play_external" = "他のアプリで再生";
 "play_failed" = "失敗: %1$@";
 "playback_heading" = "再生";
+"playback_unavailable" = "何も再生していません。先にチャンネルを選んでください。";
 "player_title" = "%1$@";
 "playing" = "再生中";
 "playlist_removed" = "プレイリストが削除されました";
@@ -179,12 +185,15 @@
 "settings_failed" = "失敗: %1$@";
 "settings_imported" = "設定を読み込みました。";
 "show_stream_url" = "ストリーム URL を表示";
+"siri_help" = "iPhoneではSiriとショートカットで名前や番号によるチャンネル選択、現在と次の番組の読み上げ、番組表の検索と表示、再生の一時停止・再開・停止ができます。アプリ名を含めて話してください。Siriが検索語を尋ねます。プレイリストを追加してアプリを開き、番組表を取り込んでください。回答は取り込んだ番組表を使います。操作はApple Intelligenceなしでも使えます。画面上のチャンネル情報の連携にはiOS 18.4以降とシステムの対応が必要です。";
+"siri_shortcuts" = "Siriとショートカット";
 "source_deleted" = "%1$@ を削除しました。";
 "source_saved" = "%1$@ を保存しました。";
 "speak_subtitles" = "字幕を読み上げる";
 "stalker_at" = "Stalker、%1$@";
 "stop_all_recordings" = "すべて停止";
 "stop_casting" = "キャストを停止";
+"stop_playback" = "再生を停止";
 "stop_recording" = "停止";
 "stop_recording_channel" = "録画を停止";
 "stream_ended" = "終了";
@@ -195,6 +204,7 @@
 "subtitles_off" = "オフ";
 "subtitles_set" = "字幕: %1$@";
 "track_n" = "トラック %1$ld";
+"tune_channel" = "チャンネルを再生";
 "until" = "%1$@、%2$@ まで";
 "up_to_date" = "最新です。";
 "update_available" = "バージョン %1$@ があります";
@@ -204,6 +214,7 @@
 "voice_prompt" = "名前を話してください";
 "voice_search" = "音声";
 "voice_unavailable" = "この端末では音声検索が使えません。";
+"whats_on_channel" = "このチャンネルの番組";
 "whats_on_now" = "放送中";
 "xtream_at" = "Xtream、%1$@";
 "yes" = "はい";

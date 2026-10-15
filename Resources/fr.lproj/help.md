@@ -8,7 +8,7 @@ Rechercher est en haut. La recherche couvre tous les groupes de la section ; les
 
 En dessous : TV en direct, Films, Séries. Puis Listes, En ce moment, Recherche dans le guide, Enregistrements, Plus.
 
-Sur iPad, Apple TV et Vision Pro, les groupes sont à gauche et la liste à droite. Sur iPhone, Groupes est un menu au-dessus de la liste. Les deux listes ont un titre. Choisir un groupe vous amène à la liste.
+Les catégories s’ouvrent en premier. Choisissez une catégorie pour voir ses chaînes ; Toutes reste un choix explicite. Sur iPhone et iPad, les onglets sont Parcourir, Guide, Enregistrements et Réglages. Sur iPad, Apple TV et Vision Pro, les catégories sont à gauche. Les deux listes ont des titres. Choisir une catégorie mène à ses chaînes.
 
 Les touches numériques d’un clavier sautent à ce numéro de chaîne.
 
@@ -28,7 +28,7 @@ En ce moment liste tout ce qui est diffusé. Le guide d’une chaîne lit les pr
 
 # Lecteur
 
-Boutons : Pause, Audio, Sous-titres, Enregistrer, Caster, Plein écran, Fermer. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour fermer. Avec VoiceOver, un double toucher à deux doigts lance et met en pause.
+Sur iPhone et iPad, Réduire maintient la lecture dans un mini-lecteur au-dessus des onglets. Touchez son titre ou sa vidéo pour l’agrandir. Pause et Arrêter la lecture sont distincts. Le grand lecteur propose Audio, Sous-titres, Enregistrer, Caster et Plein écran. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour réduire. Avec VoiceOver, un double toucher à deux doigts lance ou met en pause.
 
 Le plein écran masque les boutons. Un toucher, Échap ou le bouton Retour de la télécommande les ramène.
 
@@ -65,3 +65,7 @@ CarPlay liste les chaînes en direct favorites et récemment regardées et diffu
 # Apple TV
 
 Apple TV n’a ni recherche vocale, ni fichiers M3U, ni fichiers de réglages. Le système peut vider le stockage de l’app ; les listes et le guide se rechargent alors, et des enregistrements peuvent être perdus.
+
+# Siri et Raccourcis
+
+Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.4 ou ultérieur et la prise en charge du système.

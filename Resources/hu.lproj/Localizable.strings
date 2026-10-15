@@ -30,6 +30,7 @@
 "audio_track" = "Hang";
 "audio_track_set" = "Hang: %1$@";
 "backup_heading" = "Biztonsági mentés";
+"browse" = "Böngészés";
 "buffer_seconds" = "Puffer (másodperc)";
 "buffering" = "Pufferelés…";
 "cancel" = "Mégse";
@@ -44,9 +45,11 @@
 "casting_to" = "Átküldés ide: %1$@";
 "catchup_available" = "visszajátszás";
 "catchup_title" = "%1$@, visszajátszás";
+"channel" = "Csatorna";
 "channel_guide" = "Műsorújság";
 "channel_number" = "Szám";
 "channel_typed" = "%1$@. csatorna";
+"channel_unavailable" = "Ez a csatorna már nem érhető el. Válasszon másikat.";
 "channels" = "Csatornák";
 "check_updates" = "Frissítések keresése";
 "checking_updates" = "Ellenőrzés…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "A MAC így nézzen ki: 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "Legnagyobb puffer (másodperc)";
+"minimize_player" = "Kis méret";
 "more" = "Továbbiak";
 "movies" = "Filmek";
 "n_of_m" = "%1$@ / %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "Nincs %1$@. csatorna.";
 "ok" = "OK";
 "on_now" = "most műsoron";
+"open_player" = "Lejátszó megnyitása";
 "pause" = "Szünet";
 "play" = "Lejátszás";
 "play_external" = "Lejátszás másik alkalmazásban";
 "play_failed" = "Hiba: %1$@";
 "playback_heading" = "Lejátszás";
+"playback_unavailable" = "Nincs lejátszás. Előbb válasszon csatornát.";
 "player_title" = "%1$@";
 "playing" = "Lejátszás folyamatban";
 "playlist_removed" = "Lejátszási lista eltávolítva";
@@ -179,12 +185,15 @@
 "settings_failed" = "Hiba: %1$@";
 "settings_imported" = "Beállítások betöltve.";
 "show_stream_url" = "Adatfolyam URL megjelenítése";
+"siri_help" = "iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.4-et vagy újabbat és rendszertámogatást igényel.";
+"siri_shortcuts" = "Siri és Parancsok";
 "source_deleted" = "%1$@ törölve.";
 "source_saved" = "%1$@ mentve.";
 "speak_subtitles" = "Feliratok felolvasása";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Összes leállítása";
 "stop_casting" = "Átküldés leállítása";
+"stop_playback" = "Lejátszás leállítása";
 "stop_recording" = "Leállítás";
 "stop_recording_channel" = "Rögzítés leállítása";
 "stream_ended" = "Véget ért";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Ki";
 "subtitles_set" = "Feliratok: %1$@";
 "track_n" = "%1$ld. sáv";
+"tune_channel" = "Csatorna lejátszása";
 "until" = "%1$@, %2$@-ig";
 "up_to_date" = "Naprakész.";
 "update_available" = "Elérhető: %1$@ verzió";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Mondjon egy nevet";
 "voice_search" = "Hang";
 "voice_unavailable" = "Ezen az eszközön nincs hangalapú keresés.";
+"whats_on_channel" = "Mi megy ezen a csatornán";
 "whats_on_now" = "Most műsoron";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Igen";

@@ -5,23 +5,88 @@ import IPTVCore
 
 /// libVLC draws into a plain UIView.
 private struct VideoView: UIViewRepresentable {
-	let player: VLCMediaPlayer
+	let controller: PlayerController
+	private final class Host: UIView {
+		var surface: UIView?
+		override func didMoveToWindow() {
+			super.didMoveToWindow()
+			guard window != nil, let surface else { return }
+			surface.removeFromSuperview()
+			addSubview(surface)
+			surface.frame = bounds
+			surface.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+		}
+	}
 	func makeUIView(context: Context) -> UIView {
-		let v = UIView()
+		let v = Host()
+		v.surface = controller.videoSurface
 		v.backgroundColor = .black
 		v.isAccessibilityElement = false
-		player.drawable = v
 		return v
 	}
 	func updateUIView(_ v: UIView, context: Context) {}
 }
 
+/// The same playback session and video surface, reachable while browsing any screen.
+struct MiniPlayer: View {
+	@ObservedObject var c: PlayerController
+	@EnvironmentObject private var model: AppModel
+	@Environment(\.dynamicTypeSize) private var typeSize
+
+	var body: some View {
+		VStack(spacing: 0) {
+			Divider()
+			if typeSize.isAccessibilitySize {
+				VStack(alignment: .leading) { openButton; transport }.padding()
+			} else {
+				HStack(spacing: 12) { openButton; transport }.padding(8)
+			}
+		}
+		.background(.background)
+		.accessibilityElement(children: .contain)
+		.accessibilityAction(.magicTap) { c.togglePause() }
+	}
+
+	private var openButton: some View {
+		Button { model.playerPresented = true } label: {
+			HStack(spacing: 12) {
+				if !typeSize.isAccessibilitySize {
+					VideoView(controller: c)
+						.frame(width: 88, height: 50).clipped().accessibilityHidden(true)
+				}
+				VStack(alignment: .leading) {
+					Text(c.request.title).font(.headline).lineLimit(2)
+					Text(c.status).font(.caption).foregroundStyle(.secondary).lineLimit(2)
+				}
+				.frame(maxWidth: .infinity, alignment: .leading)
+			}
+			.contentShape(Rectangle())
+		}
+		.buttonStyle(.plain)
+		.accessibilityLabel("\(L("open_player")), \(c.request.title)")
+		.accessibilityValue(c.status)
+		.siriChannel(c.channel)
+	}
+
+	private var transport: some View {
+		HStack {
+			Button { c.togglePause() } label: {
+				Label(L(c.failed ? "retry" : c.isPaused ? "play" : "pause"), systemImage: c.isPaused || c.failed ? "play.fill" : "pause.fill")
+			}
+			Button { model.stopPlayback() } label: { Label(L("stop_playback"), systemImage: "stop.fill") }
+		}
+		.labelStyle(.iconOnly)
+		.buttonStyle(.bordered)
+		#if !os(tvOS)
+		.controlSize(.large)
+		#endif
+	}
+}
+
 /// The player: real, always-visible buttons; no auto-hiding overlay, no icon-only controls.
 struct PlayerScreen: View {
-	@StateObject private var c: PlayerController
+	@ObservedObject var c: PlayerController
 	@EnvironmentObject private var model: AppModel
-	@Environment(\.dismiss) private var dismiss
-	@Environment(\.scenePhase) private var phase
 	@State private var choosing: Choosing?
 	@State private var pickingSubtitle = false
 	@AccessibilityFocusState private var voFocus: Target?
@@ -45,9 +110,34 @@ struct PlayerScreen: View {
 		}
 	}
 
-	init(request: PlayRequest) { _c = StateObject(wrappedValue: PlayerController(request: request)) }
-
 	var body: some View {
+		Group {
+			#if os(iOS)
+			if c.fullscreen {
+				video
+			} else {
+				ScrollView {
+					VStack(spacing: 16) {
+						HStack {
+							Button { model.minimizePlayer() } label: { Label(L("minimize_player"), systemImage: "chevron.down") }
+								.key(.escape)
+							Spacer()
+							Button(L("stop_playback")) { model.stopPlayback() }
+						}
+						.padding(.horizontal)
+						VideoView(controller: c).aspectRatio(16 / 9, contentMode: .fit).accessibilityHidden(true)
+						VStack(alignment: .leading, spacing: 8) {
+							Text(c.nowPlaying).font(.title2).accessibilityAddTraits(.isHeader)
+							if !c.status.isEmpty { Text(c.status) }
+							if !c.subtitle.isEmpty { Text(c.subtitle).font(.body.weight(.semibold)) }
+						}
+						.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal)
+						nativeControls
+					}
+					.padding(.vertical)
+				}
+			}
+			#else
 		VStack(spacing: 0) {
 			video
 			if !c.subtitle.isEmpty {
@@ -64,21 +154,21 @@ struct PlayerScreen: View {
 				controls
 			}
 		}
+			#endif
+		}
 		.foregroundStyle(.white)
 		.background(Color.black.ignoresSafeArea())
 		.tint(.white)
 		.accessibilityAction(.magicTap) { c.togglePause() }
+		.siriChannel(c.channel)
 		.onAppear {
-			c.start()
 			// Start on Pause, so the first activation pauses or resumes.
 			focus = .pause
 			Task { try? await Task.sleep(nanoseconds: 600_000_000); voFocus = .pause }
 		}
-		.onDisappear { c.close() }
-		.onChange(of: phase) { _, p in c.scene(p) }
 		#if os(tvOS)
 		.onPlayPauseCommand { c.togglePause() }
-		.onExitCommand { if c.fullscreen { setFullscreen(false) } else { dismiss() } }
+		.onExitCommand { if c.fullscreen { setFullscreen(false) } else { model.minimizePlayer() } }
 		#endif
 		.sheet(item: $choosing) { choice in
 			switch choice {
@@ -103,6 +193,22 @@ struct PlayerScreen: View {
 		#endif
 	}
 
+	#if os(iOS)
+	private var nativeControls: some View {
+		LazyVGrid(columns: [GridItem(.adaptive(minimum: 130))], spacing: 12) {
+			Button(L(c.failed ? "retry" : c.isPaused ? "play" : "pause")) { c.togglePause() }
+				.focused($focus, equals: .pause).accessibilityFocused($voFocus, equals: .pause)
+			Button(L("audio_track")) { chooseAudio() }.key("a")
+			Button(L("subtitles")) { chooseSubtitles() }.key("s")
+			Button(L("record")) { record() }
+			Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
+			Button(L("full_screen")) { setFullscreen(true) }.key("f")
+				.focused($focus, equals: .full).accessibilityFocused($voFocus, equals: .full)
+		}
+		.buttonStyle(.bordered).controlSize(.large).padding(.horizontal)
+	}
+	#endif
+
 	private var canPickFiles: Bool {
 		#if os(tvOS)
 		return false
@@ -116,7 +222,7 @@ struct PlayerScreen: View {
 			// Full screen hides every control. The video is one labelled button, so VoiceOver,
 			// a remote or a tap brings the controls back.
 			Button { setFullscreen(false) } label: {
-				VideoView(player: c.player).frame(maxWidth: .infinity, maxHeight: .infinity)
+				VideoView(controller: c).frame(maxWidth: .infinity, maxHeight: .infinity)
 			}
 			.buttonStyle(.plain)
 			.accessibilityLabel(L("video_full_screen"))
@@ -125,7 +231,7 @@ struct PlayerScreen: View {
 			.accessibilityFocused($voFocus, equals: .video)
 			.ignoresSafeArea()
 		} else {
-			VideoView(player: c.player)
+			VideoView(controller: c)
 				.frame(maxWidth: .infinity, maxHeight: .infinity)
 				.accessibilityHidden(true)
 		}
@@ -150,8 +256,9 @@ struct PlayerScreen: View {
 					.key("f")
 					.focused($focus, equals: .full)
 					.accessibilityFocused($voFocus, equals: .full)
-				Button(L("close")) { dismiss() }
+				Button(L("close")) { model.minimizePlayer() }
 					.key(.escape)
+				Button(L("stop_playback")) { model.stopPlayback() }
 			}
 			.buttonStyle(.bordered)
 			.padding(6)

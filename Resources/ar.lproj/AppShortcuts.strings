@@ -1,0 +1,7 @@
+"Pause playback in ${applicationName}" = "أوقف التشغيل مؤقتًا في ${applicationName}";
+"Play ${channel} in ${applicationName}" = "شغّل ${channel} في ${applicationName}";
+"Resume playback in ${applicationName}" = "استأنف التشغيل في ${applicationName}";
+"Search the guide in ${applicationName}" = "ابحث في الدليل في ${applicationName}";
+"Show the guide for ${channel} in ${applicationName}" = "اعرض دليل ${channel} في ${applicationName}";
+"Stop playback in ${applicationName}" = "أوقف التشغيل في ${applicationName}";
+"What is on ${channel} in ${applicationName}" = "ماذا يُعرض على ${channel} في ${applicationName}";

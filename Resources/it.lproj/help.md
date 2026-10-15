@@ -8,7 +8,7 @@ Cerca è in alto. Cerca in tutti i gruppi della sezione; i nomi esatti vengono p
 
 Sotto: TV in diretta, Film, Serie. Poi Liste, In onda, Cerca nella guida, Registrazioni, Altro.
 
-Su iPad, Apple TV e Vision Pro i gruppi sono a sinistra e la lista a destra. Su iPhone, Gruppi è un menu sopra la lista. Entrambe le liste hanno un titolo. Scegliere un gruppo porta alla lista.
+Si aprono prima le categorie. Scegline una per vedere i canali; Tutti va scelto esplicitamente. Su iPhone e iPad ci sono le schede Sfoglia, Guida, Registrazioni e Impostazioni. Su iPad, Apple TV e Vision Pro le categorie sono a sinistra. Entrambi gli elenchi hanno intestazioni. Scegliere una categoria porta ai suoi canali.
 
 I tasti numerici di una tastiera saltano a quel numero di canale.
 
@@ -28,7 +28,7 @@ In onda elenca tutto ciò che va in onda. La guida di un canale riproduce i prog
 
 # Lettore
 
-Pulsanti: Pausa, Audio, Sottotitoli, Registra, Trasmetti, Schermo intero, Chiudi. Tasti: A per l’audio, S per i sottotitoli, F per lo schermo intero, Esc per chiudere. Con VoiceOver, un doppio tocco con due dita avvia e mette in pausa.
+Su iPhone e iPad, Riduci mantiene la riproduzione nel mini lettore sopra le schede. Tocca titolo o video per espanderlo. Pausa e Interrompi riproduzione sono separati. Il lettore espanso offre Audio, Sottotitoli, Registra, Trasmetti e Schermo intero. Tasti: A per audio, S per sottotitoli, F per schermo intero, Escape per ridurre. Con VoiceOver, un doppio tocco con due dita riproduce e mette in pausa.
 
 Lo schermo intero nasconde i pulsanti. Un tocco, Esc o il tasto Indietro del telecomando li riporta.
 
@@ -65,3 +65,7 @@ CarPlay elenca i canali in diretta preferiti e visti di recente e ne riproduce l
 # Apple TV
 
 Apple TV non ha ricerca vocale, file M3U né file di impostazioni. Il sistema può svuotare la memoria dell’app; liste e guida si scaricano di nuovo e le registrazioni possono andare perse.
+
+# Siri e Comandi Rapidi
+
+Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.4 o successivo e supporto del sistema.

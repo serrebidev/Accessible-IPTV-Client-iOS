@@ -30,6 +30,7 @@
 "audio_track" = "Audio";
 "audio_track_set" = "Audio: %1$@";
 "backup_heading" = "Backup";
+"browse" = "Sfoglia";
 "buffer_seconds" = "Buffer (secondi)";
 "buffering" = "Buffering…";
 "cancel" = "Annulla";
@@ -44,9 +45,11 @@
 "casting_to" = "Trasmissione su %1$@";
 "catchup_available" = "replay";
 "catchup_title" = "%1$@, replay";
+"channel" = "Canale";
 "channel_guide" = "Guida";
 "channel_number" = "Numero";
 "channel_typed" = "Canale %1$@";
+"channel_unavailable" = "Questo canale non è più disponibile. Scegline un altro.";
 "channels" = "Canali";
 "check_updates" = "Cerca aggiornamenti";
 "checking_updates" = "Verifica…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "Il MAC deve essere come 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "Buffer massimo (secondi)";
+"minimize_player" = "Riduci";
 "more" = "Altro";
 "movies" = "Film";
 "n_of_m" = "%1$@ di %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "Nessun canale %1$@.";
 "ok" = "OK";
 "on_now" = "in onda";
+"open_player" = "Apri lettore";
 "pause" = "Pausa";
 "play" = "Riproduci";
 "play_external" = "Riproduci in un’altra app";
 "play_failed" = "Errore: %1$@";
 "playback_heading" = "Riproduzione";
+"playback_unavailable" = "Nessuna riproduzione. Scegli prima un canale.";
 "player_title" = "%1$@";
 "playing" = "In riproduzione";
 "playlist_removed" = "Lista rimossa";
@@ -179,12 +185,15 @@
 "settings_failed" = "Errore: %1$@";
 "settings_imported" = "Impostazioni caricate.";
 "show_stream_url" = "Mostra URL del flusso";
+"siri_help" = "Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.4 o successivo e supporto del sistema.";
+"siri_shortcuts" = "Siri e Comandi Rapidi";
 "source_deleted" = "%1$@ eliminato.";
 "source_saved" = "%1$@ salvato.";
 "speak_subtitles" = "Leggi i sottotitoli";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Ferma tutto";
 "stop_casting" = "Interrompi trasmissione";
+"stop_playback" = "Interrompi riproduzione";
 "stop_recording" = "Ferma";
 "stop_recording_channel" = "Ferma registrazione";
 "stream_ended" = "Terminato";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Disattivati";
 "subtitles_set" = "Sottotitoli: %1$@";
 "track_n" = "Traccia %1$ld";
+"tune_channel" = "Riproduci canale";
 "until" = "%1$@, fino alle %2$@";
 "up_to_date" = "Aggiornato.";
 "update_available" = "Versione %1$@ disponibile";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Di’ un nome";
 "voice_search" = "Voce";
 "voice_unavailable" = "Nessuna ricerca vocale su questo dispositivo.";
+"whats_on_channel" = "Cosa c’è su questo canale";
 "whats_on_now" = "In onda";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Sì";

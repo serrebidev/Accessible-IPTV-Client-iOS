@@ -8,7 +8,7 @@ A Keresés felül van. A szakasz összes csoportjában keres; a pontos nevek el�
 
 Alatta: Élő TV, Filmek, Sorozatok. Utána Lejátszási listák, Most műsoron, Keresés a műsorújságban, Rögzítések, Továbbiak.
 
-iPaden, Apple TV-n és Vision Prón a csoportok balra, a lista jobbra van. iPhone-on a Csoportok egy menü a lista fölött. Mindkét listának van címsora. Egy csoport kiválasztása a listára visz.
+Először a kategóriák jelennek meg. Válasszon kategóriát a csatornáihoz; az Összes külön választás. iPhone-on és iPaden a lapfülek: Böngészés, Műsorújság, Rögzítések és Beállítások. iPaden, Apple TV-n és Vision Prón a kategóriák bal oldalon vannak. Mindkét listának van címsora. A kategória kiválasztása a csatornáihoz vezet.
 
 A billentyűzet számgombjai az adott csatornaszámra ugranak.
 
@@ -28,7 +28,7 @@ A Most műsoron mindent felsorol, ami éppen megy. Egy csatorna műsorújsága l
 
 # Lejátszó
 
-Gombok: Szünet, Hang, Feliratok, Rögzítés, Átküldés, Teljes képernyő, Bezárás. Billentyűk: A a hanghoz, S a feliratokhoz, F a teljes képernyőhöz, Escape a bezáráshoz. VoiceOverrel a kétujjas dupla koppintás lejátszik és szüneteltet.
+iPhone-on és iPaden a Kis méret gomb után a lejátszás a lapfülek feletti minilejátszóban folytatódik. A címre vagy videóra koppintva újra megnyitható. A szüneteltetés és a lejátszás leállítása külön vezérlő. A nagy lejátszóban hangsáv, felirat, rögzítés, átküldés és teljes képernyő érhető el. Billentyűk: A hangsáv, S felirat, F teljes képernyő, Escape kis méret. VoiceOverrel a kétujjas dupla koppintás indít és szüneteltet.
 
 A teljes képernyő elrejti a gombokat. Koppintás, Escape vagy a távirányító Vissza gombja visszahozza őket.
 
@@ -65,3 +65,7 @@ A CarPlay felsorolja a kedvenc és a legutóbb nézett élő csatornákat, és l
 # Apple TV
 
 Az Apple TV-n nincs hangalapú keresés, M3U fájl és beállításfájl. A rendszer törölheti az alkalmazás tárhelyét; ekkor a listák és a műsorújság újra letöltődnek, a rögzítések elveszhetnek.
+
+# Siri és Parancsok
+
+iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.4-et vagy újabbat és rendszertámogatást igényel.

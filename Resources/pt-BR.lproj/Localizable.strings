@@ -30,6 +30,7 @@
 "audio_track" = "Áudio";
 "audio_track_set" = "Áudio: %1$@";
 "backup_heading" = "Backup";
+"browse" = "Explorar";
 "buffer_seconds" = "Buffer (segundos)";
 "buffering" = "Carregando buffer…";
 "cancel" = "Cancelar";
@@ -44,9 +45,11 @@
 "casting_to" = "Transmitindo para %1$@";
 "catchup_available" = "reprise";
 "catchup_title" = "%1$@, reprise";
+"channel" = "Canal";
 "channel_guide" = "Guia";
 "channel_number" = "Número";
 "channel_typed" = "Canal %1$@";
+"channel_unavailable" = "Este canal não está mais disponível. Escolha outro.";
 "channels" = "Canais";
 "check_updates" = "Procurar atualizações";
 "checking_updates" = "Verificando…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "O MAC deve ser como 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "Buffer máximo (segundos)";
+"minimize_player" = "Minimizar";
 "more" = "Mais";
 "movies" = "Filmes";
 "n_of_m" = "%1$@ de %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "Nenhum canal %1$@.";
 "ok" = "OK";
 "on_now" = "no ar";
+"open_player" = "Abrir player";
 "pause" = "Pausar";
 "play" = "Reproduzir";
 "play_external" = "Reproduzir em outro app";
 "play_failed" = "Falha: %1$@";
 "playback_heading" = "Reprodução";
+"playback_unavailable" = "Nada está sendo reproduzido. Escolha um canal primeiro.";
 "player_title" = "%1$@";
 "playing" = "Reproduzindo";
 "playlist_removed" = "Lista removida";
@@ -179,12 +185,15 @@
 "settings_failed" = "Falha: %1$@";
 "settings_imported" = "Configurações carregadas.";
 "show_stream_url" = "Mostrar URL do fluxo";
+"siri_help" = "No iPhone, Siri e Atalhos podem sintonizar canais por nome ou número, ler o programa atual e seguinte, pesquisar no guia, abrir o guia de um canal e controlar a reprodução. Inclua o nome do app. A Siri pede o texto da pesquisa. Adicione uma lista e abra o app para importar o guia. As respostas usam o guia importado. As ações funcionam sem Apple Intelligence; o contexto na tela exige iOS 18.4 ou posterior e suporte do sistema.";
+"siri_shortcuts" = "Siri e Atalhos";
 "source_deleted" = "%1$@ excluído.";
 "source_saved" = "%1$@ salvo.";
 "speak_subtitles" = "Ler legendas";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Parar tudo";
 "stop_casting" = "Parar transmissão";
+"stop_playback" = "Parar reprodução";
 "stop_recording" = "Parar";
 "stop_recording_channel" = "Parar gravação";
 "stream_ended" = "Terminou";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Desligadas";
 "subtitles_set" = "Legendas: %1$@";
 "track_n" = "Faixa %1$ld";
+"tune_channel" = "Sintonizar canal";
 "until" = "%1$@, até %2$@";
 "up_to_date" = "Atualizado.";
 "update_available" = "Versão %1$@ disponível";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Diga um nome";
 "voice_search" = "Voz";
 "voice_unavailable" = "Sem pesquisa por voz neste aparelho.";
+"whats_on_channel" = "O que passa neste canal";
 "whats_on_now" = "No ar";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Sim";

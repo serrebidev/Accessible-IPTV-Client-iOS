@@ -30,6 +30,7 @@
 "audio_track" = "Audio";
 "audio_track_set" = "Audio : %1$@";
 "backup_heading" = "Sauvegarde";
+"browse" = "Parcourir";
 "buffer_seconds" = "Tampon (secondes)";
 "buffering" = "Mise en mémoire tampon…";
 "cancel" = "Annuler";
@@ -44,9 +45,11 @@
 "casting_to" = "Cast vers %1$@";
 "catchup_available" = "replay";
 "catchup_title" = "%1$@, replay";
+"channel" = "Chaîne";
 "channel_guide" = "Guide";
 "channel_number" = "Numéro";
 "channel_typed" = "Chaîne %1$@";
+"channel_unavailable" = "Cette chaîne n’est plus disponible. Choisissez-en une autre.";
 "channels" = "Chaînes";
 "check_updates" = "Rechercher des mises à jour";
 "checking_updates" = "Vérification…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "La MAC doit ressembler à 00:1A:79:12:34:56.";
 "max_buffer_seconds" = "Tampon maximal (secondes)";
+"minimize_player" = "Réduire";
 "more" = "Plus";
 "movies" = "Films";
 "n_of_m" = "%1$@ sur %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "Pas de chaîne %1$@.";
 "ok" = "OK";
 "on_now" = "en cours";
+"open_player" = "Ouvrir le lecteur";
 "pause" = "Pause";
 "play" = "Lecture";
 "play_external" = "Lire dans une autre app";
 "play_failed" = "Échec : %1$@";
 "playback_heading" = "Lecture";
+"playback_unavailable" = "Aucune lecture en cours. Choisissez d’abord une chaîne.";
 "player_title" = "%1$@";
 "playing" = "Lecture en cours";
 "playlist_removed" = "Liste supprimée";
@@ -179,12 +185,15 @@
 "settings_failed" = "Échec : %1$@";
 "settings_imported" = "Réglages chargés.";
 "show_stream_url" = "Afficher l’URL du flux";
+"siri_help" = "Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.4 ou ultérieur et la prise en charge du système.";
+"siri_shortcuts" = "Siri et Raccourcis";
 "source_deleted" = "%1$@ supprimé.";
 "source_saved" = "%1$@ enregistré.";
 "speak_subtitles" = "Lire les sous-titres";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Tout arrêter";
 "stop_casting" = "Arrêter le cast";
+"stop_playback" = "Arrêter la lecture";
 "stop_recording" = "Arrêter";
 "stop_recording_channel" = "Arrêter l’enregistrement";
 "stream_ended" = "Terminé";
@@ -195,6 +204,7 @@
 "subtitles_off" = "Désactivés";
 "subtitles_set" = "Sous-titres : %1$@";
 "track_n" = "Piste %1$ld";
+"tune_channel" = "Regarder une chaîne";
 "until" = "%1$@, jusqu’à %2$@";
 "up_to_date" = "À jour.";
 "update_available" = "Version %1$@ disponible";
@@ -204,6 +214,7 @@
 "voice_prompt" = "Dites un nom";
 "voice_search" = "Voix";
 "voice_unavailable" = "Pas de recherche vocale sur cet appareil.";
+"whats_on_channel" = "Programme de cette chaîne";
 "whats_on_now" = "En ce moment";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Oui";

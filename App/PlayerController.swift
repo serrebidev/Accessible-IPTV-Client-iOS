@@ -16,8 +16,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	@Published var subtitle = ""
 	@Published var casting: String?
 	@Published var fullscreen = false
+	@Published private(set) var isPaused = false
 
 	let player = VLCMediaPlayer()
+	let videoSurface = UIView()
 	let request: PlayRequest
 	private let model = AppModel.shared
 	private var prefs: Prefs { model.prefs }
@@ -31,6 +33,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var cacheSeconds = Cushion.quickStartSeconds
 	private var paced: Float = 1
 	private var closing = false
+	private var started = false
+	private var intent = PlaybackIntent()
+	private var observers: [NSObjectProtocol] = []
+	private var remoteTargets: [(MPRemoteCommand, Any)] = []
 	private var retryTask: Task<Void, Never>?
 	private var timers: [Timer] = []
 	/// Runs until the audio track is chosen (about ten seconds at most), then stops.
@@ -54,6 +60,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		live = !request.catchup && ch?.isLive == true
 		localFile = request.url.hasPrefix("file:")
 		super.init()
+		videoSurface.backgroundColor = .black
+		videoSurface.isAccessibilityElement = false
+		player.drawable = videoSurface
 		player.delegate = self
 	}
 
@@ -63,15 +72,20 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	// MARK: lifecycle
 
 	func start() {
+		guard !started else { return }
+		started = true
 		#if os(iOS)
 		CarAudio.shared.stop()
 		#endif
-		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
-		try? AVAudioSession.sharedInstance().setActive(true)
+		observeAudioSession()
+		registerRemoteCommands()
+		let audioReady = activateAudio()
 		UIApplication.shared.isIdleTimerDisabled = true
 		showProgramme(announce: false)
-		open()
-		say(L("connecting"), 2)
+		if audioReady {
+			open()
+			say(L("connecting"), 2)
+		}
 		// Quick start, then build the cushion: a live stream plays 5% slow until it is held.
 		if live { timers.append(Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.pace() } }) }
 		trackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } }
@@ -87,21 +101,28 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	}
 
 	func close() {
+		guard !closing else { return }
 		closing = true
+		intent.pause()
+		observers.forEach { NotificationCenter.default.removeObserver($0) }
+		observers.removeAll()
+		remoteTargets.forEach { $0.0.removeTarget($0.1) }
+		remoteTargets.removeAll()
 		retryTask?.cancel()
 		timers.forEach { $0.invalidate() }
 		trackTimer?.invalidate()
 		cueTimer?.invalidate()
 		programmeTimer?.invalidate()
 		player.stop()
+		player.drawable = nil
 		player.delegate = nil
 		#if os(iOS)
 		discoverers.forEach { $0.stop() }
 		#endif
 		UIApplication.shared.isIdleTimerDisabled = false
-		// CarPlay can have taken over the lock screen while this screen was open (it clears
-		// [playing], which dismisses this screen after it has set its own title and commands).
-		// Wiping them here leaves its audio playing with a dead Now Playing card.
+		// CarPlay owns its own lock-screen title and commands. Closing the phone session must
+		// leave those intact if CarPlay is already playing; otherwise its sound would continue
+		// with a dead Now Playing card.
 		#if os(iOS)
 		let ownsNowPlaying = !CarAudio.shared.isPlaying
 		#else
@@ -109,14 +130,17 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		#endif
 		if ownsNowPlaying {
 			MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-			let rc = MPRemoteCommandCenter.shared()
-			[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
+			if !model.recorder.needsBackgroundAudio {
+				do { try AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation) }
+				catch { model.setStatus(L("play_failed", error.localizedDescription)) }
+			}
 		}
 	}
 
 	/// Opens the stream. A first start and a reconnect wait for half a second of cache; the
 	/// rest of the cushion is built by pace().
 	private func open() {
+		guard !closing, intent.canPlay else { return }
 		let (plain, headers) = M3U.splitHeaders(request.url)
 		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
 			say(L("play_failed", plain), 1)
@@ -162,6 +186,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func stateChanged(_ s: VLCMediaPlayerState) {
 		guard !closing else { return }
+		if s == .playing && !intent.canPlay { player.pause(); return }
 		let playing = s == .playing
 		if playing != isPlaying {
 			isPlaying = playing
@@ -170,6 +195,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 		switch s {
 		case .playing:
+			if videoOff { player.deselectAllVideoTracks() }
 			hasPlayed = true
 			failed = false
 		case .error:
@@ -177,6 +203,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			say(L("play_failed", VLCLibrary.currentErrorMessage ?? ""), 1)
 			failed = true
 		case .stopped:
+			guard intent.canPlay else { return }
 			// A live stream that ends was dropped by the server: reconnect, as the desktop does.
 			// Casting stops the player on purpose and announces it, so this is not a drop.
 			if retryTask != nil || casting != nil || tryReconnect() { return }
@@ -201,12 +228,12 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Schedules the next reconnect of a live stream; false when this stream does not get one.
 	private func tryReconnect() -> Bool {
-		guard live, casting == nil, let delay = reconnect.next() else { return false }
+		guard intent.canPlay, live, casting == nil, let delay = reconnect.next() else { return false }
 		say(L("reconnecting"), 2)
 		retryTask?.cancel()
 		retryTask = Task {
 			try? await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000)
-			guard !Task.isCancelled, !closing else { return }
+			guard !Task.isCancelled, !closing, intent.canPlay else { return }
 			retryTask = nil
 			// Behind the live window after a drop: start again at the live edge.
 			open()
@@ -217,7 +244,27 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	// MARK: controls
 
 	func togglePause() {
-		if player.isPlaying { player.pause(); return }
+		if intent.canPlay && !failed { pause() } else { resume() }
+	}
+
+	func pause() {
+		guard !closing else { return }
+		intent.pause()
+		isPaused = true
+		UIApplication.shared.isIdleTimerDisabled = false
+		retryTask?.cancel()
+		retryTask = nil
+		player.pause()
+		isPlaying = false
+		nowPlayingInfo()
+	}
+
+	func resume() {
+		guard !closing else { return }
+		intent.play()
+		guard intent.canPlay, activateAudio() else { return }
+		isPaused = false
+		UIApplication.shared.isIdleTimerDisabled = UIApplication.shared.applicationState == .active
 		if failed || player.state == .stopped || player.state == .error {
 			// Retry after a failure: a live stream starts again at the live edge.
 			retryTask?.cancel()
@@ -233,6 +280,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// A status line, spoken only up to the Announcements level in Settings
 	/// (desktop: 1 errors, 2 important events, 3 detailed status). The text always updates.
 	func say(_ text: String, _ priority: Int) {
+		guard !closing else { return }
 		status = text
 		if prefs.announceLevel >= priority { announce(text) }
 	}
@@ -398,25 +446,89 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// In the background the video is switched off and the sound keeps playing; back in the
 	/// app, the picture returns.
 	func scene(_ phase: ScenePhase) {
+		UIApplication.shared.isIdleTimerDisabled = phase == .active && !isPaused
 		if phase == .background && casting == nil && !videoOff {
 			videoOff = true
 			player.deselectAllVideoTracks()
+			player.drawable = nil
 		} else if phase == .active && videoOff {
 			videoOff = false
+			player.drawable = videoSurface
 			if !player.videoTracks.isEmpty { player.selectTrack(at: 0, type: .video) }
 		}
 	}
 
+	private func activateAudio() -> Bool {
+		do {
+			let session = AVAudioSession.sharedInstance()
+			try session.setCategory(.playback, mode: .moviePlayback)
+			try session.setActive(true)
+			return true
+		} catch {
+			failed = true
+			say(L("play_failed", error.localizedDescription), 1)
+			return false
+		}
+	}
+
+	private func observeAudioSession() {
+		let center = NotificationCenter.default
+		observers.append(center.addObserver(forName: AVAudioSession.interruptionNotification, object: nil, queue: .main) { [weak self] note in
+			Task { @MainActor in self?.interruption(note) }
+		})
+		observers.append(center.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main) { [weak self] note in
+			guard let raw = note.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+				AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable else { return }
+			Task { @MainActor in self?.pause() }
+		})
+	}
+
+	private func interruption(_ note: Notification) {
+		guard !closing, let raw = note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+			let type = AVAudioSession.InterruptionType(rawValue: raw) else { return }
+		if type == .began {
+			intent.beginInterruption()
+			isPaused = true
+			retryTask?.cancel()
+			retryTask = nil
+			player.pause()
+			isPlaying = false
+			nowPlayingInfo()
+		} else {
+			let options = (note.userInfo?[AVAudioSessionInterruptionOptionKey] as? UInt) ?? 0
+			if intent.endInterruption(shouldResume: AVAudioSession.InterruptionOptions(rawValue: options).contains(.shouldResume)) {
+				resume()
+			} else {
+				isPaused = true
+			}
+		}
+	}
+
+	private func registerRemoteCommands() {
+		let rc = MPRemoteCommandCenter.shared()
+		for command in [rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand, rc.stopCommand] { command.isEnabled = true }
+		remoteTargets = [
+			(rc.playCommand, rc.playCommand.addTarget { [weak self] _ in
+				Task { @MainActor in self?.resume() }; return .success
+			}),
+			(rc.pauseCommand, rc.pauseCommand.addTarget { [weak self] _ in
+				Task { @MainActor in self?.pause() }; return .success
+			}),
+			(rc.togglePlayPauseCommand, rc.togglePlayPauseCommand.addTarget { [weak self] _ in
+				Task { @MainActor in self?.togglePause() }; return .success
+			}),
+			(rc.stopCommand, rc.stopCommand.addTarget { [weak self] _ in
+				Task { @MainActor in self?.model.stopPlayback() }; return .success
+			}),
+		]
+	}
+
 	private func nowPlayingInfo() {
+		guard !closing else { return }
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = [
 			MPMediaItemPropertyTitle: nowPlaying.isEmpty ? request.title : nowPlaying,
 			MPNowPlayingInfoPropertyIsLiveStream: live,
-			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? 1.0 : 0.0,
+			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(player.rate) : 0.0,
 		]
-		let rc = MPRemoteCommandCenter.shared()
-		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
-		rc.playCommand.addTarget { [weak self] _ in Task { @MainActor in if self?.player.isPlaying == false { self?.togglePause() } }; return .success }
-		rc.pauseCommand.addTarget { [weak self] _ in Task { @MainActor in self?.player.pause() }; return .success }
-		rc.togglePlayPauseCommand.addTarget { [weak self] _ in Task { @MainActor in self?.togglePause() }; return .success }
 	}
 }

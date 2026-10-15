@@ -1,0 +1,7 @@
+"Pause playback in ${applicationName}" = "Mets en pause dans ${applicationName}";
+"Play ${channel} in ${applicationName}" = "Regarde ${channel} dans ${applicationName}";
+"Resume playback in ${applicationName}" = "Reprends la lecture dans ${applicationName}";
+"Search the guide in ${applicationName}" = "Cherche dans le guide de ${applicationName}";
+"Show the guide for ${channel} in ${applicationName}" = "Affiche le guide de ${channel} dans ${applicationName}";
+"Stop playback in ${applicationName}" = "Arrête la lecture dans ${applicationName}";
+"What is on ${channel} in ${applicationName}" = "Que passe-t-il sur ${channel} dans ${applicationName}";

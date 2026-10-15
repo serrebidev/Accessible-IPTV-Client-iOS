@@ -30,6 +30,7 @@
 "audio_track" = "音轨";
 "audio_track_set" = "音轨: %1$@";
 "backup_heading" = "备份";
+"browse" = "浏览";
 "buffer_seconds" = "缓冲(秒)";
 "buffering" = "正在缓冲…";
 "cancel" = "取消";
@@ -44,9 +45,11 @@
 "casting_to" = "正在投屏到 %1$@";
 "catchup_available" = "可回看";
 "catchup_title" = "%1$@,回看";
+"channel" = "频道";
 "channel_guide" = "节目单";
 "channel_number" = "号码";
 "channel_typed" = "频道 %1$@";
+"channel_unavailable" = "此频道已不可用。请选择其他频道。";
 "channels" = "频道";
 "check_updates" = "检查更新";
 "checking_updates" = "正在检查…";
@@ -105,6 +108,7 @@
 "mac_hint" = "00:1A:79:00:00:00";
 "mac_invalid" = "MAC 应类似 00:1A:79:12:34:56。";
 "max_buffer_seconds" = "最大缓冲(秒)";
+"minimize_player" = "最小化";
 "more" = "更多";
 "movies" = "电影";
 "n_of_m" = "%1$@ / %2$@";
@@ -125,11 +129,13 @@
 "number_not_found" = "没有频道 %1$@。";
 "ok" = "好";
 "on_now" = "正在播出";
+"open_player" = "打开播放器";
 "pause" = "暂停";
 "play" = "播放";
 "play_external" = "用其他应用播放";
 "play_failed" = "失败: %1$@";
 "playback_heading" = "播放";
+"playback_unavailable" = "当前没有播放内容。请先选择频道。";
 "player_title" = "%1$@";
 "playing" = "正在播放";
 "playlist_removed" = "播放列表已删除";
@@ -179,12 +185,15 @@
 "settings_failed" = "失败: %1$@";
 "settings_imported" = "设置已加载。";
 "show_stream_url" = "显示流 URL";
+"siri_help" = "在 iPhone 上，Siri 和快捷指令可以按名称或编号播放频道、朗读当前及下个节目、搜索节目指南、打开频道节目指南，以及暂停、继续或停止播放。请求中请包含应用名称。Siri 会询问搜索内容。请先添加播放列表并打开应用导入节目指南。回答来自已导入的节目指南。操作无需 Apple Intelligence 也能使用；屏幕上的频道上下文需要 iOS 18.4 或更高版本及系统支持。";
+"siri_shortcuts" = "Siri 与快捷指令";
 "source_deleted" = "已删除 %1$@。";
 "source_saved" = "已保存 %1$@。";
 "speak_subtitles" = "朗读字幕";
 "stalker_at" = "Stalker,%1$@";
 "stop_all_recordings" = "全部停止";
 "stop_casting" = "停止投屏";
+"stop_playback" = "停止播放";
 "stop_recording" = "停止";
 "stop_recording_channel" = "停止录制";
 "stream_ended" = "已结束";
@@ -195,6 +204,7 @@
 "subtitles_off" = "关闭";
 "subtitles_set" = "字幕: %1$@";
 "track_n" = "音轨 %1$ld";
+"tune_channel" = "播放频道";
 "until" = "%1$@,至 %2$@";
 "up_to_date" = "已是最新。";
 "update_available" = "有新版本 %1$@";
@@ -204,6 +214,7 @@
 "voice_prompt" = "请说出名称";
 "voice_search" = "语音";
 "voice_unavailable" = "此设备没有语音搜索。";
+"whats_on_channel" = "此频道正在播放什么";
 "whats_on_now" = "正在播出";
 "xtream_at" = "Xtream,%1$@";
 "yes" = "是";

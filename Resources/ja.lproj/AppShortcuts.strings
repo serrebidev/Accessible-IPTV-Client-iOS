@@ -1,0 +1,7 @@
+"Pause playback in ${applicationName}" = "${applicationName}で一時停止";
+"Play ${channel} in ${applicationName}" = "${applicationName}で${channel}を再生";
+"Resume playback in ${applicationName}" = "${applicationName}で再生を再開";
+"Search the guide in ${applicationName}" = "${applicationName}で番組表を検索";
+"Show the guide for ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組表を表示";
+"Stop playback in ${applicationName}" = "${applicationName}で再生を停止";
+"What is on ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組を確認";

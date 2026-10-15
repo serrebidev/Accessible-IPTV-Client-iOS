@@ -29,7 +29,9 @@ enum ExternalPlayers {
 		let model = AppModel.shared
 		switch installed.count {
 		case 0: model.showInfo(L("play_external"), L("no_external_player"))
-		case 1: UIApplication.shared.open(installed[0].1)
+		case 1:
+			model.stopPlayback()
+			UIApplication.shared.open(installed[0].1)
 		default: model.externalChoice = installed
 		}
 	}

@@ -1,5 +1,22 @@
 import Foundation
 
+/// User intent survives buffering and system interruptions; a pause must also cancel reconnects.
+public struct PlaybackIntent {
+	private var wanted = true
+	private var interrupted = false
+	public init() {}
+	public var canPlay: Bool { wanted && !interrupted }
+	public mutating func play() { wanted = true }
+	public mutating func pause() { wanted = false }
+	public mutating func beginInterruption() { interrupted = true }
+	public mutating func endInterruption(shouldResume: Bool) -> Bool {
+		guard interrupted else { return false }
+		interrupted = false
+		wanted = wanted && shouldResume
+		return canPlay
+	}
+}
+
 /// The desktop player's live cushion (internal_player.py), for libVLC on iOS too: a live channel
 /// opens on a [quickStartSeconds] cache, then plays at [slowRate] until the full cushion is
 /// held locally. Live TV arrives at real time, so slower playback is the only way it grows;

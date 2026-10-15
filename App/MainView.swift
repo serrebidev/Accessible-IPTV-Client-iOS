@@ -17,6 +17,7 @@ struct MainView: View {
 	@State private var query = ""
 	@State private var section = Library.live
 	@State private var group = Library.all
+	@State private var groupSelected = false
 	@State private var groups: [GroupItem] = []
 	@State private var channels: [Channel] = []
 	@State private var favs: Set<String> = []
@@ -46,15 +47,63 @@ struct MainView: View {
 	private var prefs: Prefs { model.prefs }
 
 	var body: some View {
+		#if os(iOS)
+		TabView(selection: $model.selectedTab) {
+			NavigationStack(path: $model.path) {
+				content
+					.navigationTitle(L("browse"))
+					.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+					.navigationDestination(for: Route.self) { route in
+						destination(route).safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+					}
+			}
+			.tabItem { Label(L("browse"), systemImage: "square.grid.2x2") }.tag(0)
+			NavigationStack(path: $model.guidePath) {
+				List {
+					NavigationLink(value: Route.onNow) { Label(L("whats_on_now"), systemImage: "tv") }
+					NavigationLink(value: Route.guideSearch) { Label(L("search_guide"), systemImage: "magnifyingglass") }
+				}
+				.navigationTitle(L("guide_heading"))
+				.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+				.navigationDestination(for: Route.self) { route in
+					destination(route).safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+				}
+			}
+			.tabItem { Label(L("guide_heading"), systemImage: "list.bullet.rectangle") }.tag(1)
+			NavigationStack {
+				RecordingsView()
+					.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+			}
+			.tabItem { Label(L("recordings"), systemImage: "record.circle") }.tag(2)
+			NavigationStack {
+				SettingsView()
+					.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
+			}
+			.tabItem { Label(L("settings"), systemImage: "gearshape") }.tag(3)
+		}
+		#else
 		NavigationStack(path: $model.path) {
 			content
 				.navigationTitle(L("app_name"))
 				.navigationDestination(for: Route.self) { destination($0) }
+				.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
 		}
+		#endif
+	}
+
+	@ViewBuilder private var miniPlayer: some View {
+		if let player = model.player, !model.playerPresented { MiniPlayer(c: player) }
 	}
 
 	@ViewBuilder private func destination(_ r: Route) -> some View {
 		switch r {
+		case .category(let name):
+			channelColumn
+				.navigationTitle(groupLabel(name))
+				#if os(iOS)
+				.navigationBarTitleDisplayMode(.inline)
+				.searchable(text: $query, prompt: L("search"))
+				#endif
 		case .sources: SourcesView()
 		case .onNow: ProgrammesView(mode: .onNow)
 		case .guideSearch: ProgrammesView(mode: .search)
@@ -69,7 +118,9 @@ struct MainView: View {
 	private var content: some View {
 		let _ = SwitchTiming.body()
 		return VStack(alignment: .leading, spacing: 8) {
+			#if !os(iOS)
 			searchBar
+			#endif
 			Picker(L("section"), selection: $section) {
 				Text(L("live_tv")).tag(Library.live)
 				Text(L("movies")).tag(Library.movies)
@@ -78,15 +129,36 @@ struct MainView: View {
 			.pickerStyle(.segmented)
 			.accessibilityElement(children: .contain)
 			.accessibilityLabel(L("section"))
+			.padding(.horizontal)
+			#if !os(iOS)
 			buttonBar
-			StatusLine(text: model.status)
+			#endif
+			StatusLine(text: model.status).padding(.horizontal)
 			lists
 		}
+		#if os(iOS)
+		.searchable(text: $query, prompt: L("search"))
+		.textInputAutocapitalization(.never)
+		.autocorrectionDisabled()
+		.toolbar {
+			ToolbarItem(placement: .topBarLeading) {
+				Button { model.path.append(.sources) } label: { Label(L("playlists_and_guides"), systemImage: "plus") }
+			}
+			ToolbarItemGroup(placement: .topBarTrailing) {
+				#if canImport(Speech)
+				Button { voice.toggle { query = $0 } status: { model.setStatus($0) } } label: {
+					Label(L("voice_search"), systemImage: "mic")
+				}
+				#endif
+				moreMenu
+			}
+		}
+		#else
 		.padding(.horizontal)
+		#endif
 		.task {
 			guard !started else { return }
 			started = true
-			group = prefs.lastGroup.isEmpty ? Library.all : prefs.lastGroup
 			load(force: false)
 			// Once a day, quietly: only speaks up when there is something to install.
 			if nowMs() - prefs.lastUpdateCheck > 86_400_000 { checkUpdates(quiet: true) }
@@ -189,21 +261,29 @@ struct MainView: View {
 				Button(L("whats_on_now")) { model.path.append(.onNow) }
 				Button(L("search_guide")) { model.path.append(.guideSearch) }
 				Button(L("recordings")) { model.path.append(.recordings) }
-				Menu(L("more")) {
-					Button(L("previous_channel")) { playPrevious() }
-					Button(L("recently_watched")) {
-						if recentChannels().isEmpty { model.setStatus(L("no_recent")) } else { showRecent = true }
-					}
-					Button(L("go_to_number")) { showNumber = true }
-					Button(L("refresh_playlists")) { load(force: true, all: true) }
-					Button(L("import_guide")) { importGuide(manual: true) }
-					Button(L("account_info")) { showAccountInfo() }
-					Button(L("settings")) { model.path.append(.settings) }
-					Button(L("check_updates")) { checkUpdates(quiet: false) }
-					Button(L("help")) { model.path.append(.help) }
-				}
+				moreMenu
 			}
 			.buttonStyle(.bordered)
+		}
+	}
+
+	private var moreMenu: some View {
+		Menu {
+			Button(L("previous_channel")) { playPrevious() }
+			Button(L("recently_watched")) {
+				if recentChannels().isEmpty { model.setStatus(L("no_recent")) } else { showRecent = true }
+			}
+			Button(L("go_to_number")) { showNumber = true }
+			Button(L("refresh_playlists")) { load(force: true, all: true) }
+			Button(L("import_guide")) { importGuide(manual: true) }
+			Button(L("account_info")) { showAccountInfo() }
+			#if !os(iOS)
+			Button(L("settings")) { model.path.append(.settings) }
+			#endif
+			Button(L("check_updates")) { checkUpdates(quiet: false) }
+			Button(L("help")) { model.path.append(.help) }
+		} label: {
+			Label(L("more"), systemImage: "ellipsis.circle")
 		}
 	}
 
@@ -225,9 +305,33 @@ struct MainView: View {
 					List(groups) { g in groupRow(g) }.listStyle(.plain)
 				}
 				.frame(maxWidth: 360)
-				channelColumn
+				if groupSelected || !query.isEmpty { channelColumn }
 			}
 		} else {
+			#if os(iOS)
+			if !query.trimmingCharacters(in: .whitespaces).isEmpty {
+				channelColumn
+			} else {
+				List {
+					Section {
+						ForEach(groups) { g in
+							Button { selectGroup(g.name) } label: {
+								HStack {
+									RowLabel(line1: groupLabel(g.name), line2: countText(g.count))
+									Image(systemName: "chevron.forward").foregroundStyle(.secondary).accessibilityHidden(true)
+								}
+							}
+							.row("\(groupLabel(g.name)), \(countText(g.count))", actions: [])
+						}
+					} header: { Text(L("groups")).accessibilityAddTraits(.isHeader) }
+					if prefs.sources.isEmpty {
+						Button(L("playlists_and_guides")) { model.path.append(.sources) }
+					}
+				}
+				.listStyle(.insetGrouped)
+				.accessibilityLabel(L("groups"))
+			}
+			#else
 			VStack(alignment: .leading) {
 				// A phone has no room for two lists side by side: one button opens the categories.
 				// A menu would build an entry for every one of them on every redraw, and providers
@@ -236,6 +340,7 @@ struct MainView: View {
 					.buttonStyle(.bordered)
 				channelColumn
 			}
+			#endif
 		}
 	}
 
@@ -258,7 +363,7 @@ struct MainView: View {
 	private func groupRow(_ g: GroupItem) -> some View {
 		Button { selectGroup(g.name) } label: { RowLabel(line1: groupLabel(g.name), line2: String(g.count)) }
 			.row("\(groupLabel(g.name)), \(g.count)", actions: [])
-			.accessibilityAddTraits(g.name == group ? .isSelected : [])
+			.accessibilityAddTraits(groupSelected && g.name == group ? .isSelected : [])
 	}
 
 	private var channelColumn: some View {
@@ -384,6 +489,9 @@ struct MainView: View {
 			let sections = all ? Library.sections.filter { $0 == Library.live || $0 == current || library.isLoaded($0) } : [current]
 			var errors: [String] = []
 			for s in sections { errors += await library.load(s, force: force) }
+			#if os(iOS)
+			IPTVShortcuts.updateAppShortcutParameters()
+			#endif
 			favs = prefs.favorites
 			await refreshGroupCounts()
 			await showChannels()
@@ -398,6 +506,7 @@ struct MainView: View {
 
 	private func selectSection(_ s: String) {
 		group = Library.all
+		groupSelected = false
 		if library.isLoaded(s) {
 			Task { await refreshGroupCounts(); await showChannels() }
 			model.status = ""
@@ -413,6 +522,7 @@ struct MainView: View {
 		// Counting every entry (250,000 for movies) used to happen on the main thread here, which
 		// is what stalled the screen after a load or a section switch.
 		let items = await Task.detached { lib.groupSummary(s).map { GroupItem(name: $0.name, count: $0.count) } }.value
+		guard s == section else { return }
 		groups = items
 		if !items.contains(where: { $0.name == group }) {
 			group = Library.all
@@ -423,6 +533,10 @@ struct MainView: View {
 	private func selectGroup(_ name: String) {
 		SwitchTiming.begin(groupLabel(name))
 		group = name
+		groupSelected = true
+		#if os(iOS)
+		if !wide { model.path.append(.category(name)) }
+		#endif
 		if section == Library.live { prefs.lastGroup = name }
 		Task {
 			let t0 = nowMs()
@@ -437,11 +551,20 @@ struct MainView: View {
 
 	private func showChannels() async {
 		let q = query.trimmingCharacters(in: .whitespaces)
+		guard groupSelected || !q.isEmpty else {
+			channels = []
+			shown = 0
+			shownFor = ""
+			heading = ""
+			listVersion += 1
+			return
+		}
 		let lib = library, s = section, g = group
 		let list = await Task.detached(priority: .userInitiated) {
 			// Search covers every group in the section; otherwise show the chosen group.
 			q.isEmpty ? lib.channelsIn(s, g) : lib.search(s, q)
 		}.value
+		guard s == section, g == group, q == query.trimmingCharacters(in: .whitespaces) else { return }
 		channels = list
 		// A new category starts at the head of it; the same one keeps what was already shown.
 		if shownFor != listID { shownFor = listID; shown = Self.window }
@@ -634,6 +757,7 @@ private struct ChannelRows: View, Equatable {
 			RowLabel(line1: fav ? L("favorite_name", ch.name) : ch.name, line2: line2)
 		}
 		.row(speech, actions: actions(ch, fav))
+		.siriChannel(ch)
 		.focused(focusedKey, equals: ch.key)
 		.accessibilityFocused(voFocus, equals: ch.key)
 	}

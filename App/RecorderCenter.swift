@@ -200,9 +200,10 @@ final class RecorderCenter: ObservableObject {
 	/// scheduled recording starts within six hours (further out, the notification says to
 	/// open the app).
 	private func updateKeepAlive() {
-		let soon = scheduled.contains { $0.start - nowMs() < 6 * 3_600_000 }
-		keepAlive.set(!active.isEmpty || soon)
+		keepAlive.set(needsBackgroundAudio)
 	}
+
+	var needsBackgroundAudio: Bool { !active.isEmpty || scheduled.contains { $0.start - nowMs() < 6 * 3_600_000 } }
 }
 
 /// A looping silent sound: with the audio background mode, the app keeps running while it plays.

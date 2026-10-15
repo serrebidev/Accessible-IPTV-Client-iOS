@@ -8,7 +8,7 @@ Suchen ist oben. Es durchsucht alle Gruppen des Bereichs; exakte Namen zuerst. S
 
 Darunter: Live-TV, Filme, Serien. Dann Listen, Jetzt, Programmsuche, Aufnahmen, Mehr.
 
-Auf iPad, Apple TV und Vision Pro stehen die Gruppen links, die Liste rechts. Auf dem iPhone ist Gruppen ein Menü über der Liste. Beide Listen haben Überschriften. Eine Gruppe wählen führt zur Liste.
+Zuerst erscheinen Kategorien. Wähle eine Kategorie für ihre Sender; Alle muss ausdrücklich gewählt werden. Auf iPhone und iPad gibt es die Tabs Durchsuchen, Programm, Aufnahmen und Einstellungen. Auf iPad, Apple TV und Vision Pro stehen Kategorien links. Beide Listen haben Überschriften. Eine Kategorie wählen führt zu ihren Sendern.
 
 Zifferntasten einer Tastatur springen zu dieser Sendernummer.
 
@@ -28,7 +28,7 @@ Jetzt listet alles, was gerade läuft. Das Programm eines Senders spielt vergang
 
 # Player
 
-Tasten: Pause, Ton, Untertitel, Aufnehmen, Streamen, Vollbild, Schließen. Tastatur: A für Ton, S für Untertitel, F für Vollbild, Escape zum Schließen. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.
+Auf iPhone und iPad läuft die Wiedergabe nach Minimieren im Miniplayer über den Tabs weiter. Titel oder Video antippen öffnet den Player. Pause und Wiedergabe stoppen sind getrennt. Der große Player bietet Ton, Untertitel, Aufnehmen, Streamen und Vollbild. Tasten: A für Ton, S für Untertitel, F für Vollbild, Escape zum Minimieren. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.
 
 Vollbild blendet die Tasten aus. Tippen, Escape oder die Zurück-Taste der Fernbedienung holt sie zurück.
 
@@ -65,3 +65,7 @@ CarPlay zeigt favorisierte und zuletzt gesehene Live-Sender und spielt ihren Ton
 # Apple TV
 
 Apple TV hat keine Sprachsuche, keine M3U-Dateien und keine Einstellungsdateien. Das System kann den Speicher der App leeren; Listen und Programm werden dann neu geladen, Aufnahmen können verloren gehen.
+
+# Siri und Kurzbefehle
+
+Auf dem iPhone können Siri und Kurzbefehle Sender nach Name oder Nummer einschalten, das aktuelle und nächste Programm vorlesen, das Programm durchsuchen, den Senderplan öffnen und die Wiedergabe pausieren, fortsetzen oder stoppen. Nenne den App-Namen. Siri fragt nach dem Suchtext. Füge eine Liste hinzu und öffne die App zum Programmimport. Antworten nutzen das importierte Programm. Die Aktionen funktionieren ohne Apple Intelligence; Bildschirmkontext benötigt iOS 18.4 oder neuer und Systemunterstützung.

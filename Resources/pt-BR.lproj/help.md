@@ -8,7 +8,7 @@ A Busca fica no topo. Busca em todos os grupos da seção; nomes exatos vêm pri
 
 Abaixo: TV ao vivo, Filmes, Séries. Depois Listas, No ar, Pesquisar no guia, Gravações, Mais.
 
-No iPad, Apple TV e Vision Pro, os grupos ficam à esquerda e a lista à direita. No iPhone, Grupos é um menu acima da lista. As duas listas têm título. Escolher um grupo leva você à lista.
+As categorias aparecem primeiro. Escolha uma para ver os canais; Todos precisa ser escolhido explicitamente. No iPhone e iPad há abas Explorar, Guia, Gravações e Ajustes. No iPad, Apple TV e Vision Pro, as categorias ficam à esquerda. As duas listas têm títulos. Escolher uma categoria leva aos seus canais.
 
 As teclas numéricas de um teclado pulam para esse número de canal.
 
@@ -28,7 +28,7 @@ No ar lista tudo o que está passando. O guia de um canal reproduz programas pas
 
 # Player
 
-Botões: Pausar, Áudio, Legendas, Gravar, Transmitir, Tela cheia, Fechar. Teclas: A para áudio, S para legendas, F para tela cheia, Esc para fechar. Com o VoiceOver, um toque duplo com dois dedos reproduz e pausa.
+No iPhone e iPad, Minimizar mantém a reprodução em um miniplayer acima das abas. Toque no título ou vídeo para expandir. Pausar e Parar reprodução são controles separados. O player expandido oferece Áudio, Legendas, Gravar, Transmitir e Tela cheia. Teclas: A para áudio, S para legendas, F para tela cheia, Escape para minimizar. Com VoiceOver, um toque duplo com dois dedos reproduz e pausa.
 
 A tela cheia esconde os botões. Um toque, Esc ou o botão Voltar do controle traz de volta.
 
@@ -65,3 +65,7 @@ O CarPlay lista os canais ao vivo favoritos e vistos recentemente e toca o som d
 # Apple TV
 
 A Apple TV não tem busca por voz, arquivos M3U nem arquivos de configurações. O sistema pode limpar o armazenamento do app; então as listas e o guia baixam de novo e gravações podem se perder.
+
+# Siri e Atalhos
+
+No iPhone, Siri e Atalhos podem sintonizar canais por nome ou número, ler o programa atual e seguinte, pesquisar no guia, abrir o guia de um canal e controlar a reprodução. Inclua o nome do app. A Siri pede o texto da pesquisa. Adicione uma lista e abra o app para importar o guia. As respostas usam o guia importado. As ações funcionam sem Apple Intelligence; o contexto na tela exige iOS 18.4 ou posterior e suporte do sistema.

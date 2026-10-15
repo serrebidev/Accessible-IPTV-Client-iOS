@@ -76,6 +76,7 @@ struct InfoText: Identifiable {
 /// Screens pushed on the main navigation stack.
 enum Route: Hashable {
 	case sources, onNow, guideSearch, recordings, settings, help
+	case category(String)
 	case channelGuide(String)
 	case episodes(String)
 }
@@ -93,9 +94,12 @@ final class AppModel: ObservableObject {
 	@Published var status = ""
 	/// Bumped when favourites, the guide or the lists change, so rows re-read them.
 	@Published var revision = 0
-	@Published var playing: PlayRequest?
+	@Published private(set) var player: PlayerController?
+	@Published var playerPresented = false
 	@Published var info: InfoText?
 	@Published var path: [Route] = []
+	@Published var guidePath: [Route] = []
+	@Published var selectedTab = 0
 	/// Installed players to pick from for "Play in another app".
 	@Published var externalChoice: [(String, URL)]?
 	/// Set when playlists change so the main screen reloads on return.
@@ -140,6 +144,9 @@ final class AppModel: ObservableObject {
 	}
 
 	func refresh() { revision += 1 }
+	func navigate(_ route: Route) {
+		if selectedTab == 1 { guidePath.append(route) } else { path.append(route) }
+	}
 
 	/// Plays any list entry: shows open their episode list; Stalker links are fetched first.
 	func open(_ ch: Channel, external: Bool = false) {
@@ -164,7 +171,24 @@ final class AppModel: ObservableObject {
 
 	func play(_ url: String, title: String, key: String, catchup: Bool = false) {
 		if prefs.useExternalPlayer { ExternalPlayers.offer(url, title: title); return }
-		playing = PlayRequest(url: url, title: title, channelKey: key, catchup: catchup)
+		stopPlayback()
+		let request = PlayRequest(url: url, title: title, channelKey: key, catchup: catchup)
+		let controller = PlayerController(request: request)
+		player = controller
+		controller.start()
+		controller.scene(UIApplication.shared.applicationState == .background ? .background : .active)
+		playerPresented = true
+	}
+
+	func minimizePlayer() {
+		player?.fullscreen = false
+		playerPresented = false
+	}
+
+	func stopPlayback() {
+		player?.close()
+		player = nil
+		playerPresented = false
 	}
 
 	func showInfo(_ title: String, _ text: String) { info = InfoText(title: title, text: text) }
