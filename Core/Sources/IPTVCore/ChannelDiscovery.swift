@@ -16,14 +16,15 @@ public enum ChannelDiscovery {
 		return Lists.searchRanked(channels, query)
 	}
 
-	public static func suggestions(_ channels: [Channel], favorites: Set<String>, recent: [String]) -> [Channel] {
+	/// Favourites, then recent channels, then the playlist's order, up to `limit`.
+	public static func suggestions(_ channels: [Channel], favorites: Set<String>, recent: [String], limit: Int = 20) -> [Channel] {
 		let byKey = Dictionary(channels.map { ($0.key, $0) }, uniquingKeysWith: { first, _ in first })
 		var seen = Set<String>()
 		let ordered = channels.filter { favorites.contains($0.key) } + recent.compactMap { byKey[$0] } + channels
 		var result: [Channel] = []
 		for channel in ordered where seen.insert(channel.key).inserted {
 			result.append(channel)
-			if result.count == 20 { break }
+			if result.count == limit { break }
 		}
 		return result
 	}

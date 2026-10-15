@@ -496,6 +496,7 @@ struct MainView: View {
 			for s in sections { errors += await library.load(s, force: force) }
 			#if os(iOS)
 			IPTVShortcuts.updateAppShortcutParameters()
+			SiriIndex.update()
 			#endif
 			favs = prefs.favorites
 			await refreshGroupCounts()

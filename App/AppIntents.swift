@@ -3,6 +3,7 @@ import IPTVCore
 
 #if os(iOS)
 import AppIntents
+import CoreSpotlight
 import CryptoKit
 
 struct TVChannelEntity: AppEntity {
@@ -47,8 +48,35 @@ struct TVChannelQuery: EntityStringQuery {
 		let channels = try await SiriLibrary.live()
 		let prefs = AppModel.shared.prefs
 		let favorites = prefs.favorites, recent = prefs.recent
-		let matches = await Task.detached { ChannelDiscovery.suggestions(channels, favorites: favorites, recent: recent) }.value
+		// Siri matches spoken channel names in phrases only against these: more than the 20 shown in pickers.
+		let matches = await Task.detached { ChannelDiscovery.suggestions(channels, favorites: favorites, recent: recent, limit: 100) }.value
 		return matches.map(TVChannelEntity.init)
+	}
+}
+
+/// Spotlight's semantic index lets Siri and Apple Intelligence find channels by name.
+@available(iOS 18.0, *)
+extension TVChannelEntity: IndexedEntity {}
+
+@MainActor
+enum SiriIndex {
+	/// Reindexes favourites, recent channels and the rest of the playlist's order, bounded.
+	static func update() {
+		guard #available(iOS 18.0, *) else { return }
+		let model = AppModel.shared
+		let channels = model.library.channels, favorites = model.prefs.favorites, recent = model.prefs.recent
+		Task.detached {
+			let entities = ChannelDiscovery.suggestions(channels, favorites: favorites, recent: recent, limit: 1000).map(TVChannelEntity.init)
+			let index = CSSearchableIndex.default()
+			try? await index.deleteAppEntities(ofType: TVChannelEntity.self)
+			try? await index.indexAppEntities(entities)
+		}
+	}
+
+	/// A channel tuned in the app: Siri learns it for suggestions.
+	static func tuned(_ channel: Channel) {
+		guard channel.isLive else { return }
+		_ = IntentDonationManager.shared.donate(intent: TuneChannelIntent(channel: TVChannelEntity(channel)))
 	}
 }
 
@@ -62,6 +90,14 @@ private enum SiriLibrary {
 			if model.library.channels.isEmpty, !errors.isEmpty { throw ActionError.message(L("siri_failed")) }
 		}
 		return model.library.channels
+	}
+
+	static func tune(_ entity: TVChannelEntity) async throws {
+		let ch = try await channel(entity)
+		let model = AppModel.shared
+		guard let url = try? await model.library.resolveUrl(ch) else { throw ActionError.message(L("siri_failed")) }
+		model.prefs.addRecent(ch.key)
+		model.play(url, title: entity.name, key: ch.key)
 	}
 
 	static func channel(_ entity: TVChannelEntity) async throws -> Channel {
@@ -83,12 +119,24 @@ struct TuneChannelIntent: AppIntent {
 	static var openAppWhenRun = true
 	@Parameter(title: "channel") var channel: TVChannelEntity
 
+	init() {}
+	init(channel: TVChannelEntity) { self.channel = channel }
+
 	@MainActor func perform() async throws -> some IntentResult {
-		let ch = try await SiriLibrary.channel(channel)
-		let model = AppModel.shared
-		guard let url = try? await model.library.resolveUrl(ch) else { throw SiriLibrary.ActionError.message(L("siri_failed")) }
-		model.prefs.addRecent(ch.key)
-		model.play(url, title: channel.name, key: ch.key)
+		try await SiriLibrary.tune(channel)
+		return .result()
+	}
+}
+
+/// What Spotlight and Siri run when a channel result is opened. Hidden from the Shortcuts list,
+/// where Tune channel does the same.
+struct OpenChannelIntent: OpenIntent {
+	static var title: LocalizedStringResource = "tune_channel"
+	static var isDiscoverable = false
+	@Parameter(title: "channel") var target: TVChannelEntity
+
+	@MainActor func perform() async throws -> some IntentResult {
+		try await SiriLibrary.tune(target)
 		return .result()
 	}
 }
@@ -169,7 +217,7 @@ struct StopTVIntent: AudioPlaybackIntent {
 
 struct IPTVShortcuts: AppShortcutsProvider {
 	static var appShortcuts: [AppShortcut] {
-		AppShortcut(intent: TuneChannelIntent(), phrases: ["Play \(\.$channel) in \(.applicationName)"], shortTitle: "tune_channel", systemImageName: "tv")
+		AppShortcut(intent: TuneChannelIntent(), phrases: ["Play \(\.$channel) in \(.applicationName)", "Watch \(\.$channel) in \(.applicationName)"], shortTitle: "tune_channel", systemImageName: "tv")
 		AppShortcut(intent: WhatsOnChannelIntent(), phrases: ["What is on \(\.$channel) in \(.applicationName)"], shortTitle: "whats_on_channel", systemImageName: "list.bullet.rectangle")
 		AppShortcut(intent: SearchGuideIntent(), phrases: ["Search the guide in \(.applicationName)"], shortTitle: "search_guide", systemImageName: "magnifyingglass")
 		AppShortcut(intent: OpenChannelGuideIntent(), phrases: ["Show the guide for \(\.$channel) in \(.applicationName)"], shortTitle: "channel_guide", systemImageName: "calendar")

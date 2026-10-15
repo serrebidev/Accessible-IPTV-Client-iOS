@@ -59,6 +59,11 @@ targets:
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
         NSUserActivityTypes: [dev.serrebi.accessibleiptv.channel]
+        # Siri also answers to these names, e.g. "Play CNN in IPTV".
+        INAlternativeAppNames:
+          - INAlternativeAppName: IPTV
+            INAlternativeAppNamePronunciationHint: I P T V
+          - INAlternativeAppName: Accessible TV
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         # Wheelchair mounts and TV stands: every orientation.
