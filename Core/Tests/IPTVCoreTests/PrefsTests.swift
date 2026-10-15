@@ -23,6 +23,18 @@ final class PrefsTests: XCTestCase {
 		XCTAssertEqual(Lists.searchRanked(named("A", "B"), "").count, 2)
 	}
 
+	/// Some feeds carry names in decomposed form; the query comes from the keyboard, usually composed.
+	func testSearchMatchesDecomposedAndComposedAccents() {
+		XCTAssertEqual(Lists.searchRanked(named("Cafe\u{301} TV"), "caf\u{E9}").map(\.name), ["Cafe\u{301} TV"])
+		XCTAssertEqual(Lists.searchRanked(named("Caf\u{E9} TV"), "cafe\u{301}").map(\.name), ["Caf\u{E9} TV"])
+	}
+
+	/// Both hit at a word start, so the shorter name comes first by characters, not by UTF-8 bytes,
+	/// which would tie here and leave them in playlist order.
+	func testSearchRanksShorterNamesFirstByCharacters() {
+		XCTAssertEqual(Lists.searchRanked(named("Somethings", "Some Caf\u{E9}"), "some").map(\.name), ["Some Caf\u{E9}", "Somethings"])
+	}
+
 	func testXtreamAccountBehindAnM3uLink() {
 		let src = Source(id: "1", type: Source.typeM3U, name: "Dispatcharr", url: "http://h:9191/get.php?username=me&password=pw")
 		let x = Lists.xtreamBehind(src)!

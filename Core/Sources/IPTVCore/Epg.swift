@@ -90,6 +90,13 @@ public final class Epg {
 		indexLock.lock(); byId = ids; byName = names; idCache = [:]; indexLock.unlock()
 	}
 
+	/// Drops the per-channel matches. The live list decides what a channel matches by, and an
+	/// Xtream or Stalker entry keeps its id through a rename or a fixed tvg-id: without this, a
+	/// channel would keep the guide entry it had when the list first loaded, or its lack of one.
+	public func forgetChannelIds() {
+		indexLock.lock(); idCache = [:]; indexLock.unlock()
+	}
+
 	public func guideId(_ ch: Channel) -> String? {
 		indexLock.lock(); defer { indexLock.unlock() }
 		if let hit = idCache[ch.key] { return hit }

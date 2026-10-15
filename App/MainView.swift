@@ -333,6 +333,8 @@ struct MainView: View {
 			model.setStatus(L("no_sources"))
 			groups = []
 			channels = []
+			// The rows compare by this, not by [channels]: without it the deleted list stays on screen.
+			listVersion += 1
 			heading = ""
 			return
 		}

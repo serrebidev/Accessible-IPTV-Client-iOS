@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.5
+
+- Fixes from an audit of 0.1.4. A search for a name with an accent (é, ü, ñ, and non-Latin scripts alike) came back empty when the feed wrote that letter with the accent as a separate mark instead of one letter, which some providers do. Both spellings are matched again.
+- Names of the same search rank are ordered by how many characters they have, as before, so a short accented name no longer sorts below a longer plain one.
+- After refreshing playlists, a channel no longer keeps the guide entry it had when the list first loaded (or the lack of one) for the rest of the session. Xtream and Stalker entries keep their number when a provider renames a channel or fixes its guide id, so the match is worked out again from the new list.
+- Deleting the last playlist no longer leaves the list from before on screen, where the rows could still be played from a playlist that is gone.
+
 ## 0.1.4
 
 - The category list on a phone opens from one button and is now a lazy list: only the rows on screen are built. It used to be a menu that built an entry for every category on every redraw of the screen, so a provider with hundreds of categories was slow to open and slowed everything else down with it. The button shows the category you are in and how many entries it has.

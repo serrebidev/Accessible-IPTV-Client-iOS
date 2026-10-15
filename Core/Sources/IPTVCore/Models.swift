@@ -221,17 +221,20 @@ public enum Lists {
 	}
 
 	/// The form names are searched in; the Library keeps one per entry so a keystroke does not
-	/// lowercase 250,000 names again.
-	public static func lowerName(_ s: String) -> String { s.trimmingCharacters(in: .whitespaces).lowercased() }
+	/// lowercase 250,000 names again. Composed: the byte scan in [firstHit] only finds a query in
+	/// a name that is written the same way, and feeds carry decomposed text.
+	public static func lowerName(_ s: String) -> String {
+		s.trimmingCharacters(in: .whitespaces).lowercased().precomposedStringWithCanonicalMapping
+	}
 
 	/// [searchRanked] over names already in [lowerName] form (same order as [list]).
 	public static func ranked(_ list: [Channel], _ lower: [String], _ q: String) -> [Channel] {
-		let query = q.trimmingCharacters(in: .whitespaces).lowercased()
+		let query = lowerName(q)
 		if query.isEmpty { return list }
 		var hits: [(r: Int, n: Int, i: Int)] = []
 		for i in list.indices {
 			let n = lower[i]
-			if let r = rank(n, query) { hits.append((r, n.utf8.count, i)) }
+			if let r = rank(n, query) { hits.append((r, n.count, i)) }
 		}
 		return hits.sorted { ($0.r, $0.n, $0.i) < ($1.r, $1.n, $1.i) }.map { list[$0.i] }
 	}

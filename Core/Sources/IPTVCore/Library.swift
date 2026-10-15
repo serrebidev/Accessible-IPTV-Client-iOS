@@ -79,7 +79,7 @@ public final class Library {
 		lock.lock(); lists[section] = all; lowerNames[section] = lower
 		if section == Library.live { fingerprintCache = fp }
 		lock.unlock()
-		if section == Library.live && !epg.hasGuide { epg.loadIndex() }
+		if section == Library.live { epg.forgetChannelIds(); if !epg.hasGuide { epg.loadIndex() } }
 		return errors
 	}
 

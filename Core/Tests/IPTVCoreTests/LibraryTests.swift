@@ -119,6 +119,19 @@ final class LibraryTests: XCTestCase {
 		XCTAssertTrue(lib.guideStale())
 	}
 
+	/// Xtream and Stalker entries keep their id when the provider renames them or fixes a tvg-id,
+	/// so a guide match remembered for that id must not outlive the list it was computed from.
+	func testALiveReloadDropsTheCachedGuideMatch() async throws {
+		lib.openGuide = { _ in DataSource(Data("<tv><channel id=\"bbc1.uk\"><display-name>BBC One</display-name></channel></tv>".utf8)) }
+		_ = await lib.load(Library.live, force: false)
+		_ = try await lib.importGuide()
+		let entry = Channel(sourceId: "src", itemId: "17", name: "BBC One", group: "News", url: "u")
+		XCTAssertEqual(lib.epg.guideId(entry), "bbc1.uk")
+		_ = await lib.load(Library.live, force: true)
+		let renamed = Channel(sourceId: "src", itemId: "17", name: "Nowhere News", group: "News", url: "u")
+		XCTAssertNil(lib.epg.guideId(renamed))
+	}
+
 	func testRestoredScreensFindTheirChannel() async throws {
 		_ = await lib.load(Library.movies, force: false)
 		let key = lib.list(Library.movies)[0].key
