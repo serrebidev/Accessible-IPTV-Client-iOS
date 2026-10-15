@@ -170,6 +170,7 @@
 "remove_favorite" = "Retirer des favoris";
 "removed_favorite" = "%1$@ retiré.";
 "retry" = "Réessayer";
+"row_actions_hint" = "D’autres actions sont disponibles.";
 "save" = "Enregistrer";
 "saved_on" = "%1$@";
 "schedule_recording" = "Programmer l’enregistrement";
@@ -185,6 +186,7 @@
 "settings_failed" = "Échec : %1$@";
 "settings_imported" = "Réglages chargés.";
 "show_stream_url" = "Afficher l’URL du flux";
+"siri_failed" = "Impossible de charger la chaîne ou le guide. Ouvrez l’app pour les détails.";
 "siri_help" = "Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.4 ou ultérieur et la prise en charge du système.";
 "siri_shortcuts" = "Siri et Raccourcis";
 "source_deleted" = "%1$@ supprimé.";

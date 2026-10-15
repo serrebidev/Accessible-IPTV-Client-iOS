@@ -27,4 +27,12 @@ final class ChannelDiscoveryTests: XCTestCase {
 		XCTAssertEqual(result.count, 20)
 		XCTAssertEqual(Set(result.map(\.key)).count, 20)
 	}
+
+	func testUnnamedPlaylistURLsAreNotPublishedAsSiriLabels() {
+		let channel = M3U.parse(sourceId: "s", text: "#EXTM3U\n#EXTINF:-1,\nhttp://host/live/USER/PASS/42.ts")[0]
+		XCTAssertTrue(channel.key.contains("PASS"))
+		XCTAssertEqual(ChannelDiscovery.publicText(channel.name), "")
+		XCTAssertEqual(ChannelDiscovery.publicText("BBC One"), "BBC One")
+		XCTAssertEqual(ChannelDiscovery.publicText("http://USER:PASS@host/category"), "")
+	}
 }

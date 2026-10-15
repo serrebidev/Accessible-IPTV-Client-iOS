@@ -158,7 +158,6 @@ struct PlayerScreen: View {
 		}
 		.foregroundStyle(.white)
 		.background(Color.black.ignoresSafeArea())
-		.tint(.white)
 		.accessibilityAction(.magicTap) { c.togglePause() }
 		.siriChannel(c.channel)
 		.onAppear {

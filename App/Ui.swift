@@ -32,6 +32,7 @@ private struct RowModifier: ViewModifier {
 				.accessibilityLabel(speech)
 				.accessibilityActions { ForEach(actions) { a in Button(a.label, action: a.run) } }
 				.contextMenu { ForEach(actions) { a in Button(a.label) { a.run(); focused = true } } }
+				.accessibilityHint(L("row_actions_hint"))
 				.accessibilityFocused($focused)
 		}
 	}

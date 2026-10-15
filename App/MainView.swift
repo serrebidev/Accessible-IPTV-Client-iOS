@@ -72,11 +72,13 @@ struct MainView: View {
 			.tabItem { Label(L("guide_heading"), systemImage: "list.bullet.rectangle") }.tag(1)
 			NavigationStack {
 				RecordingsView()
+					.navigationTitle(L("recordings"))
 					.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
 			}
 			.tabItem { Label(L("recordings"), systemImage: "record.circle") }.tag(2)
 			NavigationStack {
 				SettingsView()
+					.navigationTitle(L("settings"))
 					.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
 			}
 			.tabItem { Label(L("settings"), systemImage: "gearshape") }.tag(3)
@@ -322,6 +324,7 @@ struct MainView: View {
 								}
 							}
 							.row("\(groupLabel(g.name)), \(countText(g.count))", actions: [])
+							.accessibilityLabel("\(groupLabel(g.name)), \(countText(g.count))")
 						}
 					} header: { Text(L("groups")).accessibilityAddTraits(.isHeader) }
 					if prefs.sources.isEmpty {

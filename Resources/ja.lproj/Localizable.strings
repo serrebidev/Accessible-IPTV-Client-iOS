@@ -170,6 +170,7 @@
 "remove_favorite" = "お気に入りから削除";
 "removed_favorite" = "%1$@ を削除しました。";
 "retry" = "再試行";
+"row_actions_hint" = "ほかの操作を利用できます。";
 "save" = "保存";
 "saved_on" = "%1$@";
 "schedule_recording" = "録画を予約";
@@ -185,6 +186,7 @@
 "settings_failed" = "失敗: %1$@";
 "settings_imported" = "設定を読み込みました。";
 "show_stream_url" = "ストリーム URL を表示";
+"siri_failed" = "チャンネルまたは番組表を読み込めませんでした。詳細はアプリを開いてください。";
 "siri_help" = "iPhoneではSiriとショートカットで名前や番号によるチャンネル選択、現在と次の番組の読み上げ、番組表の検索と表示、再生の一時停止・再開・停止ができます。アプリ名を含めて話してください。Siriが検索語を尋ねます。プレイリストを追加してアプリを開き、番組表を取り込んでください。回答は取り込んだ番組表を使います。操作はApple Intelligenceなしでも使えます。画面上のチャンネル情報の連携にはiOS 18.4以降とシステムの対応が必要です。";
 "siri_shortcuts" = "Siriとショートカット";
 "source_deleted" = "%1$@ を削除しました。";

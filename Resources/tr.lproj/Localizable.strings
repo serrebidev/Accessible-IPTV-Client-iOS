@@ -170,6 +170,7 @@
 "remove_favorite" = "Favorilerden çıkar";
 "removed_favorite" = "%1$@ çıkarıldı.";
 "retry" = "Yeniden dene";
+"row_actions_hint" = "Başka eylemler kullanılabilir.";
 "save" = "Kaydet";
 "saved_on" = "%1$@";
 "schedule_recording" = "Kayıt planla";
@@ -185,6 +186,7 @@
 "settings_failed" = "Başarısız: %1$@";
 "settings_imported" = "Ayarlar yüklendi.";
 "show_stream_url" = "Yayın URL’sini göster";
+"siri_failed" = "Kanal veya rehber yüklenemedi. Ayrıntılar için uygulamayı açın.";
 "siri_help" = "iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.4 veya sonrası ve sistem desteği gerektirir.";
 "siri_shortcuts" = "Siri ve Kestirmeler";
 "source_deleted" = "%1$@ silindi.";

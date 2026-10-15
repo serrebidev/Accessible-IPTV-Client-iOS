@@ -170,6 +170,7 @@
 "remove_favorite" = "Rimuovi dai preferiti";
 "removed_favorite" = "%1$@ rimosso.";
 "retry" = "Riprova";
+"row_actions_hint" = "Altre azioni disponibili.";
 "save" = "Salva";
 "saved_on" = "%1$@";
 "schedule_recording" = "Programma registrazione";
@@ -185,6 +186,7 @@
 "settings_failed" = "Errore: %1$@";
 "settings_imported" = "Impostazioni caricate.";
 "show_stream_url" = "Mostra URL del flusso";
+"siri_failed" = "Impossibile caricare il canale o la guida. Apri l’app per i dettagli.";
 "siri_help" = "Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.4 o successivo e supporto del sistema.";
 "siri_shortcuts" = "Siri e Comandi Rapidi";
 "source_deleted" = "%1$@ eliminato.";

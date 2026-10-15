@@ -2,6 +2,9 @@ import Foundation
 
 /// Bounded channel discovery for system pickers, voice commands and Shortcuts.
 public enum ChannelDiscovery {
+	/// Unnamed playlist entries can use credential-bearing URLs as labels. Keep those local.
+	public static func publicText(_ text: String) -> String { text.contains("://") ? "" : text }
+
 	public static func matching(_ channels: [Channel], _ text: String) -> [Channel] {
 		let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
 		guard !query.isEmpty else { return [] }

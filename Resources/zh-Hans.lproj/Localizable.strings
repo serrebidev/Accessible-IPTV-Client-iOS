@@ -170,6 +170,7 @@
 "remove_favorite" = "取消收藏";
 "removed_favorite" = "已移除 %1$@。";
 "retry" = "重试";
+"row_actions_hint" = "有更多可用操作。";
 "save" = "保存";
 "saved_on" = "%1$@";
 "schedule_recording" = "预约录制";
@@ -185,6 +186,7 @@
 "settings_failed" = "失败: %1$@";
 "settings_imported" = "设置已加载。";
 "show_stream_url" = "显示流 URL";
+"siri_failed" = "无法加载频道或节目指南。请打开应用查看详情。";
 "siri_help" = "在 iPhone 上，Siri 和快捷指令可以按名称或编号播放频道、朗读当前及下个节目、搜索节目指南、打开频道节目指南，以及暂停、继续或停止播放。请求中请包含应用名称。Siri 会询问搜索内容。请先添加播放列表并打开应用导入节目指南。回答来自已导入的节目指南。操作无需 Apple Intelligence 也能使用；屏幕上的频道上下文需要 iOS 18.4 或更高版本及系统支持。";
 "siri_shortcuts" = "Siri 与快捷指令";
 "source_deleted" = "已删除 %1$@。";

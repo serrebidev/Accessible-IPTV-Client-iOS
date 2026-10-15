@@ -170,6 +170,7 @@
 "remove_favorite" = "Aus Favoriten entfernen";
 "removed_favorite" = "%1$@ entfernt.";
 "retry" = "Erneut";
+"row_actions_hint" = "Weitere Aktionen verfügbar.";
 "save" = "Speichern";
 "saved_on" = "%1$@";
 "schedule_recording" = "Aufnahme planen";
@@ -185,6 +186,7 @@
 "settings_failed" = "Fehler: %1$@";
 "settings_imported" = "Einstellungen geladen.";
 "show_stream_url" = "Stream-URL anzeigen";
+"siri_failed" = "Sender oder Programm konnten nicht geladen werden. Öffne die App für Details.";
 "siri_help" = "Auf dem iPhone können Siri und Kurzbefehle Sender nach Name oder Nummer einschalten, das aktuelle und nächste Programm vorlesen, das Programm durchsuchen, den Senderplan öffnen und die Wiedergabe pausieren, fortsetzen oder stoppen. Nenne den App-Namen. Siri fragt nach dem Suchtext. Füge eine Liste hinzu und öffne die App zum Programmimport. Antworten nutzen das importierte Programm. Die Aktionen funktionieren ohne Apple Intelligence; Bildschirmkontext benötigt iOS 18.4 oder neuer und Systemunterstützung.";
 "siri_shortcuts" = "Siri und Kurzbefehle";
 "source_deleted" = "%1$@ gelöscht.";

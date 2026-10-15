@@ -3,6 +3,7 @@ import IPTVCore
 
 #if os(iOS)
 import AppIntents
+import CryptoKit
 
 struct TVChannelEntity: AppEntity {
 	static var typeDisplayRepresentation: TypeDisplayRepresentation = "channel"
@@ -13,10 +14,15 @@ struct TVChannelEntity: AppEntity {
 	@Property(title: "channel_number") var number: String
 
 	init(_ channel: Channel) {
-		id = channel.key
-		name = channel.name
-		category = channel.group
-		number = channel.number
+		id = Self.identifier(channel)
+		let publicName = ChannelDiscovery.publicText(channel.name)
+		name = publicName.isEmpty ? L("channel") : publicName
+		category = ChannelDiscovery.publicText(channel.group)
+		number = ChannelDiscovery.publicText(channel.number)
+	}
+
+	static func identifier(_ channel: Channel) -> String {
+		SHA256.hash(data: Data(channel.key.utf8)).map { String(format: "%02x", $0) }.joined()
 	}
 
 	var displayRepresentation: DisplayRepresentation {
@@ -28,7 +34,7 @@ struct TVChannelQuery: EntityStringQuery {
 	@MainActor func entities(for identifiers: [String]) async throws -> [TVChannelEntity] {
 		let channels = try await SiriLibrary.live()
 		let ids = Set(identifiers)
-		return channels.filter { ids.contains($0.key) }.map(TVChannelEntity.init)
+		return await Task.detached { channels.filter { ids.contains(TVChannelEntity.identifier($0)) }.map(TVChannelEntity.init) }.value
 	}
 
 	@MainActor func entities(matching string: String) async throws -> [TVChannelEntity] {
@@ -53,13 +59,14 @@ private enum SiriLibrary {
 		guard !model.prefs.sources.isEmpty else { throw ActionError.message(L("no_sources")) }
 		if !model.library.isLoaded(Library.live) || model.sourcesChanged {
 			let errors = await model.library.load(Library.live, force: false)
-			if model.library.channels.isEmpty, !errors.isEmpty { throw ActionError.message(L("load_errors", errors.joined(separator: "; "))) }
+			if model.library.channels.isEmpty, !errors.isEmpty { throw ActionError.message(L("siri_failed")) }
 		}
 		return model.library.channels
 	}
 
 	static func channel(_ entity: TVChannelEntity) async throws -> Channel {
-		guard let channel = try await live().first(where: { $0.key == entity.id }) else {
+		let channels = try await live()
+		guard let channel = await Task.detached(operation: { channels.first { TVChannelEntity.identifier($0) == entity.id } }).value else {
 			throw ActionError.message(L("channel_unavailable"))
 		}
 		return channel
@@ -79,9 +86,9 @@ struct TuneChannelIntent: AppIntent {
 	@MainActor func perform() async throws -> some IntentResult {
 		let ch = try await SiriLibrary.channel(channel)
 		let model = AppModel.shared
-		let url = try await model.library.resolveUrl(ch)
+		guard let url = try? await model.library.resolveUrl(ch) else { throw SiriLibrary.ActionError.message(L("siri_failed")) }
 		model.prefs.addRecent(ch.key)
-		model.play(url, title: ch.name, key: ch.key)
+		model.play(url, title: channel.name, key: ch.key)
 		return .result()
 	}
 }
@@ -93,10 +100,10 @@ struct WhatsOnChannelIntent: AppIntent {
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
 		let ch = try await SiriLibrary.channel(channel)
 		let guide = AppModel.shared.library.epg.nowNext(ch)
-		var parts = [ch.name]
+		var parts = [channel.name]
 		if let now = guide.now { parts.append(L("now_programme", Format.programme(now))) }
 		if let next = guide.next { parts.append(L("next_programme", Format.programme(next))) }
-		if guide.isEmpty { parts.append(L("no_guide_for", ch.name)) }
+		if guide.isEmpty { parts.append(L("no_guide_for", channel.name)) }
 		let text = Format.sentences(parts)
 		return .result(value: text, dialog: "\(text)")
 	}
@@ -113,7 +120,7 @@ struct SearchGuideIntent: AppIntent {
 		guard !term.isEmpty else { throw SiriLibrary.ActionError.message(L("no_matches")) }
 		let results = await Task.detached { epg.search(term, channels) }.value
 		// shortcut: read five matches aloud; the full guide search remains available in the app.
-		let lines = results.prefix(5).map { p, ch in "\(ch.name). \(p.title). \(Format.dateTime(p.start)). \(Format.time(p.stop))" }
+		let lines = results.prefix(5).map { p, ch in "\(TVChannelEntity(ch).name). \(p.title). \(Format.dateTime(p.start)). \(Format.time(p.stop))" }
 		let text = lines.isEmpty ? L(epg.hasGuide ? "no_matches" : "no_guide") : lines.joined(separator: "\n")
 		return .result(value: text, dialog: "\(text)")
 	}
