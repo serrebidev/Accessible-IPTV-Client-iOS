@@ -57,6 +57,15 @@ final class GuideTests: XCTestCase {
 		XCTAssertEqual(nn.next?.title, "B")
 	}
 
+	/// The remembered now/next answer belongs to the guide it came from: an import replaces it.
+	func testNowNextFollowsANewGuide() async throws {
+		try await load([xml(standard, ab)])
+		XCTAssertEqual(epg.nowNext(bbc, now: now).now?.title, "A")
+		try await load([xml(standard, [P(ch: "bbc1.uk", start: now - h, stop: now + h, title: "New")])])
+		XCTAssertEqual(epg.nowNext(bbc, now: now).now?.title, "New")
+		XCTAssertNil(epg.nowNext(bbc, now: now).next)
+	}
+
 	func testAGapHasNoNowOnlyANext() async throws {
 		try await load([xml(standard, [P(ch: "bbc1.uk", start: now + h, stop: now + 2 * h, title: "Later")])])
 		let nn = epg.nowNext(bbc, now: now)

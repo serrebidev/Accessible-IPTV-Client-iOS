@@ -64,7 +64,8 @@ struct MainView: View {
 	}
 
 	private var content: some View {
-		VStack(alignment: .leading, spacing: 8) {
+		let _ = SwitchTiming.body()
+		return VStack(alignment: .leading, spacing: 8) {
 			searchBar
 			Picker(L("section"), selection: $section) {
 				Text(L("live_tv")).tag(Library.live)
@@ -348,9 +349,11 @@ struct MainView: View {
 			heading = ""
 			return
 		}
+		SwitchTiming.begin(sectionName())
 		model.setStatus(L(force ? "refreshing" : "loading"))
 		let current = section
 		Task {
+			let t0 = nowMs()
 			// Live always loads (the guide needs it); the other sections only once they are opened.
 			let sections = all ? Library.sections.filter { $0 == Library.live || $0 == current || library.isLoaded($0) } : [current]
 			var errors: [String] = []
@@ -358,9 +361,12 @@ struct MainView: View {
 			favs = prefs.favorites
 			await refreshGroupCounts()
 			await showChannels()
+			SwitchTiming.before(nowMs() - t0)
 			model.setStatus(errors.isEmpty ? countText(library.list(section).count) : L("load_errors", errors.joined(separator: "; ")))
 			// Guide older than a day, or built for a different channel list: fetch it now.
 			if section == Library.live && library.guideStale() { importGuide() }
+			try? await Task.sleep(nanoseconds: 1_000_000_000)
+			SwitchTiming.report()
 		}
 	}
 
@@ -389,19 +395,24 @@ struct MainView: View {
 	}
 
 	private func selectGroup(_ name: String) {
+		SwitchTiming.begin(groupLabel(name))
 		group = name
 		if section == Library.live { prefs.lastGroup = name }
 		Task {
+			let t0 = nowMs()
 			await showChannels()
+			SwitchTiming.before(nowMs() - t0)
 			// Move VoiceOver to the list heading so the result is heard straight away.
 			headingFocused = true
+			try? await Task.sleep(nanoseconds: 1_000_000_000)
+			SwitchTiming.report()
 		}
 	}
 
 	private func showChannels() async {
 		let q = query.trimmingCharacters(in: .whitespaces)
 		let lib = library, s = section, g = group
-		let list = await Task.detached {
+		let list = await Task.detached(priority: .userInitiated) {
 			// Search covers every group in the section; otherwise show the chosen group.
 			q.isEmpty ? lib.channelsIn(s, g) : lib.search(s, q)
 		}.value
@@ -570,6 +581,7 @@ private struct ChannelRows: View, Equatable {
 	}
 
 	private func row(_ ch: Channel) -> some View {
+		let _ = SwitchTiming.row()
 		let model = AppModel.shared
 		let fav = favs.contains(ch.key)
 		let nn = ch.isLive ? model.library.epg.nowNext(ch) : nil

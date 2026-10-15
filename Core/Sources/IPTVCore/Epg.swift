@@ -16,6 +16,12 @@ public final class Epg {
 	private var byName: [String: String] = [:]
 	/// Channel key -> guide id (or none), so list rows do not rebuild name keys on every draw.
 	private var idCache: [String: String?] = [:]
+	/// Channel key -> the now/next answer and when it was worked out; see [nowNext].
+	private var nowCache: [String: (at: Int64, value: NowNext)] = [:]
+	private let nowLock = NSLock()
+	/// How long a cached now/next answer stays good: a programme ends, and the row must follow.
+	private static let nowSeconds: Int64 = 30
+	private static let nowMax = 4_096
 	/// Prepared reader statements by SQL; rows run the same few queries over and over.
 	private var statements: [String: OpaquePointer] = [:]
 
@@ -88,6 +94,8 @@ public final class Epg {
 			if !key.isEmpty && names[key] == nil { names[key] = id }
 		}
 		indexLock.lock(); byId = ids; byName = names; idCache = [:]; indexLock.unlock()
+		// A new guide means every remembered answer is about the guide before it.
+		nowLock.lock(); nowCache.removeAll(); nowLock.unlock()
 	}
 
 	/// Drops the per-channel matches. The live list decides what a channel matches by, and an
@@ -123,11 +131,27 @@ public final class Epg {
 	}
 
 	/// The programme on now and the one after it. In a gap there is no "now", only a next.
+	/// Cached for half a minute: a list row asks again on every redraw and every scroll, and this
+	/// is the only query a row makes.
 	public func nowNext(_ ch: Channel, now: Int64 = nowMs()) -> NowNext {
-		guard let id = guideId(ch) else { return NowNext(now: nil, next: nil) }
-		let two = programmes("SELECT start, stop, title, descr FROM prog WHERE ch=? AND stop>? ORDER BY start LIMIT 2", [id, now], ch)
-		if let first = two.first, first.start <= now { return NowNext(now: first, next: two.count > 1 ? two[1] : nil) }
-		return NowNext(now: nil, next: two.first)
+		nowLock.lock()
+		if let hit = nowCache[ch.key], now >= hit.at, now - hit.at < Epg.nowSeconds * 1000 {
+			nowLock.unlock()
+			return hit.value
+		}
+		nowLock.unlock()
+		var value = NowNext(now: nil, next: nil)
+		if let id = guideId(ch) {
+			let two = programmes("SELECT start, stop, title, descr FROM prog WHERE ch=? AND stop>? ORDER BY start LIMIT 2", [id, now], ch)
+			if let first = two.first, first.start <= now { value = NowNext(now: first, next: two.count > 1 ? two[1] : nil) }
+			else { value = NowNext(now: nil, next: two.first) }
+		}
+		nowLock.lock()
+		// shortcut: emptied once it outgrows the cap, rather than evicting the oldest entry.
+		if nowCache.count >= Epg.nowMax { nowCache.removeAll(keepingCapacity: true) }
+		nowCache[ch.key] = (now, value)
+		nowLock.unlock()
+		return value
 	}
 
 	public func schedule(_ ch: Channel, from: Int64, to: Int64) -> [Programme] {

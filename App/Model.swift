@@ -17,6 +17,45 @@ func announce(_ text: String) {
 	AccessibilityNotification.Announcement(text).post()
 }
 
+/// TEMPORARY, 0.1.8: what a slow list change costs, said out loud in the status line so it can be
+/// measured on a device (the category switch was reported as 5 seconds and does not reproduce on
+/// the machine it is built on). Counts the rows the list builds and the redraws the screen does
+/// between the tap and the list settling. Silent unless the change took over a second, and goes
+/// away once the cost is known.
+@MainActor
+enum SwitchTiming {
+	private static var began: Int64 = 0
+	private static var lastRow: Int64 = 0
+	private static var beforeMs: Int64 = 0
+	private static var label = ""
+	private static var rows = 0
+	private static var bodies = 0
+
+	static func begin(_ what: String) {
+		began = nowMs(); lastRow = began; beforeMs = 0; label = what
+		rows = 0; bodies = 0
+	}
+
+	/// A row the list built, and a redraw of the main screen.
+	static func row() {
+		rows += 1
+		lastRow = nowMs()
+	}
+	static func body() { bodies += 1 }
+	/// What the work before the list was shown cost: the filter, the load.
+	static func before(_ ms: Int64) { beforeMs = ms }
+
+	/// Says what it cost, but only when the list itself was slow.
+	static func report() {
+		guard began > 0 else { return }
+		let showed = lastRow - began - beforeMs
+		let total = nowMs() - began
+		began = 0
+		guard showed > 1_000 else { return }
+		AppModel.shared.setStatus("SLOW \(label): filter \(beforeMs) ms, \(rows) rows in \(showed) ms, \(bodies) redraws, \(total) ms total")
+	}
+}
+
 /// What the player screen is asked to play.
 struct PlayRequest: Identifiable, Equatable {
 	let id = UUID()

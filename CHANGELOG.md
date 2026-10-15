@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.8
+
+- This build measures the slow category switch. When a category change or a list load takes more than a second, the status line now says what it cost: the time before the list was shown, how many rows the list built, and how many times the screen redrew. Temporary, and it goes away once the cost is known.
+- The guide lookup that a channel row makes is remembered for half a minute, so a redraw or a scroll over a list of live channels no longer runs the same query for every row again.
+
 ## 0.1.7
 
 - Choosing a category, changing section, or typing the first letter of a search now builds the channel list fresh for what was asked for, instead of asking the list to work out the difference from the category before it. That pass costs what the list costs, which is 5 to 8 seconds on an account with tens of thousands of channels.

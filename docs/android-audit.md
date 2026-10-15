@@ -206,3 +206,25 @@ when it is built: `ChannelRows.row` runs one SQLite now/next query per row (with
 the statement cached). One `List` build asks for many rows - SwiftUI's own count, not the ten or so
 on screen. The way to settle that is to count the rows a build asks for, and the fix that follows is
 a row that fills its guide line in from its own task instead of during the build.
+
+# iOS category switch, second pass (0.1.8)
+
+0.1.7 keyed the channel list by what it is showing, so a category switch builds the rows instead of
+working out the difference from the category before. Reported back: still the same 5 seconds. So the
+difference was not the cost, and the list bookkeeping is not it either. What is left:
+
+- How many rows SwiftUI asks for when a list changes. If it asks for a whole category, each row
+  costs a guide query, a localization lookup and a few formatters, and tens of thousands of them
+  is seconds.
+- A redraw loop between the main screen and the list, each redraw rebuilding what the last one did.
+
+This build measures instead of guessing again. When a category change or a load takes over a
+second, the status line reports what it cost: the time before the list was shown, the rows the list
+built (`SwitchTiming.row` in `ChannelRows.row`), and the redraws of the main screen
+(`SwitchTiming.body`). Those numbers pick one of the two, and the fix follows: a row that fills its
+guide line in from its own task for the first, or whatever the redraw count exposes for the second.
+The measurement goes away once the cost is known.
+
+Also in 0.1.8: `Epg.nowNext` remembers its answer for half a minute (`Epg.nowCache`, dropped by
+`loadIndex` on an import). A row asks for the same channel again on every redraw and every scroll,
+and that query was the only I/O a row did.
