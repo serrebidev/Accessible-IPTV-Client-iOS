@@ -32,7 +32,10 @@ jobs:
 
       - name: Core tests
         working-directory: Core
-        run: swift test 2>&1 | tail -40
+        run: |
+          # pipefail: tail always succeeds, so without it a failing test would pass the step.
+          set -o pipefail
+          swift test 2>&1 | tail -40
 
       - name: a11y-check source
         run: git clone --depth 1 https://github.com/cvs-health/ios-swiftui-accessibility-techniques.git "$RUNNER_TEMP/cvs"
@@ -45,6 +48,8 @@ jobs:
 
       - name: Accessibility check (a11y-check, CVS Health)
         run: |
+          # pipefail: the checker exits 1 on errors and tee hides that, so the gate was open.
+          set -o pipefail
           cd "$RUNNER_TEMP/cvs/a11y-check" && swift build -c release 2>&1 | tail -3
           "$RUNNER_TEMP/cvs/a11y-check/.build/release/a11y-check" "$GITHUB_WORKSPACE/App" | tee "$GITHUB_WORKSPACE/a11y-report.txt"
 
