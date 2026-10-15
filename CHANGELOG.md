@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.7
+
+- Choosing a category, changing section, or typing the first letter of a search now builds the channel list fresh for what was asked for, instead of asking the list to work out the difference from the category before it. That pass costs what the list costs, which is 5 to 8 seconds on an account with tens of thousands of channels.
+- The same category with new content, such as a favourite or a recording starting, still updates in place rather than rebuilding.
+- Channel rows no longer animate in and out when a whole list is replaced.
+
 ## 0.1.6
 
 - Fixes from a second audit, of the player, the recorder, CarPlay and voice search.

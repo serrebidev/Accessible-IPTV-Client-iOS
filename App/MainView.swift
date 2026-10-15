@@ -237,6 +237,15 @@ struct MainView: View {
 
 	private var groupCount: Int { groups.first { $0.name == group }?.count ?? 0 }
 
+	/// The set of rows on show: a new category, a new section, or the first keystroke of a search.
+	/// The channel list is keyed by this, so choosing a category builds the rows in view instead of
+	/// asking SwiftUI to work out the difference from the category before it, which costs what the
+	/// list costs: seconds on an account with tens of thousands of channels.
+	private var listID: String {
+		let searching = !query.trimmingCharacters(in: .whitespaces).isEmpty
+		return "\(section)|\(searching ? "" : group)|\(searching ? "search" : "browse")"
+	}
+
 	private func groupRow(_ g: GroupItem) -> some View {
 		Button { selectGroup(g.name) } label: { RowLabel(line1: groupLabel(g.name), line2: String(g.count)) }
 			.row("\(groupLabel(g.name)), \(g.count)", actions: [])
@@ -249,6 +258,7 @@ struct MainView: View {
 			ChannelRows(channels: channels, favs: favs, showGroup: !query.isEmpty, version: listVersion, label: sectionName(),
 				focusedKey: $focusedKey, voFocus: $voFocus) { channelActions($0, fav: $1) }
 				.equatable()
+				.id(listID)
 			if !details.isEmpty {
 				Text(details).font(.footnote).frame(maxWidth: .infinity, alignment: .leading)
 			}
@@ -555,6 +565,8 @@ private struct ChannelRows: View, Equatable {
 		List(channels) { ch in row(ch) }
 			.listStyle(.plain)
 			.accessibilityLabel(label)
+			// A row insert or delete animation for a whole category is thousands of rows at once.
+			.transaction { $0.animation = nil }
 	}
 
 	private func row(_ ch: Channel) -> some View {

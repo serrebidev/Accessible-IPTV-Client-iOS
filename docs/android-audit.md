@@ -184,3 +184,25 @@ Vision Pro already used a `List` and are unchanged.
 
 The sheet is still one swipe per category with VoiceOver. ponytail: a filter field in it, if finding
 one of 500 categories by swiping is as bad as it sounds.
+
+# iOS category switch (0.1.7)
+
+Reported: choosing a category takes 5 to 8 seconds to show its channels.
+
+The channel list was keyed by nothing but the version number, so choosing a category handed SwiftUI
+the same `List` with a completely different array in it. SwiftUI then worked out the difference
+between the category before and the one after - a pass proportional to the number of rows, and an
+insert and a delete for each of them. Tens of thousands of channels is seconds, and this is the
+cost the 0.1.3 audit named and left alone ("nothing to remove without giving up the list").
+
+`ChannelRows` is now keyed (`MainView.listID`) by what it is showing: the section, the category, or
+that a search is running. Choosing a category builds a fresh list, which only builds the rows in
+view. The same category with new content - a favourite, a recorder state, a redraw - keeps its
+identity and still updates in place, and a transaction with the animation off means nothing animates
+thousands of rows when a whole list is replaced.
+
+Not measured on a device. If a category is still slow, the next suspect is the work each row does
+when it is built: `ChannelRows.row` runs one SQLite now/next query per row (with the guide id and
+the statement cached). One `List` build asks for many rows - SwiftUI's own count, not the ten or so
+on screen. The way to settle that is to count the rows a build asks for, and the fix that follows is
+a row that fills its guide line in from its own task instead of during the build.
