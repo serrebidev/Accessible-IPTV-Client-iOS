@@ -155,7 +155,10 @@ final class RecorderCenter: ObservableObject {
 		let (plain, headers) = M3U.splitHeaders(real)
 		let fm = FileManager.default
 		try? fm.createDirectory(at: folder, withIntermediateDirectories: true)
-		let file = folder.appendingPathComponent(Recording.fileName(label: label, at: nowMs()))
+		let name = Recording.fileName(label: label, at: nowMs())
+		// A second recording of the same channel inside the same minute gets its own file.
+		let taken = { (n: String) in fm.fileExists(atPath: folder.appendingPathComponent(n).path) }
+		let file = folder.appendingPathComponent(Recording.freeFileName(name, taken: taken))
 		var ok = false
 		var early = false
 		let done = { Task.isCancelled || (end != 0 && nowMs() >= end) }

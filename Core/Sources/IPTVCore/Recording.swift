@@ -49,6 +49,22 @@ public enum Recording {
 		return "\(clean) \(stamp).ts"
 	}
 
+	/// [name] with "-2", "-3" and so on before the extension while [taken] says the name is
+	/// already there. The name comes from the minute and the channel, so recording a channel
+	/// twice in a minute would otherwise write both to one file and empty the first.
+	public static func freeFileName(_ name: String, taken: (String) -> Bool) -> String {
+		let dot = name.lastIndex(of: ".")
+		let base = dot.map { String(name[..<$0]) } ?? name
+		let ext = dot.map { String(name[$0...]) } ?? ""
+		var out = name
+		var n = 2
+		while taken(out) {
+			out = "\(base)-\(n)\(ext)"
+			n += 1
+		}
+		return out
+	}
+
 	/// Copies [open]'s stream through [write] until [done]. With [reconnect], a dropped or
 	/// ended stream is opened again after [pauseMs] and appended; [maxMisses] tries in a row
 	/// without a byte end it. True when anything was written.

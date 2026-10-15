@@ -459,6 +459,18 @@ final class ParsingTests: XCTestCase {
 		XCTAssertFalse(n.dropLast(3).contains(":"))
 	}
 
+	/// The name carries the minute, so two recordings of one channel inside a minute collide.
+	func testASecondRecordingInAMinuteGetsItsOwnName() {
+		var taken: Set<String> = []
+		let first = Recording.freeFileName("BBC One 14 Oct 2026 8-00 PM.ts") { taken.contains($0) }
+		XCTAssertEqual(first, "BBC One 14 Oct 2026 8-00 PM.ts")
+		taken.insert(first)
+		let second = Recording.freeFileName("BBC One 14 Oct 2026 8-00 PM.ts") { taken.contains($0) }
+		XCTAssertEqual(second, "BBC One 14 Oct 2026 8-00 PM-2.ts")
+		taken.insert(second)
+		XCTAssertEqual(Recording.freeFileName("BBC One 14 Oct 2026 8-00 PM.ts") { taken.contains($0) }, "BBC One 14 Oct 2026 8-00 PM-3.ts")
+	}
+
 	func stream(_ parts: [String], fail: Bool = false) -> AsyncThrowingStream<Data, Error> {
 		AsyncThrowingStream { c in
 			for p in parts { c.yield(Data(p.utf8)) }

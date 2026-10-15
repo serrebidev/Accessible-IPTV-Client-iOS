@@ -99,9 +99,19 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		discoverers.forEach { $0.stop() }
 		#endif
 		UIApplication.shared.isIdleTimerDisabled = false
-		MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-		let rc = MPRemoteCommandCenter.shared()
-		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
+		// CarPlay can have taken over the lock screen while this screen was open (it clears
+		// [playing], which dismisses this screen after it has set its own title and commands).
+		// Wiping them here leaves its audio playing with a dead Now Playing card.
+		#if os(iOS)
+		let ownsNowPlaying = !CarAudio.shared.isPlaying
+		#else
+		let ownsNowPlaying = true
+		#endif
+		if ownsNowPlaying {
+			MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+			let rc = MPRemoteCommandCenter.shared()
+			[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
+		}
 	}
 
 	/// Opens the stream. A first start and a reconnect wait for half a second of cache; the
@@ -168,7 +178,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			failed = true
 		case .stopped:
 			// A live stream that ends was dropped by the server: reconnect, as the desktop does.
-			if retryTask != nil || tryReconnect() { return }
+			// Casting stops the player on purpose and announces it, so this is not a drop.
+			if retryTask != nil || casting != nil || tryReconnect() { return }
 			say(L("stream_ended"), 1)
 			failed = true
 		default:

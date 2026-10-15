@@ -29,6 +29,9 @@ final class VoiceSearch: ObservableObject {
 	}
 
 	private func start(_ rec: SFSpeechRecognizer, heard: @escaping (String) -> Void, status: @escaping (String) -> Void) throws {
+		// The permission hops are slow enough to press Voice again during them, and a second tap
+		// on the input node is an Objective-C exception, which no catch can take back.
+		if listening { stop() }
 		let session = AVAudioSession.sharedInstance()
 		try session.setCategory(.playAndRecord, mode: .measurement, options: [.duckOthers, .defaultToSpeaker])
 		try session.setActive(true, options: .notifyOthersOnDeactivation)
@@ -38,7 +41,12 @@ final class VoiceSearch: ObservableObject {
 		let input = engine.inputNode
 		input.installTap(onBus: 0, bufferSize: 1024, format: input.outputFormat(forBus: 0)) { buf, _ in req.append(buf) }
 		engine.prepare()
-		try engine.start()
+		do { try engine.start() } catch {
+			// The tap stays on the node after a failed start, and the next press would tap it again.
+			input.removeTap(onBus: 0)
+			request = nil
+			throw error
+		}
 		listening = true
 		status(L("voice_prompt"))
 		task = rec.recognitionTask(with: req) { result, error in

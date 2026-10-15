@@ -83,6 +83,16 @@ final class CarAudio {
 		}
 	}
 
-	func stop() { player.stop() }
+	func stop() {
+		player.stop()
+		// CarAudio is the owner of the lock screen while it plays: it clears what it set, so the
+		// card does not outlive the sound (the player screen knows to leave it alone, see close).
+		MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+		let rc = MPRemoteCommandCenter.shared()
+		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
+	}
+
+	/// Whether CarAudio holds the lock screen and the remote commands right now.
+	var isPlaying: Bool { player.isPlaying }
 }
 #endif

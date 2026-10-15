@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.6
+
+- Fixes from a second audit, of the player, the recorder, CarPlay and voice search.
+- Recording the same channel twice inside one minute wrote both recordings to one file, and the second emptied the first: the file name only goes down to the minute. A second recording now gets its own name.
+- Starting or stopping Cast no longer says "stream ended" (or "reconnecting") after saying what it is doing, and no longer opens the stream a second time.
+- Playback started from CarPlay keeps its lock screen and steering wheel play and pause: closing the player screen used to wipe the Now Playing card and the remote controls that CarPlay had taken over, while the sound kept playing.
+- The Voice button no longer crashes the app when it is pressed again while the first press is still asking for microphone and speech permission, or when the microphone then fails to start.
+
 ## 0.1.5
 
 - Fixes from an audit of 0.1.4. A search for a name with an accent (é, ü, ñ, and non-Latin scripts alike) came back empty when the feed wrote that letter with the accent as a separate mark instead of one letter, which some providers do. Both spellings are matched again.
