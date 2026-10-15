@@ -43,6 +43,47 @@ private struct Sample: Encodable {
 	let decodedAudio: UInt64
 	let success: Bool?
 	let seekTo: Double?
+	let progress: Double?
+	let lastDecodedElapsed: Double?
+	let continuous: Bool?
+}
+
+private struct DecodeProgress {
+	private var firstTime: Double?
+	private var video: UInt64 = 0
+	private var audio: UInt64 = 0
+	private var lastVideo: Double?
+	private var lastAudio: Double?
+	private(set) var progress: Double = 0
+	private(set) var continuous = true
+	var lastDecodedElapsed: Double? {
+		guard let lastVideo, let lastAudio else { return nil }
+		return min(lastVideo, lastAudio)
+	}
+
+	mutating func observe(time: Int32, video: UInt64, audio: UInt64, elapsed: Double, ended: Bool) {
+		if firstTime == nil, video > 0, audio > 0 {
+			firstTime = Double(time) / 1000
+			lastVideo = elapsed
+			lastAudio = elapsed
+		}
+		if let firstTime {
+			if ended { continuous = false }
+			if let lastDecodedElapsed, elapsed - lastDecodedElapsed > 3 { continuous = false }
+			if video > self.video { lastVideo = elapsed }
+			if audio > self.audio { lastAudio = elapsed }
+			if video < self.video || audio < self.audio { continuous = false }
+			progress = max(progress, Double(time) / 1000 - firstTime)
+		}
+		self.video = video
+		self.audio = audio
+	}
+
+	func succeeded(at elapsed: Double) -> Bool {
+		guard continuous, video >= 10, audio >= 10, progress >= 2,
+			let lastDecodedElapsed else { return false }
+		return elapsed - lastDecodedElapsed <= 3
+	}
 }
 
 private func emit(_ sample: Sample) {
@@ -99,6 +140,7 @@ private func run(_ config: Configuration) async -> Int32 {
 	let started = ProcessInfo.processInfo.systemUptime
 	let deadline = started + Double(config.seconds)
 	var sought = false
+	var decoding = DecodeProgress()
 	player.play()
 	while ProcessInfo.processInfo.systemUptime < deadline {
 		if !sought, let after = config.seekAfter, let target = config.seekTo,
@@ -109,24 +151,38 @@ private func run(_ config: Configuration) async -> Int32 {
 			emit(Sample(event: "seekRequested", role: "producer", elapsed: ProcessInfo.processInfo.systemUptime - started,
 				state: stateName(player.state), time: player.time.intValue, readBytes: stats.readBytes,
 				demuxReadBytes: stats.demuxReadBytes, decodedVideo: stats.decodedVideo,
-				decodedAudio: stats.decodedAudio, success: nil, seekTo: target))
+				decodedAudio: stats.decodedAudio, success: nil, seekTo: target,
+				progress: nil, lastDecodedElapsed: nil, continuous: nil))
 		}
 		let stats = media.statistics
+		if !config.producer {
+			decoding.observe(time: player.time.intValue, video: stats.decodedVideo, audio: stats.decodedAudio,
+				elapsed: ProcessInfo.processInfo.systemUptime - started, ended: player.state == .stopped || player.state == .stopping)
+		}
 		emit(Sample(event: "sample", role: config.producer ? "producer" : "consumer",
 			elapsed: ProcessInfo.processInfo.systemUptime - started, state: stateName(player.state),
 			time: player.time.intValue, readBytes: stats.readBytes, demuxReadBytes: stats.demuxReadBytes,
-			decodedVideo: stats.decodedVideo, decodedAudio: stats.decodedAudio, success: nil, seekTo: nil))
+			decodedVideo: stats.decodedVideo, decodedAudio: stats.decodedAudio, success: nil, seekTo: nil,
+			progress: nil, lastDecodedElapsed: nil, continuous: nil))
 		if delegate.hadError || player.state == .error { break }
 		let remaining = deadline - ProcessInfo.processInfo.systemUptime
 		if remaining > 0 { try? await Task.sleep(nanoseconds: UInt64(min(1, remaining) * 1_000_000_000)) }
 	}
 	let stats = media.statistics
+	let elapsed = ProcessInfo.processInfo.systemUptime - started
+	if !config.producer {
+		decoding.observe(time: player.time.intValue, video: stats.decodedVideo, audio: stats.decodedAudio,
+			elapsed: elapsed, ended: player.state == .stopped || player.state == .stopping)
+	}
 	let success = !delegate.hadError && player.state != .error && (config.producer
-		? stats.demuxReadBytes > 0 : stats.decodedVideo >= 10 && stats.decodedAudio >= 10)
+		? stats.demuxReadBytes > 0 : decoding.succeeded(at: elapsed))
 	emit(Sample(event: "summary", role: config.producer ? "producer" : "consumer",
 		elapsed: ProcessInfo.processInfo.systemUptime - started, state: stateName(player.state),
 		time: player.time.intValue, readBytes: stats.readBytes, demuxReadBytes: stats.demuxReadBytes,
-		decodedVideo: stats.decodedVideo, decodedAudio: stats.decodedAudio, success: success, seekTo: nil))
+		decodedVideo: stats.decodedVideo, decodedAudio: stats.decodedAudio, success: success, seekTo: nil,
+		progress: config.producer ? nil : decoding.progress,
+		lastDecodedElapsed: config.producer ? nil : decoding.lastDecodedElapsed,
+		continuous: config.producer ? nil : decoding.continuous))
 	player.stop()
 	player.delegate = nil
 	return success ? 0 : 1

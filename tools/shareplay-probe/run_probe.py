@@ -114,6 +114,7 @@ class CopyHub:
         self.done = False
         self.error = None
         self.first_byte = None
+        self.eof = False
 
     def append(self, data):
         with self.guard:
@@ -165,11 +166,12 @@ def drain(url, hub, stop):
                     while not stop.is_set():
                         data = response.read1(65536)
                         if not data:
+                            hub.eof = True
                             return
                         hub.append(data)
                 return
             except (urllib.error.URLError, TimeoutError, ConnectionError):
-                if time.monotonic() >= deadline:
+                if hub.data or time.monotonic() >= deadline:
                     raise
                 stop.wait(0.1)
     except Exception as error:
@@ -186,6 +188,27 @@ def stop_process(process):
         except subprocess.TimeoutExpired:
             process.kill()
             process.wait(timeout=5)
+
+
+def check_producer(samples, exit_code, eof, seek):
+    if exit_code not in (None, 0) or not samples or any(item['state'] == 'error' for item in samples):
+        raise AssertionError('Producer failed during observation')
+    if any(item.get('success') is False for item in samples):
+        raise AssertionError('Producer reported failure')
+    if eof and max(item['time'] for item in samples) < 26_000:
+        raise AssertionError('Producer output ended before the 28-second fixture finished')
+    if seek:
+        requests = [item for item in samples if item['event'] == 'seekRequested']
+        if len(requests) != 1:
+            raise AssertionError('Expected one producer seek')
+        request = requests[0]
+        # The setter echoes the requested time immediately. Require later demux progress too.
+        later = [item for item in samples if item['event'] == 'sample'
+                 and item['elapsed'] >= request['elapsed'] + 2
+                 and item['elapsed'] <= request['elapsed'] + 6]
+        if not any(item['time'] >= 19_000 and item['demuxReadBytes'] > request['demuxReadBytes']
+                   for item in later):
+            raise AssertionError('No observed playback and demux progress after seeking to 18 seconds')
 
 
 def run_case(binary, name, path, provider, output):
@@ -208,6 +231,8 @@ def run_case(binary, name, path, provider, output):
             args += ['12', '18']
         producer = subprocess.Popen(args, stdout=log, stderr=errors)
         resources.callback(stop_process, producer)
+        resources.callback(hub.finish)
+        resources.callback(stop.set)
         thread = threading.Thread(target=drain, args=(producer_url, hub, stop), daemon=True)
         thread.start()
         with hub.guard:
@@ -233,15 +258,19 @@ def run_case(binary, name, path, provider, output):
         resources.callback(server.server_close)
         resources.callback(server.shutdown)
         consumers = []
+        duration = 18 if name == 'mp4-seek' else 12
         for who in ('host', 'guest1', 'guest2'):
             data = resources.enter_context((case / f'{who}.jsonl').open('w'))
             err = resources.enter_context((case / f'{who}.stderr').open('w'))
             url = f'http://127.0.0.1:{server.server_port}/{who}.mkv'
-            consumer = subprocess.Popen([str(binary), 'consumer', url, '12'], stdout=data, stderr=err)
+            consumer = subprocess.Popen([str(binary), 'consumer', url, str(duration)], stdout=data, stderr=err)
             resources.callback(stop_process, consumer)
             consumers.append(consumer)
-        exits = [process.wait(timeout=22) for process in consumers]
+        exits = [process.wait(timeout=duration + 10) for process in consumers]
         elapsed = time.monotonic() - started
+        producer_exit = producer.poll()
+        samples = [json.loads(line) for line in (case / 'producer.jsonl').read_text().splitlines(keepends=True)
+                   if line.endswith('\n')]
         stop.set()
         hub.finish()
         with provider.guard:
@@ -250,7 +279,8 @@ def run_case(binary, name, path, provider, output):
         result = {'case': name, 'consumerExits': exits, 'receivedBytes': len(hub.data),
                   'firstByteSeconds': hub.first_byte - started, 'elapsedSeconds': elapsed,
                   'peakProviderHttpRequests': peak, 'providerRequests': requests,
-                  'journalTransportTested': False, 'error': hub.error}
+                  'journalTransportTested': False, 'error': hub.error,
+                  'producerExit': producer_exit, 'producerEOF': hub.eof}
         (case / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
         if not requests or any(item['userAgent'] != 'IPTVHostProbe/1' for item in requests):
             raise AssertionError('Guest accessed provider, or producer never opened provider')
@@ -258,6 +288,7 @@ def run_case(binary, name, path, provider, output):
             raise AssertionError(f'{name}: one or more consumers failed to decode; {result}')
         if hub.error:
             raise AssertionError(hub.error)
+        check_producer(samples, producer_exit, hub.eof, name == 'mp4-seek')
         if b'PROBE_ONLY_PROVIDER_SECRET' in hub.data:
             raise AssertionError('Provider URL marker leaked into remuxed media')
         if name != 'mp4-seek' and len(hub.data) > 1_016_000 * (elapsed + 4) * 1.4:

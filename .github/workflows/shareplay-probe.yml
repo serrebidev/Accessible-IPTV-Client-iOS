@@ -28,6 +28,8 @@ jobs:
           key: relay-probe-${{ runner.os }}-${{ hashFiles('tools/shareplay-probe/Package.swift') }}
       - name: Build native probe
         run: swift build --package-path tools/shareplay-probe -c release
+      - name: Probe regression checks
+        run: python3 -m unittest discover -s tools/shareplay-probe -p 'test_*.py'
       - name: Single-source media matrix
         run: |
           FRAMEWORK=$(find tools/shareplay-probe/.build/artifacts -type d -path '*macos*/VLCKit.framework' | head -1)

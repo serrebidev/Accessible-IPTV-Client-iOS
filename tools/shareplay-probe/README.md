@@ -13,7 +13,9 @@ The requested outcome is one host provider playback session for live TV, HLS, mo
 - How long until output arrives, and does a file input respect real-time pacing?
 - What happens when the producer seeks within an MP4?
 
-The matrix uses generated H.264/AAC media, a local fake provider and an in-memory byte copy capped at 64 MiB. The `IPTVHostProbe/1` User-Agent is test instrumentation, not an authentication design. HTTP range and HLS requests are logged separately from the number of producer playback sessions. Seek requests and resulting native playback times are recorded; a request log alone does not prove accurate seeking.
+The matrix uses generated H.264/AAC media, a local fake provider and an in-memory byte copy capped at 64 MiB. The `IPTVHostProbe/1` User-Agent is test instrumentation, not an authentication design. HTTP range and HLS requests are logged separately from the number of producer playback sessions. Consumers must sustain audio/video decoding throughout observation and advance native playback time. Producer errors, early EOF, and output reconnects after the first byte fail the test. Seeking must produce later native time and demux progress; this does not establish frame-accurate seeking or playback synchronization.
+
+The TS fixture is finite, HLS uses a VOD playlist, and the fake provider ignores catch-up query parameters. These exercise input containers and URL handling; they do not establish indefinite live streaming, adaptive HLS changes, or real provider catch-up semantics.
 
 ## Running on macOS
 
