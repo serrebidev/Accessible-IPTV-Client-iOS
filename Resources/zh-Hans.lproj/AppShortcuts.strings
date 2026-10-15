@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "在${applicationName}中搜索节目指南";
 "Show the guide for ${channel} in ${applicationName}" = "在${applicationName}中显示${channel}节目指南";
 "Stop playback in ${applicationName}" = "停止${applicationName}中的播放";
+"Watch ${channel} in ${applicationName}" = "在${applicationName}中观看${channel}";
 "What is on ${channel} in ${applicationName}" = "${applicationName}中${channel}正在播放什么";

@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "${applicationName} içinde rehberde ara";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} rehberini göster";
 "Stop playback in ${applicationName}" = "${applicationName} içinde oynatmayı durdur";
+"Watch ${channel} in ${applicationName}" = "${applicationName} ile ${channel} izle";
 "What is on ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalında ne var";

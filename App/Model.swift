@@ -184,10 +184,14 @@ final class AppModel: ObservableObject {
 			channel: channel ?? library.channel(key), archiveStart: archiveStart, archiveStop: archiveStop)
 		let controller = PlayerController(request: request)
 		player = controller
-		controller.start()
+		// A SharePlay host opens the provider once, through its relay; never directly as well.
+		controller.start(openNow: !SharePlayCenter.shared.hostsNextPlayer(fromSession: fromSharePlay))
 		controller.scene(UIApplication.shared.applicationState == .background ? .background : .active)
 		playerPresented = true
 		SharePlayCenter.shared.playerChanged(controller, fromSession: fromSharePlay)
+		#if os(iOS)
+		if !fromSharePlay, !catchup, let ch = request.channel { SiriIndex.tuned(ch) }
+		#endif
 	}
 
 	func minimizePlayer() {
@@ -199,6 +203,8 @@ final class AppModel: ObservableObject {
 		SharePlayCenter.shared.cancelActivation()
 		opening?.cancel()
 		opening = nil
+		// The relay stops first, so leaving SharePlay does not reopen the provider for a closing player.
+		if let player { SharePlayCenter.shared.playerClosing(player) }
 		if leavingSharePlay { SharePlayCenter.shared.leave() }
 		player?.close()
 		player = nil

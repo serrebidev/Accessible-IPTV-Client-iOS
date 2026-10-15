@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "Найди в программе ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Покажи программу ${channel} в ${applicationName}";
 "Stop playback in ${applicationName}" = "Останови воспроизведение в ${applicationName}";
+"Watch ${channel} in ${applicationName}" = "Покажи ${channel} в ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "Что идёт на ${channel} в ${applicationName}";

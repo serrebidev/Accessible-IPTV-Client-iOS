@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "Cerca nella guida di ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Mostra la guida di ${channel} in ${applicationName}";
 "Stop playback in ${applicationName}" = "Interrompi la riproduzione in ${applicationName}";
+"Watch ${channel} in ${applicationName}" = "Guarda ${channel} in ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "Cosa c’è su ${channel} in ${applicationName}";

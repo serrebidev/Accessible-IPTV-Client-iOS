@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "Műsorújság keresése a(z) ${applicationName} alkalmazásban";
 "Show the guide for ${channel} in ${applicationName}" = "A(z) ${channel} műsorújsága a(z) ${applicationName} alkalmazásban";
 "Stop playback in ${applicationName}" = "Lejátszás leállítása a(z) ${applicationName} alkalmazásban";
+"Watch ${channel} in ${applicationName}" = "${channel} nézése a(z) ${applicationName} alkalmazásban";
 "What is on ${channel} in ${applicationName}" = "Mi megy a(z) ${channel} csatornán a(z) ${applicationName} alkalmazásban";

@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "${applicationName}で番組表を検索";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組表を表示";
 "Stop playback in ${applicationName}" = "${applicationName}で再生を停止";
+"Watch ${channel} in ${applicationName}" = "${applicationName}で${channel}を見る";
 "What is on ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組を確認";

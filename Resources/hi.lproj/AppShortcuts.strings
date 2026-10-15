@@ -4,4 +4,5 @@
 "Search the guide in ${applicationName}" = "${applicationName} में गाइड खोजें";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName} में ${channel} की गाइड दिखाएँ";
 "Stop playback in ${applicationName}" = "${applicationName} में चलाना बंद करें";
+"Watch ${channel} in ${applicationName}" = "${applicationName} में ${channel} देखें";
 "What is on ${channel} in ${applicationName}" = "${applicationName} में ${channel} पर क्या चल रहा है";

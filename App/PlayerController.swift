@@ -54,6 +54,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var sharedPausePending = false
 	private var sharedPauseTemporary = false
 	private var sharedSeekTarget: Double?
+	/// SharePlay relay: the loopback stream this device plays instead of the provider URL.
+	private var relayURL: String?
+	/// Pause and play in a relayed session go to the host, which tells everyone.
+	private var relayRequest: ((_ pause: Bool) -> Void)?
 	#if os(iOS)
 	private var discoverers: [VLCRendererDiscoverer] = []
 	#endif
@@ -76,7 +80,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	// MARK: lifecycle
 
-	func start() {
+	/// `openNow` false: a SharePlay host waits for its relay instead of opening the provider.
+	func start(openNow: Bool = true) {
 		guard !started else { return }
 		started = true
 		#if os(iOS)
@@ -87,7 +92,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		let audioReady = activateAudio()
 		UIApplication.shared.isIdleTimerDisabled = true
 		showProgramme(announce: false)
-		if audioReady {
+		if audioReady && openNow {
 			open()
 			say(L("connecting"), 2)
 		}
@@ -145,17 +150,35 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Opens the stream. A first start and a reconnect wait for half a second of cache; the
 	/// rest of the cushion is built by pace().
-	private func open() {
-		guard !closing, intent.canPlay else { return }
-		let (plain, headers) = M3U.splitHeaders(request.url)
-		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
-			say(L("play_failed", plain), 1)
-			failed = true
-			return
-		}
+	/// The provider's stream with its M3U headers: user agent, referrer and cookie.
+	static func providerMedia(_ address: String) -> VLCMedia? {
+		let (plain, headers) = M3U.splitHeaders(address)
+		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else { return nil }
 		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
 		if let ref = headers["Referer"] { media.addOption(":http-referrer=\(ref)") }
 		if let cookie = headers["Cookie"], let host = url.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
+		return media
+	}
+
+	private func open() {
+		guard !closing, intent.canPlay else { return }
+		if let relayURL {
+			guard let url = URL(string: relayURL), let media = VLCMedia(url: url) else { return }
+			// Relayed chunks arrive every two seconds; the cache rides over the gaps.
+			for opt in ["network-caching", "live-caching"] { media.addOption(":\(opt)=3000") }
+			hasPlayed = false
+			buffering = false
+			paced = 1
+			player.rate = 1
+			player.media = media
+			player.play()
+			return
+		}
+		guard let media = Self.providerMedia(request.url) else {
+			say(L("play_failed", M3U.splitHeaders(request.url).0), 1)
+			failed = true
+			return
+		}
 		let ms: Int
 		if live {
 			let target = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
@@ -264,6 +287,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func pause() {
 		guard !closing else { return }
+		if let relayRequest { relayRequest(true); return }
 		if let sharePlayback {
 			intent.pause()
 			isPaused = true
@@ -286,6 +310,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func resume() {
 		guard !closing else { return }
+		if let relayRequest, !failed { relayRequest(false); return }
 		if let sharePlayback {
 			intent.play()
 			isPaused = false
@@ -342,7 +367,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Plays a live stream slightly slow until the buffer setting is held locally.
 	private func pace() {
-		guard live, sharePlayback == nil, casting == nil, player.isPlaying, let media = player.media else { return }
+		guard live, sharePlayback == nil, relayURL == nil, casting == nil, player.isPlaying, let media = player.media else { return }
 		let stats = media.statistics
 		let cushion = Cushion.liveCushionSeconds(readBytes: stats.readBytes, demuxBytes: stats.demuxReadBytes,
 			playedMs: Int64(player.time.intValue), cacheSeconds: cacheSeconds)
@@ -468,7 +493,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Moves playback to a Chromecast (libVLC's renderer), or back to this device.
 	func cast(to r: Renderer?) {
-		if sharePlayback != nil { SharePlayCenter.shared.leave() }
+		if sharePlayback != nil || relayURL != nil {
+			SharePlayCenter.shared.leave()
+			relayURL = nil
+			relayRequest = nil
+		}
 		let position = player.position
 		player.stop()
 		_ = player.setRendererItem(r?.item)
@@ -547,6 +576,36 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 				isPaused = true
 			}
 		}
+	}
+
+	// MARK: SharePlay relay
+
+	var isRelayed: Bool { relayURL != nil }
+
+	/// Plays the relay at `url` (nil: back to the provider). `request` sends pause and play to the host.
+	func useRelay(_ url: String?, request: ((_ pause: Bool) -> Void)?) {
+		guard !closing else { return }
+		leaveSharePlay()
+		relayURL = url
+		relayRequest = request
+		retryTask?.cancel()
+		retryTask = nil
+		reconnect.reset()
+		failed = false
+		player.stop()
+		open()
+	}
+
+	/// The host paused or resumed everyone. `rejoin`: a live relay starts again at its edge.
+	func relayPaused(_ paused: Bool, rejoin: Bool) {
+		guard !closing else { return }
+		if paused { pauseLocally(); return }
+		guard rejoin else { resumeLocally(); return }
+		intent.play()
+		guard intent.canPlay, activateAudio() else { return }
+		isPaused = false
+		player.stop()
+		open()
 	}
 
 	// MARK: SharePlay's native custom-player adapter
