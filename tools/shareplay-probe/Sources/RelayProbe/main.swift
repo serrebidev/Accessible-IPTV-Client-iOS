@@ -69,9 +69,9 @@ private struct DecodeProgress {
 		}
 		if let firstTime {
 			if ended { continuous = false }
-			if let lastDecodedElapsed, elapsed - lastDecodedElapsed > 3 { continuous = false }
 			if video > self.video { lastVideo = elapsed }
 			if audio > self.audio { lastAudio = elapsed }
+			if let lastDecodedElapsed, elapsed - lastDecodedElapsed > 3 { continuous = false }
 			if video < self.video || audio < self.audio { continuous = false }
 			progress = max(progress, Double(time) / 1000 - firstTime)
 		}

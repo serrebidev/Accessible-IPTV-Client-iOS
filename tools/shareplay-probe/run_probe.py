@@ -206,7 +206,8 @@ def check_producer(samples, exit_code, eof, seek):
         later = [item for item in samples if item['event'] == 'sample'
                  and item['elapsed'] >= request['elapsed'] + 2
                  and item['elapsed'] <= request['elapsed'] + 6]
-        if not any(item['time'] >= 19_000 and item['demuxReadBytes'] > request['demuxReadBytes']
+        if not any(19_000 <= item['time'] <= 18_000 + (item['elapsed'] - request['elapsed']) * 1000 + 2000
+                   and item['demuxReadBytes'] > request['demuxReadBytes']
                    for item in later):
             raise AssertionError('No observed playback and demux progress after seeking to 18 seconds')
 

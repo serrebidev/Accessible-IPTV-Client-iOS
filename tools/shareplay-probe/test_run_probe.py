@@ -29,6 +29,7 @@ class ProbeChecks(unittest.TestCase):
         check_producer([request, sample(elapsed=15, time=20000, demux=200)], None, False, True)
         for later in [[], [sample(elapsed=12.1, time=18000)],
                       [sample(elapsed=15, time=15000, demux=200)],
+                      [sample(elapsed=15, time=26000, demux=200)],
                       [sample(elapsed=15, time=20000, demux=100)],
                       [sample(elapsed=20, time=20000, demux=200)]]:
             with self.subTest(later=later), self.assertRaises(AssertionError):
