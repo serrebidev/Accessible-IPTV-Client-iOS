@@ -240,18 +240,6 @@ def run_case(binary, name, path, provider, output):
             hub.guard.wait_for(lambda: len(hub.data) >= 262144 or hub.done, timeout=32)
         if len(hub.data) < 262144:
             raise AssertionError(f'{name}: no usable remux bytes after 32s; {hub.error}')
-        listeners = subprocess.run(['lsof', '-nP', '-iTCP:' + str(producer_port), '-sTCP:LISTEN'],
-                                   text=True, capture_output=True, check=True).stdout
-        (case / 'listeners.txt').write_text(listeners)
-        if '127.0.0.1:' not in listeners or '*:' in listeners:
-            raise AssertionError('Producer must listen only on loopback')
-        try:
-            urllib.request.urlopen(producer_url, timeout=3)
-        except urllib.error.HTTPError as error:
-            if error.code != 401:
-                raise
-        else:
-            raise AssertionError('Producer output is accessible without HTTP authentication')
         server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Consumer)
         server.daemon_threads = True
         server.hub = hub
@@ -267,6 +255,22 @@ def run_case(binary, name, path, provider, output):
             consumer = subprocess.Popen([str(binary), 'consumer', url, str(duration)], stdout=data, stderr=err)
             resources.callback(stop_process, consumer)
             consumers.append(consumer)
+        consumers_started = time.monotonic() - started
+        # Diagnostics must not delay consumers while the finite fixture accumulates in the hub.
+        listeners = subprocess.run(['lsof', '-nP', '-a', '-p', str(producer.pid),
+                                    '-iTCP:' + str(producer_port), '-sTCP:LISTEN'],
+                                   text=True, capture_output=True, check=True, timeout=10).stdout
+        (case / 'listeners.txt').write_text(listeners)
+        if '127.0.0.1:' not in listeners or '*:' in listeners:
+            raise AssertionError('Producer must listen only on loopback')
+        try:
+            urllib.request.urlopen(producer_url, timeout=3)
+        except urllib.error.HTTPError as error:
+            if error.code != 401:
+                raise
+        else:
+            raise AssertionError('Producer output is accessible without HTTP authentication')
+        diagnostics_finished = time.monotonic() - started
         exits = [process.wait(timeout=duration + 10) for process in consumers]
         elapsed = time.monotonic() - started
         producer_exit = producer.poll()
@@ -279,7 +283,10 @@ def run_case(binary, name, path, provider, output):
             peak = provider.peak
         result = {'case': name, 'consumerExits': exits, 'receivedBytes': len(hub.data),
                   'firstByteSeconds': hub.first_byte - started, 'elapsedSeconds': elapsed,
+                  'consumersStartedSeconds': consumers_started,
+                  'diagnosticsFinishedSeconds': diagnostics_finished,
                   'peakProviderHttpRequests': peak, 'providerRequests': requests,
+                  'providerHttpRequestCount': len(requests),
                   'journalTransportTested': False, 'error': hub.error,
                   'producerExit': producer_exit, 'producerEOF': hub.eof}
         (case / 'result.json').write_text(json.dumps(result, indent=2) + '\n')
@@ -318,7 +325,8 @@ def main():
             try:
                 result = run_case(args.binary.resolve(), name, path, provider, args.output)
                 results.append(result)
-                print(f'{name}: decoded by host and two guests, first byte {result["firstByteSeconds"]:.2f}s', flush=True)
+                print(f'{name}: local decode passed; provider requests {result["providerHttpRequestCount"]}; '
+                      f'first byte {result["firstByteSeconds"]:.2f}s', flush=True)
             except Exception as error:
                 failures.append({'case': name, 'error': str(error)})
                 print(f'{name}: FAIL {error}', flush=True)
@@ -326,6 +334,7 @@ def main():
         provider.shutdown()
         provider.server_close()
     summary = {'passed': results, 'failed': failures,
+               'requestedFeatureReady': False,
                'limits': ['Local transport only: Apple Journal/FaceTime not exercised.',
                           'Host marker is instrumentation, not authentication.',
                           'One producer playback session; HLS/range requests may use several HTTP connections.',

@@ -2,7 +2,11 @@
 
 This is an experiment, separate from the released app. It does not implement a working Apple Journal relay or change SharePlay in v0.2.0.
 
-The requested outcome is one host provider playback session for live TV, HLS, movies and catch-up, with no provider connections or logins on guest devices and no user-operated server. For HLS, one playback session still includes playlist and segment HTTP requests; it cannot mean one HTTP request for an entire session.
+The user clarified the limit on 2026-10-15: one provider playback session on the host, with zero provider requests or logins on guests and no user-operated server. This includes live TV, HLS, movies and catch-up.
+
+One playback session can include HLS playlist and media-segment requests ([RFC 8216](https://www.rfc-editor.org/rfc/rfc8216.html)) and movie range requests. The matrix logs these separately from the single VLC producer. It does not prove how a real provider counts an account's sessions.
+
+The matrix reports local playback separately from production readiness. `requestedFeatureReady` remains false. A green workflow establishes only the local probe checks, not Apple-only delivery of the requested feature.
 
 ## Questions tested here
 
