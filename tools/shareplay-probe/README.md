@@ -1,0 +1,37 @@
+# Single-source SharePlay feasibility probe
+
+This is an experiment, separate from the released app. It does not implement a working Apple Journal relay or change SharePlay in v0.2.0.
+
+The requested outcome is one host provider playback session for live TV, HLS, movies and catch-up, with no provider connections or logins on guest devices and no user-operated server. For HLS, one playback session still includes playlist and segment HTTP requests; it cannot mean one HTTP request for an entire session.
+
+## Questions tested here
+
+- Can the exact VLCKit already used by the app ingest TS, HLS, MP4, MKV and a catch-up-style URL and remux encoded streams into streaming Matroska?
+- Can the producer remain independent of three local VLC consumers, with every provider request originating from that producer?
+- Does a dedicated HTTP output bind to loopback and require authentication?
+- Do both audio and video decode after copying the output, without leaking a synthetic provider URL marker?
+- How long until output arrives, and does a file input respect real-time pacing?
+- What happens when the producer seeks within an MP4?
+
+The matrix uses generated H.264/AAC media, a local fake provider and an in-memory byte copy capped at 64 MiB. The `IPTVHostProbe/1` User-Agent is test instrumentation, not an authentication design. HTTP range and HLS requests are logged separately from the number of producer playback sessions. Seek requests and resulting native playback times are recorded; a request log alone does not prove accurate seeking.
+
+## Running on macOS
+
+```sh
+swift build --package-path tools/shareplay-probe -c release
+FRAMEWORK=$(find tools/shareplay-probe/.build/artifacts -type d -path '*macos*/VLCKit.framework' | head -1)
+export DYLD_FRAMEWORK_PATH="$(dirname "$FRAMEWORK")"
+python3 tools/shareplay-probe/run_probe.py --binary tools/shareplay-probe/.build/release/RelayProbe --output probe-results
+```
+
+Requires Xcode, Python 3.9 or newer, and ffmpeg with libx264. The workflow uploads results and per-process logs, including failure evidence. No real IPTV account or production media is used. The fixed HTTP test password is only for the temporary loopback fixture.
+
+## Native delivery remains a separate gate
+
+Apple describes GroupSessionJournal as encrypted file/data transfer, with a 100 MB attachment limit. It gives no sustained streaming rate or deadline. Its add operation can complete before upload finishes. Journal attachments have no documented sender identity or playback ordering, and removing an attachment affects everyone.
+
+A future prototype therefore needs authenticated host manifests through GroupSessionMessenger, attachment IDs bound to hashes and ordered stream generations, bounded buffers, acknowledgements after receivers copy bytes, and explicit handling for slow receivers, late joiners, host loss and seeks. Guests must never fall back to opening the provider URL. Background audio must be tested with a separate producer and local consumer; deselecting source video tracks may remove video from the remux as well as the local picture.
+
+This local matrix cannot establish sustained delivery through Apple, device background execution, codec compatibility beyond the fixture, HLS adaptive track changes, late-join decoding or end-to-end SharePlay synchronization. Those need a real-device FaceTime transport probe before a production feature or stable release can claim the requested behavior.
+
+References: [Apple data sharing](https://developer.apple.com/documentation/groupactivities/synchronizing-data-during-a-shareplay-activity), [Share files with SharePlay](https://developer.apple.com/videos/play/wwdc2023/10241/), [pinned VLCKit package](https://github.com/videolan/vlckit/blob/4.0.0-a22/Package.swift), [VLC HTTP output](https://github.com/videolan/vlc/blob/c9628afc4/modules/access_output/http.c), [VLC Matroska output example](https://mailman.videolan.org/pipermail/vlc-commits/2019-January/053655.html).

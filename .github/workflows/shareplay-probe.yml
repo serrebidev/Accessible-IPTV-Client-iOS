@@ -1,0 +1,47 @@
+name: SharePlay single-source probe
+
+on:
+  push:
+    branches: [spike/shareplay-single-source]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shareplay-probe-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: macos-26
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Xcode
+        run: sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+      - name: Fixture tools
+        run: command -v ffmpeg || brew install ffmpeg
+      - uses: actions/cache@v6
+        with:
+          path: tools/shareplay-probe/.build
+          key: relay-probe-${{ runner.os }}-${{ hashFiles('tools/shareplay-probe/Package.swift') }}
+      - name: Build native probe
+        run: swift build --package-path tools/shareplay-probe -c release
+      - name: Single-source media matrix
+        run: |
+          FRAMEWORK=$(find tools/shareplay-probe/.build/artifacts -type d -path '*macos*/VLCKit.framework' | head -1)
+          [ -n "$FRAMEWORK" ] || { echo "Missing macOS VLCKit framework"; exit 1; }
+          export DYLD_FRAMEWORK_PATH="$(dirname "$FRAMEWORK")"
+          python3 tools/shareplay-probe/run_probe.py --binary tools/shareplay-probe/.build/release/RelayProbe --output probe-results
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: single-source-probe
+          path: |
+            probe-results/summary.json
+            probe-results/*/result.json
+            probe-results/*/*.jsonl
+            probe-results/*/*.stderr
+            probe-results/*/listeners.txt
+          if-no-files-found: ignore
