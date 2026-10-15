@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1
+
+- Much less CPU when a guide imports: the guide reader is about 12 times faster and skips the programmes of channels you do not have without reading them. Xtream guides import in seconds instead of minutes.
+- Large Xtream movie and series lists load about twice as fast.
+- The channel list no longer redraws every row when the status line changes, and channel rows look up their guide entry once.
+- The player stops its background timers when it does not need them, and looks up its channel once.
+- Recordings no longer write to storage every 15 seconds when nothing changed.
+
 ## 0.1.0
 
 First iOS release, a port of Accessible IPTV Client for Android 0.2.11.

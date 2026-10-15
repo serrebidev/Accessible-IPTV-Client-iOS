@@ -1,4 +1,11 @@
 import Foundation
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(ucrt)
+import ucrt
+#elseif canImport(Glibc)
+import Glibc
+#endif
 
 /// XMLTV helpers. Both run hundreds of thousands of times per guide import: no regex, no
 /// date formatters.
@@ -89,7 +96,9 @@ public enum Xmltv {
 
 /// A small streaming XML pull reader for XMLTV: elements, attributes, text, entities,
 /// CDATA, comments. It reads [ByteSource] chunks, so a gzip guide is parsed as it inflates.
-/// Not a validating parser; XMLTV is machine-written.
+/// Not a validating parser; XMLTV is machine-written. Text runs are found with memchr and
+/// decoded only when asked for; [skipElement] jumps over an element without tokenizing it,
+/// which is what keeps a national guide (most of it unmatched) cheap.
 public final class XmlPull {
 	public enum Event: Equatable { case start, end, text, eof }
 
@@ -97,8 +106,14 @@ public final class XmlPull {
 	/// Tag name for start/end.
 	public private(set) var name = ""
 	public private(set) var attrs: [String: String] = [:]
-	/// Decoded text for a text event.
-	public private(set) var text = ""
+
+	/// Decoded text for a text event (decoded on first use).
+	public var text: String {
+		if let t = textCache { return t }
+		let t = string(textBytes)
+		textCache = t
+		return t
+	}
 
 	private let src: ByteSource
 	private var buf: [UInt8] = []
@@ -106,42 +121,77 @@ public final class XmlPull {
 	private var ended = false
 	private var pendingEnd: String?
 	private var latin1 = false
+	private var textBytes: [UInt8] = []
+	private var textCache: String?
+
+	private static let lt = UInt8(ascii: "<"), gt = UInt8(ascii: ">"), slash = UInt8(ascii: "/"), amp = UInt8(ascii: "&")
 
 	public init(_ src: ByteSource) { self.src = src }
 
-	@inline(__always) private func peek() throws -> UInt8? {
-		if pos < buf.count { return buf[pos] }
-		if ended { return nil }
-		while true {
-			guard let d = try src.next() else { ended = true; return nil }
+	/// At least one unread byte in [buf]; false at the end of input.
+	@inline(__always) private func fill() throws -> Bool {
+		if pos < buf.count { return true }
+		if ended { return false }
+		while let d = try src.next() {
 			if d.isEmpty { continue }
 			buf = [UInt8](d)
 			pos = 0
-			return buf[0]
+			return true
+		}
+		ended = true
+		return false
+	}
+
+	/// Appends the next chunk after the unread bytes (lookahead across a chunk boundary).
+	private func more() throws -> Bool {
+		if ended { return false }
+		while let d = try src.next() {
+			if d.isEmpty { continue }
+			var nb = [UInt8]()
+			nb.reserveCapacity(buf.count - pos + d.count)
+			nb.append(contentsOf: buf[pos...])
+			nb.append(contentsOf: d)
+			buf = nb
+			pos = 0
+			return true
+		}
+		ended = true
+		return false
+	}
+
+	/// Index of [b] in [buf] at or after [from], or nil.
+	@inline(__always) private func find(_ b: UInt8, from: Int) -> Int? {
+		buf.withUnsafeBufferPointer { p -> Int? in
+			guard from < p.count, let base = p.baseAddress, let hit = memchr(base + from, Int32(b), p.count - from) else { return nil }
+			return base.distance(to: hit.assumingMemoryBound(to: UInt8.self))
 		}
 	}
 
-	@inline(__always) private func take() throws -> UInt8? {
-		guard let b = try peek() else { return nil }
-		pos += 1
-		return b
-	}
+	@inline(__always) private func peek() throws -> UInt8? { try fill() ? buf[pos] : nil }
 
 	private func string(_ bytes: [UInt8]) -> String {
 		let s = latin1 ? String(bytes.map { Character(UnicodeScalar($0)) }) : String(decoding: bytes, as: UTF8.self)
-		return s.contains("&") ? XmlPull.decodeEntities(s) : s
+		return bytes.contains(XmlPull.amp) ? XmlPull.decodeEntities(s) : s
 	}
 
-	/// Skips to just past [end] (a 2-3 byte terminator), returning what came before it.
+	/// Everything up to [end] (1-3 bytes), consumed with it.
 	private func until(_ end: [UInt8]) throws -> [UInt8] {
 		var acc: [UInt8] = []
-		while let b = try take() {
-			acc.append(b)
-			if b == end[end.count - 1] && acc.count >= end.count && acc.suffix(end.count).elementsEqual(end) {
-				return Array(acc[..<(acc.count - end.count)])
+		let last = end[end.count - 1]
+		while true {
+			guard try fill() else { throw ByteError.endedEarly }
+			if let i = find(last, from: pos) {
+				acc.append(contentsOf: buf[pos...i])
+				pos = i + 1
+				if acc.count >= end.count && acc.suffix(end.count).elementsEqual(end) {
+					acc.removeLast(end.count)
+					return acc
+				}
+			} else {
+				acc.append(contentsOf: buf[pos...])
+				pos = buf.count
 			}
 		}
-		throw ByteError.endedEarly
 	}
 
 	private static func isSpace(_ b: UInt8) -> Bool { b == 0x20 || b == 0x09 || b == 0x0A || b == 0x0D }
@@ -154,21 +204,29 @@ public final class XmlPull {
 			event = .end
 			return event
 		}
+		textCache = nil
 		while true {
-			guard let b = try peek() else { event = .eof; return event }
-			if b != UInt8(ascii: "<") {
-				var acc: [UInt8] = []
-				while let c = try peek(), c != UInt8(ascii: "<") { acc.append(c); pos += 1 }
-				text = string(acc)
+			guard try fill() else { event = .eof; return event }
+			if buf[pos] != XmlPull.lt {
+				textBytes.removeAll(keepingCapacity: true)
+				while true {
+					if let i = find(XmlPull.lt, from: pos) {
+						textBytes.append(contentsOf: buf[pos..<i])
+						pos = i
+						break
+					}
+					textBytes.append(contentsOf: buf[pos...])
+					pos = buf.count
+					guard try fill() else { break }
+				}
 				event = .text
 				return event
 			}
 			pos += 1
 			guard let c = try peek() else { throw ByteError.endedEarly }
-			if c == UInt8(ascii: "/") {
+			if c == XmlPull.slash {
 				pos += 1
-				let raw = try until([UInt8(ascii: ">")])
-				name = String(decoding: raw, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+				name = String(decoding: try until([XmlPull.gt]), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
 				event = .end
 				return event
 			}
@@ -188,50 +246,83 @@ public final class XmlPull {
 					_ = try until([UInt8(ascii: "[")]) // the "[" of "[CDATA["
 					_ = try until([UInt8(ascii: "[")])
 					let raw = try until(Array("]]>".utf8))
-					text = latin1 ? String(raw.map { Character(UnicodeScalar($0)) }) : String(decoding: raw, as: UTF8.self)
+					textBytes = raw
+					textCache = latin1 ? String(raw.map { Character(UnicodeScalar($0)) }) : String(decoding: raw, as: UTF8.self)
 					event = .text
 					return event
 				}
 				// DOCTYPE and friends, with an optional [internal subset].
 				var depth = 0
-				while let d = try take() {
-					if d == UInt8(ascii: "[") { depth += 1 } else if d == UInt8(ascii: "]") { depth -= 1 } else if d == UInt8(ascii: ">") && depth <= 0 { break }
+				while let d = try peek() {
+					pos += 1
+					if d == UInt8(ascii: "[") { depth += 1 } else if d == UInt8(ascii: "]") { depth -= 1 } else if d == XmlPull.gt && depth <= 0 { break }
 				}
 				continue
 			}
 			// Start tag.
 			var nameBytes: [UInt8] = []
-			while let d = try peek(), !XmlPull.isSpace(d), d != UInt8(ascii: "/"), d != UInt8(ascii: ">") { nameBytes.append(d); pos += 1 }
+			while let d = try peek(), !XmlPull.isSpace(d), d != XmlPull.slash, d != XmlPull.gt { nameBytes.append(d); pos += 1 }
 			name = String(decoding: nameBytes, as: UTF8.self)
 			attrs = [:]
 			while true {
 				while let d = try peek(), XmlPull.isSpace(d) { pos += 1 }
-				guard let d = try take() else { throw ByteError.endedEarly }
-				if d == UInt8(ascii: ">") { break }
-				if d == UInt8(ascii: "/") {
-					guard try take() == UInt8(ascii: ">") else { throw ByteError.endedEarly }
+				guard let d = try peek() else { throw ByteError.endedEarly }
+				pos += 1
+				if d == XmlPull.gt { break }
+				if d == XmlPull.slash {
+					guard try peek() == XmlPull.gt else { throw ByteError.endedEarly }
+					pos += 1
 					pendingEnd = name
 					break
 				}
 				var key: [UInt8] = [d]
-				while let e = try peek(), e != UInt8(ascii: "="), !XmlPull.isSpace(e), e != UInt8(ascii: ">"), e != UInt8(ascii: "/") { key.append(e); pos += 1 }
+				while let e = try peek(), e != UInt8(ascii: "="), !XmlPull.isSpace(e), e != XmlPull.gt, e != XmlPull.slash { key.append(e); pos += 1 }
 				while let e = try peek(), XmlPull.isSpace(e) { pos += 1 }
 				guard try peek() == UInt8(ascii: "=") else { continue } // attribute without a value
 				pos += 1
 				while let e = try peek(), XmlPull.isSpace(e) { pos += 1 }
-				guard let q = try take() else { throw ByteError.endedEarly }
+				guard let q = try peek() else { throw ByteError.endedEarly }
+				pos += 1
 				let value: [UInt8]
 				if q == UInt8(ascii: "\"") || q == UInt8(ascii: "'") {
 					value = try until([q])
 				} else {
 					var v: [UInt8] = [q]
-					while let e = try peek(), !XmlPull.isSpace(e), e != UInt8(ascii: ">") { v.append(e); pos += 1 }
+					while let e = try peek(), !XmlPull.isSpace(e), e != XmlPull.gt { v.append(e); pos += 1 }
 					value = v
 				}
 				attrs[String(decoding: key, as: UTF8.self)] = string(value)
 			}
 			event = .start
 			return event
+		}
+	}
+
+	/// After a start tag: jumps to its end tag without tokenizing what is inside.
+	/// ponytail: finds the first "</name" after the start, so it is for elements that never
+	/// nest themselves (programme, channel) and have no "</name" inside CDATA.
+	public func skipElement() throws {
+		guard event == .start else { return }
+		if pendingEnd != nil { try next(); return }
+		let tag = name
+		let pattern = Array("</\(tag)".utf8)
+		while true {
+			guard try fill() else { throw ByteError.endedEarly }
+			guard let i = find(XmlPull.lt, from: pos) else { pos = buf.count; continue }
+			pos = i
+			while buf.count - pos <= pattern.count { guard try more() else { throw ByteError.endedEarly } }
+			if buf[pos..<(pos + pattern.count)].elementsEqual(pattern) {
+				let after = buf[pos + pattern.count]
+				if after == XmlPull.gt || XmlPull.isSpace(after) {
+					pos += pattern.count
+					_ = try until([XmlPull.gt])
+					name = tag
+					event = .end
+					textCache = nil
+					return
+				}
+			}
+			pos += 1
 		}
 	}
 

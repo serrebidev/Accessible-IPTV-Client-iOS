@@ -14,6 +14,10 @@ public final class Epg {
 	private let indexLock = NSLock()
 	private var byId: [String: String] = [:]
 	private var byName: [String: String] = [:]
+	/// Channel key -> guide id (or none), so list rows do not rebuild name keys on every draw.
+	private var idCache: [String: String?] = [:]
+	/// Prepared reader statements by SQL; rows run the same few queries over and over.
+	private var statements: [String: OpaquePointer] = [:]
 
 	public struct DBError: LocalizedError {
 		public let errorDescription: String?
@@ -30,6 +34,7 @@ public final class Epg {
 	}
 
 	deinit {
+		statements.values.forEach { sqlite3_finalize($0) }
 		sqlite3_close(writer)
 		sqlite3_close(reader)
 	}
@@ -54,9 +59,16 @@ public final class Epg {
 	/// Rows of [sql] on the reader connection; [row] reads columns from the statement.
 	private func query<T>(_ sql: String, _ args: [Any], _ row: (OpaquePointer) -> T) -> [T] {
 		readLock.lock(); defer { readLock.unlock() }
-		var st: OpaquePointer?
-		guard sqlite3_prepare_v2(reader, sql, -1, &st, nil) == SQLITE_OK, let s = st else { return [] }
-		defer { sqlite3_finalize(s) }
+		let s: OpaquePointer
+		if let cached = statements[sql] {
+			s = cached
+		} else {
+			var st: OpaquePointer?
+			guard sqlite3_prepare_v2(reader, sql, -1, &st, nil) == SQLITE_OK, let made = st else { return [] }
+			statements[sql] = made
+			s = made
+		}
+		defer { sqlite3_reset(s); sqlite3_clear_bindings(s) }
 		for (i, a) in args.enumerated() {
 			if let v = a as? Int64 { sqlite3_bind_int64(s, Int32(i + 1), v) } else { sqlite3_bind_text(s, Int32(i + 1), "\(a)", -1, Epg.transient) }
 		}
@@ -75,13 +87,17 @@ public final class Epg {
 			ids[id.lowercased()] = id
 			if !key.isEmpty && names[key] == nil { names[key] = id }
 		}
-		indexLock.lock(); byId = ids; byName = names; indexLock.unlock()
+		indexLock.lock(); byId = ids; byName = names; idCache = [:]; indexLock.unlock()
 	}
 
 	public func guideId(_ ch: Channel) -> String? {
 		indexLock.lock(); defer { indexLock.unlock() }
-		if !ch.tvgId.isEmpty, let id = byId[ch.tvgId.lowercased()] { return id }
-		return byName[Xmltv.nameKey(ch.name)]
+		if let hit = idCache[ch.key] { return hit }
+		var id: String?
+		if !ch.tvgId.isEmpty { id = byId[ch.tvgId.lowercased()] }
+		if id == nil { id = byName[Xmltv.nameKey(ch.name)] }
+		idCache[ch.key] = .some(id)
+		return id
 	}
 
 	public var hasGuide: Bool { indexLock.lock(); defer { indexLock.unlock() }; return !byId.isEmpty }
@@ -232,6 +248,9 @@ public final class Epg {
 								try exec(db, "BEGIN")
 								progress(count)
 							}
+						} else {
+							// Most of a national guide is channels this playlist does not have.
+							try p.skipElement()
 						}
 					}
 					ev = try p.next()

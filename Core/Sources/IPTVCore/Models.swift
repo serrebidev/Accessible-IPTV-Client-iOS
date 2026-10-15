@@ -87,13 +87,15 @@ public struct Channel: Hashable, Identifiable {
 	public let logo: String
 	public let attrs: [String: String]
 	public let kind: String
+	/// "source:item". Stored, not computed: SwiftUI reads it for every row on every list diff.
+	public let key: String
 
 	public init(sourceId: String, itemId: String, name: String, group: String, url: String, tvgId: String = "", logo: String = "", attrs: [String: String] = [:], kind: String = Channel.kindLive) {
 		self.sourceId = sourceId; self.itemId = itemId; self.name = name; self.group = group; self.url = url
 		self.tvgId = tvgId; self.logo = logo; self.attrs = attrs; self.kind = kind
+		key = "\(sourceId):\(itemId)"
 	}
 
-	public var key: String { "\(sourceId):\(itemId)" }
 	public var id: String { key }
 	public var isLive: Bool { kind == Channel.kindLive }
 
@@ -135,15 +137,17 @@ extension Channel: Codable {
 
 	public init(from decoder: Decoder) throws {
 		let c = try decoder.container(keyedBy: CodingKeys.self)
-		sourceId = try c.decode(String.self, forKey: .s)
-		itemId = try c.decode(String.self, forKey: .i)
-		name = try c.decode(String.self, forKey: .n)
-		group = try c.decodeIfPresent(String.self, forKey: .g) ?? ""
-		url = try c.decode(String.self, forKey: .u)
-		tvgId = try c.decodeIfPresent(String.self, forKey: .t) ?? ""
-		logo = try c.decodeIfPresent(String.self, forKey: .l) ?? ""
-		attrs = try c.decodeIfPresent([String: String].self, forKey: .a) ?? [:]
-		kind = try c.decodeIfPresent(String.self, forKey: .k) ?? Channel.kindLive
+		self.init(
+			sourceId: try c.decode(String.self, forKey: .s),
+			itemId: try c.decode(String.self, forKey: .i),
+			name: try c.decode(String.self, forKey: .n),
+			group: try c.decodeIfPresent(String.self, forKey: .g) ?? "",
+			url: try c.decode(String.self, forKey: .u),
+			tvgId: try c.decodeIfPresent(String.self, forKey: .t) ?? "",
+			logo: try c.decodeIfPresent(String.self, forKey: .l) ?? "",
+			attrs: try c.decodeIfPresent([String: String].self, forKey: .a) ?? [:],
+			kind: try c.decodeIfPresent(String.self, forKey: .k) ?? Channel.kindLive
+		)
 	}
 
 	public func encode(to encoder: Encoder) throws {

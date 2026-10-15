@@ -22,6 +22,8 @@ struct MainView: View {
 	@State private var favs: Set<String> = []
 	@State private var heading = ""
 	@State private var details = ""
+	/// Bumped whenever what the channel rows show changes (list, favourites, guide, recordings).
+	@State private var listVersion = 0
 	@State private var searchTask: Task<Void, Never>?
 	@State private var showRecent = false
 	@State private var showNumber = false
@@ -90,8 +92,10 @@ struct MainView: View {
 				load(force: false, all: true)
 			}
 		}
+		.onReceive(model.recorder.$active) { _ in listVersion += 1 }
 		.onChange(of: model.revision) { _, _ in
 			favs = prefs.favorites
+			listVersion += 1
 			refreshGroupCounts()
 			Task { await showChannels() }
 		}
@@ -229,30 +233,15 @@ struct MainView: View {
 	}
 
 	private var channelColumn: some View {
-		let _ = model.revision
-		return VStack(alignment: .leading) {
+		VStack(alignment: .leading) {
 			Text(heading).font(.headline).accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocused)
-			List(channels) { ch in channelRow(ch) }
-				.listStyle(.plain)
-				.accessibilityLabel(sectionName())
+			ChannelRows(channels: channels, favs: favs, showGroup: !query.isEmpty, version: listVersion, label: sectionName(),
+				focusedKey: $focusedKey, voFocus: $voFocus) { channelActions($0, fav: $1) }
+				.equatable()
 			if !details.isEmpty {
 				Text(details).font(.footnote).frame(maxWidth: .infinity, alignment: .leading)
 			}
 		}
-	}
-
-	private func channelRow(_ ch: Channel) -> some View {
-		let fav = favs.contains(ch.key)
-		let nn = ch.isLive ? library.epg.nowNext(ch) : nil
-		// Just what is on and until when; next and the description are under Details.
-		let line2 = nn?.now.map { L("until", $0.title, Format.time($0.stop)) } ?? (query.isEmpty ? "" : ch.group)
-		let speech = Format.sentences([fav ? "\(ch.name), \(L("favorite"))" : ch.name, line2])
-		return Button { model.open(ch) } label: {
-			RowLabel(line1: fav ? L("favorite_name", ch.name) : ch.name, line2: line2)
-		}
-		.row(speech, actions: channelActions(ch, fav: fav))
-		.focused($focusedKey, equals: ch.key)
-		.accessibilityFocused($voFocus, equals: ch.key)
 	}
 
 	private func channelActions(_ ch: Channel, fav: Bool) -> [RowAction] {
@@ -262,6 +251,7 @@ struct MainView: View {
 			let now = prefs.toggleFavorite(ch.key)
 			model.setStatus(L(now ? "added_favorite" : "removed_favorite", ch.name))
 			favs = prefs.favorites
+			listVersion += 1
 			refreshGroupCounts()
 			if group == Library.favorites { Task { await showChannels() } }
 		})
@@ -388,6 +378,7 @@ struct MainView: View {
 			q.isEmpty ? lib.channelsIn(s, g) : Library.searchRanked(lib.list(s), q)
 		}.value
 		channels = list
+		listVersion += 1
 		heading = q.isEmpty ? L("list_heading", groupLabel(group), list.count) : P("result_count", list.count)
 	}
 
@@ -524,5 +515,42 @@ private struct NumberSheet: View {
 			fieldFocused = true
 			announce(e)
 		}
+	}
+}
+
+/// The channel list on its own, compared by [version] only: the main screen's body re-runs on
+/// every status-line change, and re-diffing a 50,000-row List each time burned CPU.
+private struct ChannelRows: View, Equatable {
+	let channels: [Channel]
+	let favs: Set<String>
+	/// While searching, results come from every group: say which when there is no guide.
+	let showGroup: Bool
+	let version: Int
+	let label: String
+	let focusedKey: FocusState<String?>.Binding
+	let voFocus: AccessibilityFocusState<String?>.Binding
+	let actions: (Channel, Bool) -> [RowAction]
+
+	static func == (a: ChannelRows, b: ChannelRows) -> Bool { a.version == b.version && a.showGroup == b.showGroup && a.label == b.label }
+
+	var body: some View {
+		List(channels) { ch in row(ch) }
+			.listStyle(.plain)
+			.accessibilityLabel(label)
+	}
+
+	private func row(_ ch: Channel) -> some View {
+		let model = AppModel.shared
+		let fav = favs.contains(ch.key)
+		let nn = ch.isLive ? model.library.epg.nowNext(ch) : nil
+		// Just what is on and until when; next and the description are under Details.
+		let line2 = nn?.now.map { L("until", $0.title, Format.time($0.stop)) } ?? (showGroup ? ch.group : "")
+		let speech = Format.sentences([fav ? "\(ch.name), \(L("favorite"))" : ch.name, line2])
+		return Button { model.open(ch) } label: {
+			RowLabel(line1: fav ? L("favorite_name", ch.name) : ch.name, line2: line2)
+		}
+		.row(speech, actions: actions(ch, fav))
+		.focused(focusedKey, equals: ch.key)
+		.accessibilityFocused(voFocus, equals: ch.key)
 	}
 }

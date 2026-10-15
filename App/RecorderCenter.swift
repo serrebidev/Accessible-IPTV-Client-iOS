@@ -89,14 +89,16 @@ final class RecorderCenter: ObservableObject {
 		Notify.cancel("sched-\(id)")
 	}
 
+	/// Every 15 s: starts what is due. Writes and publishes only when something changed.
 	private func tick() {
 		let now = nowMs()
-		for s in scheduled where s.start - 60_000 <= now {
+		let due = scheduled.filter { $0.start - 60_000 <= now }
+		for s in due {
 			scheduled.removeAll { $0.id == s.id }
 			Notify.cancel("sched-\(s.id)")
 			startScheduled(s)
 		}
-		persist()
+		if !due.isEmpty || scheduled.contains(where: { $0.end <= now }) { persist() } else { updateKeepAlive() }
 	}
 
 	private func startScheduled(_ s: Recording.Scheduled) {

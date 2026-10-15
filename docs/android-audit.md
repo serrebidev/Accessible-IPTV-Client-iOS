@@ -62,3 +62,43 @@ controls. Notes:
 - The main screen status line announces every load result, including the routine channel count after
   each section switch; consider announcing counts only when the user asked (Refresh).
 - Subtitle speech uses a polite live region per cue; long cues can queue behind status announcements.
+
+# iOS CPU and memory audit (0.1.1)
+
+Reported: CPU out of control after adding an Xtream login. Cause: the guide import.
+
+Measured with `Core/Tests/IPTVCoreTests/PerfTests.swift` (release build, desktop CPU; a phone is
+roughly 3 to 5 times slower). Synthetic 45 MB guide, 2,000 channels, 1 in 100 matched.
+
+| Path | 0.1.0 | 0.1.1 |
+| --- | --- | --- |
+| XMLTV reader | 10 MB/s | 121 MB/s |
+| Xtream JSON list reader | 30 MB/s | 58 MB/s |
+
+Fixes:
+
+1. XML reader went byte by byte and built a String for every text run, whitespace included.
+   Now it finds `<` with memchr, keeps text as bytes until asked, and `skipElement()` jumps over
+   a programme of an unmatched channel without tokenizing it (most of a national guide).
+2. JSON strings are copied in runs up to the next quote or backslash.
+3. `Channel.key` (the SwiftUI row id) was built by string interpolation on every access; every
+   list diff did it 50,000 times. Now stored.
+4. The main screen re-ran the whole channel List on every status-line change. The rows are now
+   an Equatable view compared by a version number.
+5. Each row ran `Xmltv.nameKey` and prepared a fresh SQLite statement for now/next. Guide ids are
+   cached per channel and reader statements are prepared once.
+6. Gzip allocated a 256 KB buffer per chunk; one buffer per stream now.
+7. Player: the channel was looked up (a scan of every list, movies included) on each programme
+   change; now once. The subtitle-cue timer (150 ms) runs only with a subtitle file loaded, the
+   track timer stops once a track is chosen, the pace timer runs for live only.
+8. Recorder wrote and published its schedule every 15 s; now only when it changes.
+
+Memory, unchanged and acceptable:
+
+- Guides download to a temp file and stream from disk; SQLite page cache is 4 MB; the reader
+  holds one 256 KB chunk. A guide import stays a few MB regardless of guide size.
+- Lists live in memory like on Android: about 500 bytes per entry, so 250,000 movies is about
+  125 MB. ponytail: move lists to SQLite if that ever becomes a problem.
+- The list cache is written and read as one JSON blob, briefly doubling a section's memory
+  while it saves or loads.
+- libVLC holds the live cushion: 25 s at 8 Mbit/s is about 25 MB.

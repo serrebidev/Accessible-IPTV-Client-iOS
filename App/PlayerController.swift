@@ -33,6 +33,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var closing = false
 	private var retryTask: Task<Void, Never>?
 	private var timers: [Timer] = []
+	/// Runs until the audio track is chosen (about ten seconds at most), then stops.
+	private var trackTimer: Timer?
+	/// Runs only while a subtitle file's cues are loaded.
+	private var cueTimer: Timer?
 	private var programmeTimer: Timer?
 	private var autoTrackTries = 0
 	private var autoTrackDone = false
@@ -46,13 +50,15 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	init(request: PlayRequest) {
 		self.request = request
 		let ch = request.channelKey.isEmpty ? nil : AppModel.shared.library.channel(request.channelKey)
+		channel = ch
 		live = !request.catchup && ch?.isLive == true
 		localFile = request.url.hasPrefix("file:")
 		super.init()
 		player.delegate = self
 	}
 
-	var channel: Channel? { request.channelKey.isEmpty ? nil : model.library.channel(request.channelKey) }
+	/// Looked up once: Library.channel scans every loaded list, movies included.
+	let channel: Channel?
 
 	// MARK: lifecycle
 
@@ -67,9 +73,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		open()
 		say(L("connecting"), 2)
 		// Quick start, then build the cushion: a live stream plays 5% slow until it is held.
-		timers.append(Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.pace() } })
-		timers.append(Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } })
-		timers.append(Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in Task { @MainActor in self?.cueTick() } })
+		if live { timers.append(Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.pace() } }) }
+		trackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } }
 		nowPlayingInfo()
 		#if os(iOS)
 		// Warm the cast device list so Cast has names to offer straight away.
@@ -85,6 +90,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		closing = true
 		retryTask?.cancel()
 		timers.forEach { $0.invalidate() }
+		trackTimer?.invalidate()
+		cueTimer?.invalidate()
 		programmeTimer?.invalidate()
 		player.stop()
 		player.delegate = nil
@@ -271,7 +278,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// Audio description, a remembered track or a preferred language, picked once the
 	/// stream's tracks are known (they arrive late: tried for ten seconds, like the desktop).
 	private func autoTrack() {
-		guard !autoTrackDone, hasPlayed else { return }
+		if autoTrackDone { trackTimer?.invalidate(); trackTimer = nil; return }
+		guard hasPlayed else { return }
 		autoTrackTries += 1
 		let audio = audioTracks()
 		if autoTrackTries > 20 { autoTrackDone = true; return }
@@ -331,6 +339,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		cueIndex = nil
 		if SubtitleCues.speakableExtensions.contains(copy.pathExtension.lowercased()), let raw = try? Data(contentsOf: copy) {
 			cues = SubtitleCues.parse(String(data: raw, encoding: .utf8) ?? String(decoding: raw, as: UTF8.self))
+			if !cues.isEmpty && cueTimer == nil {
+				cueTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in Task { @MainActor in self?.cueTick() } }
+			}
 		} else if prefs.speakSubtitles {
 			say(L("subtitle_speech_needs_text"), 1)
 		}

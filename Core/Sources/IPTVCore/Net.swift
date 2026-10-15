@@ -173,7 +173,16 @@ public final class JsonStream {
 		var acc: [UInt8] = []
 		var pendingHigh: UInt32?
 		while true {
-			guard let b = try peek() else { throw Broken() }
+			guard try peek() != nil else { throw Broken() }
+			// Plain run up to the next quote or backslash, copied in one go.
+			let start = pos
+			let stop = buf.withUnsafeBufferPointer { p -> Int in
+				var i = start
+				while i < p.count && p[i] != 0x22 && p[i] != 0x5C { i += 1 }
+				return i
+			}
+			if stop > start { acc.append(contentsOf: buf[start..<stop]); pos = stop; continue }
+			let b = buf[pos]
 			pos += 1
 			if b == UInt8(ascii: "\"") { break }
 			if b != UInt8(ascii: "\\") { acc.append(b); continue }

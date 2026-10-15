@@ -95,6 +95,8 @@ final class Gunzip: ByteSource {
 	private var finished = false
 	private let stream = UnsafeMutablePointer<compression_stream>.allocate(capacity: 1)
 	private var streamOpen = false
+	/// One output buffer for the whole stream, not 256 KB allocated per chunk.
+	private var out = [UInt8](repeating: 0, count: 256 * 1024)
 
 	init(_ inner: ByteSource) { self.inner = inner }
 
@@ -165,7 +167,6 @@ final class Gunzip: ByteSource {
 
 	/// Runs the decoder over the buffered input. Data when it produced some; nil when it needs more.
 	private func process(final: Bool) throws -> Data? {
-		var out = [UInt8](repeating: 0, count: 256 * 1024)
 		let avail = input.count - pos
 		var consumed = 0
 		var produced = 0
