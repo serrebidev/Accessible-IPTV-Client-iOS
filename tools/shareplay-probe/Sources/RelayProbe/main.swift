@@ -133,7 +133,8 @@ private func run(_ config: Configuration) async -> Int32 {
 	media.addOption(":network-caching=500")
 	media.addOption(":http-user-agent=\(config.producer ? "IPTVHostProbe/1" : "IPTVGuestProbe/1")")
 	if let port = config.port {
-		media.addOption(":sout=#std{access=http{user=probe,pwd=probe-only,mime=video/x-matroska},mux=avformat{mux=matroska,options={live=1,flush_packets=1}},dst=127.0.0.1:\(port)/relay.mkv}")
+		// The app relays MPEG-TS: whole 188-byte packets let a late joiner start at any chunk.
+		media.addOption(":sout=#std{access=http{user=probe,pwd=probe-only,mime=video/mp2t},mux=ts,dst=127.0.0.1:\(port)/relay.ts}")
 		media.addOption(":sout-all")
 	}
 	player.media = media

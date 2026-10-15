@@ -146,13 +146,17 @@ class Consumer(http.server.BaseHTTPRequestHandler):
         pass
 
     def do_GET(self):
-        if self.path not in ('/host.mkv', '/guest1.mkv', '/guest2.mkv'):
+        if self.path not in ('/host.ts', '/guest1.ts', '/guest2.ts', '/late.ts'):
             self.send_error(404)
             return
         self.send_response(200)
-        self.send_header('Content-Type', 'video/x-matroska')
+        self.send_header('Content-Type', 'video/mp2t')
         self.end_headers()
         hub, offset = self.server.hub, 0
+        if self.path == '/late.ts':
+            # A late joiner starts mid-stream on a packet boundary, as a SharePlay guest does.
+            with hub.guard:
+                offset = len(hub.data) // 188 * 188
         try:
             while True:
                 with hub.guard:
@@ -232,7 +236,7 @@ def run_case(binary, name, path, provider, output):
     producer_port = free_port()
     separator = '&' if '?' in path else '?'
     source_url = f'http://127.0.0.1:{provider.server_port}/{path}{separator}private=PROBE_ONLY_PROVIDER_SECRET'
-    producer_url = f'http://127.0.0.1:{producer_port}/relay.mkv'
+    producer_url = f'http://127.0.0.1:{producer_port}/relay.ts'
     started = time.monotonic()
     with contextlib.ExitStack() as resources:
         setup = resources.enter_context((case / 'setup.jsonl').open('w'))
@@ -268,10 +272,10 @@ def run_case(binary, name, path, provider, output):
         resources.callback(server.shutdown)
         consumers = []
         duration = 18 if name == 'mp4-seek' else 12
-        for who in ('host', 'guest1', 'guest2'):
+        for who in ('host', 'guest1', 'guest2', 'late'):
             data = resources.enter_context((case / f'{who}.jsonl').open('w'))
             err = resources.enter_context((case / f'{who}.stderr').open('w'))
-            url = f'http://127.0.0.1:{server.server_port}/{who}.mkv'
+            url = f'http://127.0.0.1:{server.server_port}/{who}.ts'
             mark(who + 'Starting')
             consumer = subprocess.Popen([str(binary), 'consumer', url, str(duration)], stdout=data, stderr=err)
             mark(who + 'Started')

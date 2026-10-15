@@ -10,7 +10,7 @@ The matrix reports local playback separately from production readiness. `request
 
 ## Questions tested here
 
-- Can the exact VLCKit already used by the app ingest TS, HLS, MP4, MKV and a catch-up-style URL and remux encoded streams into streaming Matroska?
+- Can the exact VLCKit already used by the app ingest TS, HLS, MP4, MKV and a catch-up-style URL and remux encoded streams into streaming MPEG-TS, and can a guest start mid-stream?
 - Can the producer remain independent of three local VLC consumers, with every provider request originating from that producer?
 - Does a dedicated HTTP output bind to loopback and require authentication?
 - Do both audio and video decode after copying the output, without leaking a synthetic provider URL marker?
