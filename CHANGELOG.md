@@ -2,8 +2,9 @@
 
 ## 0.1.2
 
-- Typing in the search field uses about a third of the CPU: the names it matches against are prepared when a list loads, instead of on every keystroke. Searching a 50,000 channel list went from 0.23 s to 0.073 s.
-- A fresh launch no longer hashes every channel on the main thread to check whether the guide is still current; that is done once, in the background, while the list loads.
+- Much less CPU while typing in the search field: a keystroke over a 50,000 channel list went from 0.16 s to 0.01 s (measured on a desktop, release build; a phone is slower). The names are prepared once when a list loads, and matching them no longer goes through the text search that was costing the time.
+- A fresh launch no longer hashes every channel on the main thread to check whether the guide is still current: it is done once, in the background, while the list loads, and only when the guide could need it.
+- A guide that matched no channel is not fetched again on every load, and a failed import waits an hour before the next automatic try.
 
 ## 0.1.1
 

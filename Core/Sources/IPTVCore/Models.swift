@@ -238,15 +238,43 @@ public enum Lists {
 
 	/// nil when [query] is not in [n]; else 0 exact, 1 at a word start, 2 inside a word.
 	private static func rank(_ n: String, _ query: String) -> Int? {
-		guard var hit = n.range(of: query) else { return nil }
 		if n == query { return 0 }
+		guard var hit = firstHit(n, query) else { return nil }
 		while true {
-			if hit.lowerBound == n.startIndex { return 1 }
-			let before = n[n.index(before: hit.lowerBound)]
+			if hit == n.startIndex { return 1 }
+			let before = n[n.index(before: hit)]
 			if !(before.isLetter || before.isNumber) { return 1 }
-			guard let next = n.range(of: query, range: n.index(after: hit.lowerBound)..<n.endIndex) else { return 2 }
-			hit = next
+			guard let next = n.range(of: query, range: n.index(after: hit)..<n.endIndex) else { return 2 }
+			hit = next.lowerBound
 		}
+	}
+
+	/// First occurrence of [query] in [n] (both already lowercased). Foundation's substring search
+	/// costs about 30x a byte scan over 50,000 names, which is one keystroke's work in the app. A
+	/// UTF-8 needle can only match on a character boundary, so scanning bytes finds the same hit.
+	private static func firstHit(_ n: String, _ query: String) -> String.Index? {
+		let q = [UInt8](query.utf8)
+		let found: Int?? = n.utf8.withContiguousStorageIfAvailable { buf -> Int? in
+			guard buf.count >= q.count else { return nil }
+			let last = buf.count - q.count
+			var i = 0
+			while i <= last {
+				if buf[i] == q[0] {
+					var j = 1
+					while j < q.count, buf[i + j] == q[j] { j += 1 }
+					if j == q.count { return i }
+				}
+				i += 1
+			}
+			return nil
+		}
+		// No contiguous bytes to scan (a bridged string): fall back to the ICU search.
+		guard let found else { return n.range(of: query)?.lowerBound }
+		guard let off = found else { return nil }
+		guard let idx = String.Index(n.utf8.index(n.utf8.startIndex, offsetBy: off), within: n) else {
+			return n.range(of: query)?.lowerBound
+		}
+		return idx
 	}
 
 }

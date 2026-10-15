@@ -71,5 +71,12 @@ final class PerfTests: XCTestCase {
 		XCTAssertEqual(hits.count, 1111)
 		// The app searches with the names the Library kept: same names, same order, same result.
 		XCTAssertEqual(hits.map(\.key), slow.map(\.key))
+		// The byte scan must rank non-ASCII names exactly as the ICU search does.
+		let odd = ["Café ÁÉ TV", "Straße 1", "München 2", "Телеканал 3", "Café"].enumerated()
+			.map { Channel(sourceId: "s", itemId: String($0.offset), name: $0.element, group: "G", url: "u") }
+		let oddLower = odd.map { Lists.lowerName($0.name) }
+		for q in ["é", "café", "ü", "теле", "1", "tv"] {
+			XCTAssertEqual(Lists.ranked(odd, oddLower, q).map(\.name), Lists.searchRanked(odd, q).map(\.name), q)
+		}
 	}
 }

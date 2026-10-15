@@ -71,10 +71,11 @@ public final class Library {
 			}
 		}
 		let lower = all.map { Lists.lowerName($0.name) }
-		// Hashing every live channel is a second of work on a phone: do it here, off the main thread.
-		let fp = section == Library.live ? Self.fingerprint(all) : nil
+		// Hashing every live channel is a second of work on a phone: only when the guide could need
+		// it, and here, on the thread doing the load rather than on the main thread at every check.
+		let fp = section == Library.live && guideRecent ? Self.fingerprint(all) : nil
 		lock.lock(); lists[section] = all; lowerNames[section] = lower
-		if let fp { fingerprintCache = fp }
+		if section == Library.live { fingerprintCache = fp }
 		lock.unlock()
 		if section == Library.live && !epg.hasGuide { epg.loadIndex() }
 		return errors
@@ -237,10 +238,15 @@ public final class Library {
 	/// the set of match keys (FNV-1a, stable across launches); any change means re-import now.
 	func guideFingerprint() -> Int {
 		lock.lock(); let cached = fingerprintCache; lock.unlock()
-		return cached ?? Self.fingerprint(channels)
+		if let cached { return cached }
+		// After an import the list has not been hashed yet (the guide was stale when it loaded):
+		// keep what we computed so the next staleness check, on the main thread, does not redo it.
+		let fp = Self.fingerprint(channels)
+		lock.lock(); fingerprintCache = fp; lock.unlock()
+		return fp
 	}
 
-	/// The live list is hashed once per load (see [load]); this is only reached without a load.
+	/// The match keys of [list]; the same hash the load stores, for the paths that have no cache.
 	private static func fingerprint(_ list: [Channel]) -> Int {
 		let keys = Set(list.map { $0.tvgId.isEmpty ? Xmltv.nameKey($0.name) : $0.tvgId.lowercased() }).sorted()
 		var h: UInt32 = 2_166_136_261
@@ -248,12 +254,15 @@ public final class Library {
 		return Int(Int32(bitPattern: h))
 	}
 
+	/// A guide imported within the last day: the only time the channel list is hashed to compare it.
+	private var guideRecent: Bool { prefs.lastEpgImport != 0 && nowMs() - prefs.lastEpgImport <= 86_400_000 }
+
 	/// Never imported, a day old, or built for another channel list. A guide that matched no
 	/// channel counts as imported (it used to be fetched again on every load), and a failed
 	/// import waits an hour before the next automatic try.
 	public func guideStale() -> Bool {
 		if channels.isEmpty || nowMs() - lastGuideFailure < 3_600_000 { return false }
-		return prefs.lastEpgImport == 0 || nowMs() - prefs.lastEpgImport > 86_400_000 || guideFingerprint() != prefs.guideFingerprint
+		return !guideRecent || guideFingerprint() != prefs.guideFingerprint
 	}
 }
 #endif
