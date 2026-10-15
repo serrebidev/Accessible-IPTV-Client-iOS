@@ -96,8 +96,7 @@ struct MainView: View {
 		.onChange(of: model.revision) { _, _ in
 			favs = prefs.favorites
 			listVersion += 1
-			refreshGroupCounts()
-			Task { await showChannels() }
+			Task { await refreshGroupCounts(); await showChannels() }
 		}
 		.onChange(of: section) { _, s in selectSection(s) }
 		.onChange(of: query) { _, _ in
@@ -252,8 +251,10 @@ struct MainView: View {
 			model.setStatus(L(now ? "added_favorite" : "removed_favorite", ch.name))
 			favs = prefs.favorites
 			listVersion += 1
-			refreshGroupCounts()
-			if group == Library.favorites { Task { await showChannels() } }
+			Task {
+				await refreshGroupCounts()
+				if group == Library.favorites { await showChannels() }
+			}
 		})
 		out.append(RowAction(L("programme_details")) { model.showInfo(ch.name, detailsText(ch.key)) })
 		if ch.isLive {
@@ -331,7 +332,7 @@ struct MainView: View {
 			var errors: [String] = []
 			for s in sections { errors += await library.load(s, force: force) }
 			favs = prefs.favorites
-			refreshGroupCounts()
+			await refreshGroupCounts()
 			await showChannels()
 			model.setStatus(errors.isEmpty ? countText(library.list(section).count) : L("load_errors", errors.joined(separator: "; ")))
 			// Guide older than a day, or built for a different channel list: fetch it now.
@@ -342,21 +343,24 @@ struct MainView: View {
 	private func selectSection(_ s: String) {
 		group = Library.all
 		if library.isLoaded(s) {
-			refreshGroupCounts()
-			Task { await showChannels() }
+			Task { await refreshGroupCounts(); await showChannels() }
 			model.status = ""
 		} else {
 			load(force: false)
 		}
 	}
 
-	private func refreshGroupCounts() {
-		let items = library.list(section)
-		var counts: [String: Int] = [:]
-		for c in items { counts[c.group, default: 0] += 1 }
-		if counts[group] == nil && group != Library.all && group != Library.favorites { group = Library.all }
-		groups = library.groups(section).map { g in
-			GroupItem(name: g, count: g == Library.all ? items.count : g == Library.favorites ? items.filter { favs.contains($0.key) }.count : counts[g] ?? 0)
+	/// Groups and their counts, counted off the main thread, and the chosen group reset to "All"
+	/// when the section does not have it. The caller then loads the list.
+	private func refreshGroupCounts() async {
+		let lib = library, s = section
+		// Counting every entry (250,000 for movies) used to happen on the main thread here, which
+		// is what stalled the screen after a load or a section switch.
+		let items = await Task.detached { lib.groupSummary(s).map { GroupItem(name: $0.name, count: $0.count) } }.value
+		groups = items
+		if !items.contains(where: { $0.name == group }) {
+			group = Library.all
+			await showChannels()
 		}
 	}
 

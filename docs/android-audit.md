@@ -139,3 +139,35 @@ Left alone, deliberately:
   that ever proves too slow on a phone.
 - The groups list and picker are rebuilt when the screen redraws. It is a few hundred entries, small
   next to the search, so it was left alone.
+
+# iOS responsiveness audit (0.1.3)
+
+Reported: the app takes a long time to open, shows nothing for a long time when opened or brought
+back into focus, and the same when switching lists.
+
+Two jobs ran on the main thread. Both are proportional to the number of channels, so on a big
+Xtream account they are seconds:
+
+1. `Library.init` read the whole guide channel index (`Epg.loadIndex`: one row per channel the guide
+   matched) before the app's first frame, because the app builds its Library while building its
+   first window. It is now read where the rest of the list work happens: on the thread doing the
+   section load (and after an import, as before).
+2. `MainView.refreshGroupCounts` walked the section three times on the main thread - once to count
+   each group, once to count the favourites, once for the group names in playlist order - and it ran
+   after every load, every favourites change and every section switch. A 250,000 movie list is the
+   freeze that was reported. It is now one pass, `Library.groupSummary`, run off the main thread.
+
+Not measured on a device; this is a removal of main-thread work, not a benchmark. Both jobs still
+cost what they cost, on the thread that is allowed to be busy.
+
+Left alone, deliberately:
+
+- Reading a section's cache is one JSON decode of up to 50 MB, off the main thread. It is why the
+  list itself can take a moment to appear on a big account; the screen stays responsive and says
+  Loading. ponytail: a binary cache if that ever measures badly on a phone.
+- The phone's category picker builds its entries as a menu. A provider with hundreds of categories
+  means hundreds of entries built when it opens. If the freeze is felt when *opening* the category
+  list rather than after choosing, that is the next thing to change: a lazy list, which is what the
+  wide layout (iPad, Apple TV) already uses.
+- `List` still works out the rows for the new list on every change, proportional to the list. That
+  is SwiftUI's own work and there is nothing to remove without giving up the list.

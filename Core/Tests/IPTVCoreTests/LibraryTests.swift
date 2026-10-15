@@ -51,7 +51,11 @@ final class LibraryTests: XCTestCase {
 		XCTAssertEqual(lib.channels.map(\.name), ["BBC One", "Arena"])
 		_ = await lib.load(Library.movies, force: false)
 		XCTAssertEqual(lib.list(Library.movies).map(\.name), ["Film"])
-		XCTAssertEqual(lib.groups(Library.live), [Library.all, Library.favorites, "News", "Sport"])
+		// "All" and "Favorites" first, then playlist order, with favourites counted in the same pass.
+		prefs.toggleFavorite(lib.channels[1].key)
+		let groups = lib.groupSummary(Library.live)
+		XCTAssertEqual(groups.map(\.name), [Library.all, Library.favorites, "News", "Sport"])
+		XCTAssertEqual(groups.map(\.count), [2, 1, 1, 1])
 	}
 
 	func testCacheIsUsedAndRoundTripsEveryField() async throws {

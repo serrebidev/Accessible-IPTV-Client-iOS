@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- No more long freeze when the app opens, comes back into focus, or switches between Live TV, Movies and Series. Two jobs ran on the main thread, and both grew with the size of the list: reading the guide's channel index before the first frame, and working out the entry count beside every group. The index is now read while the list loads, and the counts are one pass, off the main thread.
+
 ## 0.1.2
 
 - Much less CPU while typing in the search field: a keystroke over a 50,000 channel list went from 0.16 s to 0.01 s (measured on a desktop, release build; a phone is slower). The names are prepared once when a list loads, and matching them no longer goes through the text search that was costing the time.

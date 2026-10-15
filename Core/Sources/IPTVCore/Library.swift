@@ -37,12 +37,14 @@ public final class Library {
 	/// Opens one guide URL; tests swap in local data.
 	public var openGuide: (String) async throws -> ByteSource = { try await Net.source($0) }
 
+	/// Opens the guide database but does not read its channel index: this runs before the app's
+	/// first frame, and a national guide's index is tens of thousands of rows. [load] reads it on
+	/// the thread doing the load, and [Epg.importGuide] after an import.
 	public init(dir: URL, prefs: Prefs) throws {
 		self.dir = dir
 		self.prefs = prefs
 		try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
 		epg = try Epg(path: dir.appendingPathComponent("epg.db").path)
-		epg.loadIndex()
 	}
 
 	/// Live channels: what the guide, recordings and catch-up work with.
@@ -140,12 +142,21 @@ public final class Library {
 	// ponytail: one JSON file per section; 250k movies is ~50 MB. Move to SQLite if memory bites.
 	private func writeCache(_ f: URL, _ list: [Channel]) throws { try JSONEncoder().encode(list).write(to: f, options: .atomic) }
 
-	/// Group names in playlist order, with "Favorites" and "All" on top like the desktop app.
-	public func groups(_ section: String) -> [String] {
-		var seen = Set<String>()
-		var out = [Library.all, Library.favorites]
-		for c in list(section) where seen.insert(c.group).inserted { out.append(c.group) }
-		return out
+	/// Group names in playlist order, with "Favorites" and "All" on top like the desktop app, each
+	/// with its number of entries. One pass for both, because the main screen shows the count beside
+	/// every group on a list of up to 250,000 entries; the caller runs it off the main thread.
+	public func groupSummary(_ section: String) -> [(name: String, count: Int)] {
+		let f = prefs.favorites
+		var counts: [String: Int] = [:]
+		var order: [String] = []
+		var favourites = 0
+		var total = 0
+		for c in list(section) {
+			if let n = counts[c.group] { counts[c.group] = n + 1 } else { counts[c.group] = 1; order.append(c.group) }
+			total += 1
+			if f.contains(c.key) { favourites += 1 }
+		}
+		return [(Library.all, total), (Library.favorites, favourites)] + order.map { ($0, counts[$0] ?? 0) }
 	}
 
 	public func channelsIn(_ section: String, _ group: String) -> [Channel] {
