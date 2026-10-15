@@ -65,9 +65,11 @@ final class PerfTests: XCTestCase {
 		let hits = Lists.ranked(list, lower, "number 12")
 		print("ranked (names kept by the Library): 50k in \(String(format: "%.3f", Date().timeIntervalSince(t0))) s, \(hits.count) hits")
 		t0 = Date()
-		_ = Lists.searchRanked(list, "number 12")
+		let slow = Lists.searchRanked(list, "number 12")
 		print("searchRanked (lowercases every name first): 50k in \(String(format: "%.3f", Date().timeIntervalSince(t0))) s")
 		XCTAssertGreaterThan(total, 0)
 		XCTAssertEqual(hits.count, 1111)
+		// The app searches with the names the Library kept: same names, same order, same result.
+		XCTAssertEqual(hits.map(\.key), slow.map(\.key))
 	}
 }
