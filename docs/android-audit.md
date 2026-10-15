@@ -228,3 +228,29 @@ The measurement goes away once the cost is known.
 Also in 0.1.8: `Epg.nowNext` remembers its answer for half a minute (`Epg.nowCache`, dropped by
 `loadIndex` on an import). A row asks for the same channel again on every redraw and every scroll,
 and that query was the only I/O a row did.
+
+# iOS category switch, measured (0.1.9)
+
+The measurement came back from the device:
+
+    SLOW Canada: Entertainment: filter 46 ms, 93816 rows in 5836 ms, 10 redraws, 7662 ms total
+
+So: the filter and the group counts are not the cost (46 ms for the whole section). The list built
+93,816 rows for one category - about 62 microseconds each, and 5.8 seconds of frozen screen - while
+Apple documents List rows as loading lazily and only about a dozen are on screen. Whatever defeats
+that laziness here (the candidates are the value-matched focus modifiers on every row,
+`.focused(_:equals:)` and `.accessibilityFocused(_:equals:)`, and the per-row `contextMenu`), the
+effect is that the list builds every row of the category it is handed.
+
+The fix bounds what it is handed: `MainView.window` gives the list 2,000 rows, and a "More" row at
+the end of the list - a real row, one VoiceOver stop - says how many are left and doubles the
+window, so a 93,816-channel category is fully reachable in a few presses. Rows are still the same
+rows, the heading still shows the whole count, "Go to channel number" and Details still search the
+whole list, and a new category starts at its head again (`shownFor`).
+
+At 62 microseconds a row the 2,000-row window costs about 0.12 seconds, which is why the measuring
+line from 0.1.8 should now stay silent.
+
+Left alone, deliberately: why SwiftUI builds every row, which would make the window unnecessary. It
+is not worth removing the focus or menu behaviour of a row to find out, since the window bounds the
+cost either way. If rows ever get cheaper, the window can be raised or made scroll-driven.

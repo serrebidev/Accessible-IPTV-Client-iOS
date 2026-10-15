@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.9
+
+- A category opens in a fraction of a second again. The measurement added in 0.1.8 found why: the channel list built a row for every entry in the category rather than only the rows on screen, and one category of 93,816 channels spent 5.8 seconds building them before anything appeared. The list is now built from 2,000 rows at a time; where there are more, the end of the list carries a More button that says how many are left and doubles what is shown, so the whole category stays reachable.
+- The measuring line from 0.1.8 stays in for now. It says nothing unless a change takes over a second.
+
 ## 0.1.8
 
 - This build measures the slow category switch. When a category change or a list load takes more than a second, the status line now says what it cost: the time before the list was shown, how many rows the list built, and how many times the screen redrew. Temporary, and it goes away once the cost is known.

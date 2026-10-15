@@ -24,6 +24,9 @@ struct MainView: View {
 	@State private var details = ""
 	/// Bumped whenever what the channel rows show changes (list, favourites, guide, recordings).
 	@State private var listVersion = 0
+	/// How much of the category the list holds, and which category that was.
+	@State private var shown = 0
+	@State private var shownFor = ""
 	@State private var searchTask: Task<Void, Never>?
 	@State private var showRecent = false
 	@State private var showGroups = false
@@ -238,6 +241,11 @@ struct MainView: View {
 
 	private var groupCount: Int { groups.first { $0.name == group }?.count ?? 0 }
 
+	/// How many rows a list is given at once. SwiftUI builds a row for every entry it is handed,
+	/// not just the ones on screen: one category of 93,816 channels took 5.8 seconds to build, and
+	/// the screen was frozen for it. The rest of the category is one "More" row away.
+	private static let window = 2_000
+
 	/// The set of rows on show: a new category, a new section, or the first keystroke of a search.
 	/// The channel list is keyed by this, so choosing a category builds the rows in view instead of
 	/// asking SwiftUI to work out the difference from the category before it, which costs what the
@@ -256,13 +264,31 @@ struct MainView: View {
 	private var channelColumn: some View {
 		VStack(alignment: .leading) {
 			Text(heading).font(.headline).accessibilityAddTraits(.isHeader).accessibilityFocused($headingFocused)
-			ChannelRows(channels: channels, favs: favs, showGroup: !query.isEmpty, version: listVersion, label: sectionName(),
+			ChannelRows(channels: shownRows, favs: favs, showGroup: !query.isEmpty, version: listVersion, label: sectionName(),
+				moreLine: channels.count > shown ? countText(channels.count - shown) : "", onMore: showMore,
 				focusedKey: $focusedKey, voFocus: $voFocus) { channelActions($0, fav: $1) }
 				.equatable()
 				.id(listID)
 			if !details.isEmpty {
 				Text(details).font(.footnote).frame(maxWidth: .infinity, alignment: .leading)
 			}
+		}
+	}
+
+	/// The rows the list is given: all of them up to [window], else the head of the category.
+	private var shownRows: [Channel] { shown >= channels.count ? channels : Array(channels.prefix(max(0, shown))) }
+
+	/// The next window: twice the last, so a category of 50,000 is in reach in a few presses.
+	private func showMore() {
+		guard shown < channels.count else { return }
+		let next = min(channels.count, max(shown * 2, shown + Self.window))
+		let firstNew = channels[shown].key
+		shown = next
+		listVersion += 1
+		// VoiceOver moves to the first row that was not there before.
+		Task {
+			try? await Task.sleep(nanoseconds: 300_000_000)
+			voFocus = firstNew
 		}
 	}
 
@@ -417,6 +443,9 @@ struct MainView: View {
 			q.isEmpty ? lib.channelsIn(s, g) : lib.search(s, q)
 		}.value
 		channels = list
+		// A new category starts at the head of it; the same one keeps what was already shown.
+		if shownFor != listID { shownFor = listID; shown = Self.window }
+		shown = min(shown, list.count)
 		listVersion += 1
 		heading = q.isEmpty ? L("list_heading", groupLabel(group), list.count) : P("result_count", list.count)
 	}
@@ -566,18 +595,31 @@ private struct ChannelRows: View, Equatable {
 	let showGroup: Bool
 	let version: Int
 	let label: String
+	/// The count line for the "More" row: empty when the whole category is already here.
+	let moreLine: String
+	let onMore: () -> Void
 	let focusedKey: FocusState<String?>.Binding
 	let voFocus: AccessibilityFocusState<String?>.Binding
 	let actions: (Channel, Bool) -> [RowAction]
 
-	static func == (a: ChannelRows, b: ChannelRows) -> Bool { a.version == b.version && a.showGroup == b.showGroup && a.label == b.label }
+	static func == (a: ChannelRows, b: ChannelRows) -> Bool {
+		a.version == b.version && a.showGroup == b.showGroup && a.label == b.label && a.moreLine == b.moreLine
+	}
 
 	var body: some View {
-		List(channels) { ch in row(ch) }
-			.listStyle(.plain)
-			.accessibilityLabel(label)
-			// A row insert or delete animation for a whole category is thousands of rows at once.
-			.transaction { $0.animation = nil }
+		List {
+			ForEach(channels) { ch in row(ch) }
+			if !moreLine.isEmpty {
+				// A real row, not a scroll trigger: VoiceOver reaches it with one swipe and it
+				// doubles what is shown, so the whole category stays reachable.
+				Button { onMore() } label: { RowLabel(line1: L("more"), line2: moreLine) }
+					.row(Format.sentences([L("more"), moreLine]), actions: [])
+			}
+		}
+		.listStyle(.plain)
+		.accessibilityLabel(label)
+		// A row insert or delete animation for a whole category is thousands of rows at once.
+		.transaction { $0.animation = nil }
 	}
 
 	private func row(_ ch: Channel) -> some View {
