@@ -10,6 +10,7 @@ import http.server
 import json
 from pathlib import Path
 import socket
+import socketserver
 import subprocess
 import threading
 import time
@@ -24,6 +25,15 @@ def free_port():
     with socket.socket() as connection:
         connection.bind(('127.0.0.1', 0))
         return connection.getsockname()[1]
+
+
+class LoopbackServer(http.server.ThreadingHTTPServer):
+    daemon_threads = True
+
+    def server_bind(self):
+        # HTTPServer.server_bind calls socket.getfqdn(), which stalled 35 s on the macOS runner.
+        socketserver.TCPServer.server_bind(self)
+        self.server_name, self.server_port = '127.0.0.1', self.server_address[1]
 
 
 def fixture_files(root):
@@ -250,9 +260,8 @@ def run_case(binary, name, path, provider, output):
         if len(hub.data) < 262144:
             raise AssertionError(f'{name}: no usable remux bytes after 32s; {hub.error}')
         mark('consumerServerStarting')
-        server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Consumer)
+        server = LoopbackServer(('127.0.0.1', 0), Consumer)
         mark('consumerServerCreated')
-        server.daemon_threads = True
         server.hub = hub
         threading.Thread(target=server.serve_forever, daemon=True).start()
         resources.callback(server.server_close)
@@ -327,8 +336,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     root = args.output / 'fixtures'
     fixture_files(root)
-    provider = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Provider)
-    provider.daemon_threads = True
+    provider = LoopbackServer(('127.0.0.1', 0), Provider)
     provider.root, provider.guard = root.resolve(), threading.Lock()
     provider.requests, provider.active, provider.peak = [], 0, 0
     threading.Thread(target=provider.serve_forever, daemon=True).start()

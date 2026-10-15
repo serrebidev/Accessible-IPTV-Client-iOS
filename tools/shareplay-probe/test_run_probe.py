@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import patch
 import urllib.error
 
-from run_probe import CopyHub, check_producer, drain
+from run_probe import CopyHub, LoopbackServer, check_producer, drain
 
 
 def sample(elapsed=1, time=1000, event='sample', demux=100, state='playing', **extra):
@@ -57,6 +57,13 @@ class ProbeChecks(unittest.TestCase):
         self.assertTrue(hub.done)
         self.assertIsNotNone(hub.error)
         self.assertFalse(hub.eof)
+
+    def test_loopback_server_skips_reverse_dns(self):
+        with patch('socket.getfqdn', side_effect=AssertionError('reverse DNS')):
+            server = LoopbackServer(('127.0.0.1', 0), None)
+        server.server_close()
+        self.assertEqual(server.server_name, '127.0.0.1')
+        self.assertGreater(server.server_port, 0)
 
 
 if __name__ == '__main__':
