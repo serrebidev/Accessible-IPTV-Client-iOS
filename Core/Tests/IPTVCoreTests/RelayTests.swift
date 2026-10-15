@@ -2,9 +2,9 @@ import XCTest
 @testable import IPTVCore
 
 final class RelayTests: XCTestCase {
-	private let hash = String(repeating: "a", count: 64)
+	private let digest = String(repeating: "a", count: 64)
 
-	private func entry(_ seq: Int) -> RelayEntry { RelayEntry(seq: seq, id: UUID(), sha256: hash, size: Relay.packet * 10) }
+	private func entry(_ seq: Int) -> RelayEntry { RelayEntry(seq: seq, id: UUID(), sha256: digest, size: Relay.packet * 10) }
 
 	func testCutKeepsWholePacketsWithinOneChunk() {
 		XCTAssertEqual(Relay.cut(187), 0)
@@ -25,7 +25,7 @@ final class RelayTests: XCTestCase {
 		let g = UUID()
 		XCTAssertTrue(RelayWindow(generation: g, paused: false, entries: [entry(1), entry(2)]).isValid)
 		XCTAssertFalse(RelayWindow(generation: g, paused: false, entries: [entry(2), entry(1)]).isValid)
-		let odd = RelayEntry(seq: 1, id: UUID(), sha256: hash, size: 100)
+		let odd = RelayEntry(seq: 1, id: UUID(), sha256: digest, size: 100)
 		XCTAssertFalse(RelayWindow(generation: g, paused: false, entries: [odd]).isValid)
 		let badHash = RelayEntry(seq: 1, id: UUID(), sha256: "zz", size: Relay.packet)
 		XCTAssertFalse(RelayWindow(generation: g, paused: false, entries: [badHash]).isValid)

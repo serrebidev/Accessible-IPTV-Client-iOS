@@ -5,6 +5,9 @@ import Network
 import VLCKit
 import IPTVCore
 
+/// A flag set from Network framework callbacks; each use is ordered by a queue or a semaphore.
+private final class Flag: @unchecked Sendable { var value = false }
+
 /// Serves a RelayBuffer to this device's VLC over loopback HTTP. The random path keeps other
 /// apps on the device from reading it; the listener accepts loopback connections only.
 final class RelayServer: @unchecked Sendable {
@@ -24,18 +27,18 @@ final class RelayServer: @unchecked Sendable {
 		self.listener = listener
 		listener.newConnectionHandler = { [weak self] connection in self?.serve(connection) }
 		return try await withCheckedThrowingContinuation { continuation in
-			var resumed = false
+			let resumed = Flag()
 			listener.stateUpdateHandler = { [path, weak listener] state in
-				guard !resumed else { return }
+				guard !resumed.value else { return }
 				switch state {
 				case .ready:
-					resumed = true
+					resumed.value = true
 					continuation.resume(returning: "http://127.0.0.1:\(listener?.port?.rawValue ?? 0)\(path)")
 				case .failed(let error):
-					resumed = true
+					resumed.value = true
 					continuation.resume(throwing: error)
 				case .cancelled:
-					resumed = true
+					resumed.value = true
 					continuation.resume(throwing: CancellationError())
 				default:
 					break
@@ -73,17 +76,17 @@ final class RelayServer: @unchecked Sendable {
 	private static func pump(_ connection: NWConnection, buffer: RelayBuffer, from start: Int) {
 		var offset = start
 		let sent = DispatchSemaphore(value: 0)
-		var failed = false
-		while !failed {
+		let failed = Flag()
+		while !failed.value {
 			switch connection.state {
-			case .cancelled, .failed: failed = true; continue
+			case .cancelled, .failed: failed.value = true; continue
 			default: break
 			}
 			guard let read = buffer.read(from: offset, max: Relay.packet * 348, timeout: 1) else { break }
 			offset = read.next
 			guard !read.bytes.isEmpty else { continue }
 			connection.send(content: Data(read.bytes), completion: .contentProcessed { error in
-				failed = error != nil
+				failed.value = error != nil
 				sent.signal()
 			})
 			sent.wait()
