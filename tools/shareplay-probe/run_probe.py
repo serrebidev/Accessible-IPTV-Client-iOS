@@ -225,12 +225,20 @@ def run_case(binary, name, path, provider, output):
     producer_url = f'http://127.0.0.1:{producer_port}/relay.mkv'
     started = time.monotonic()
     with contextlib.ExitStack() as resources:
+        setup = resources.enter_context((case / 'setup.jsonl').open('w'))
+
+        def mark(event):
+            setup.write(json.dumps({'event': event, 'elapsed': time.monotonic() - started,
+                                    'receivedBytes': len(hub.data)}) + '\n')
+            setup.flush()
+
         log = resources.enter_context((case / 'producer.jsonl').open('w'))
         errors = resources.enter_context((case / 'producer.stderr').open('w'))
         args = [str(binary), 'producer', source_url, str(producer_port), '45']
         if name == 'mp4-seek':
             args += ['12', '18']
         producer = subprocess.Popen(args, stdout=log, stderr=errors)
+        mark('producerStarted')
         resources.callback(stop_process, producer)
         resources.callback(hub.finish)
         resources.callback(stop.set)
@@ -238,9 +246,12 @@ def run_case(binary, name, path, provider, output):
         thread.start()
         with hub.guard:
             hub.guard.wait_for(lambda: len(hub.data) >= 262144 or hub.done, timeout=32)
+        mark('outputReady')
         if len(hub.data) < 262144:
             raise AssertionError(f'{name}: no usable remux bytes after 32s; {hub.error}')
+        mark('consumerServerStarting')
         server = http.server.ThreadingHTTPServer(('127.0.0.1', 0), Consumer)
+        mark('consumerServerCreated')
         server.daemon_threads = True
         server.hub = hub
         threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -252,10 +263,13 @@ def run_case(binary, name, path, provider, output):
             data = resources.enter_context((case / f'{who}.jsonl').open('w'))
             err = resources.enter_context((case / f'{who}.stderr').open('w'))
             url = f'http://127.0.0.1:{server.server_port}/{who}.mkv'
+            mark(who + 'Starting')
             consumer = subprocess.Popen([str(binary), 'consumer', url, str(duration)], stdout=data, stderr=err)
+            mark(who + 'Started')
             resources.callback(stop_process, consumer)
             consumers.append(consumer)
         consumers_started = time.monotonic() - started
+        mark('diagnosticsStarting')
         # Diagnostics must not delay consumers while the finite fixture accumulates in the hub.
         listeners = subprocess.run(['lsof', '-nP', '-a', '-p', str(producer.pid),
                                     '-iTCP:' + str(producer_port), '-sTCP:LISTEN'],
@@ -271,6 +285,7 @@ def run_case(binary, name, path, provider, output):
         else:
             raise AssertionError('Producer output is accessible without HTTP authentication')
         diagnostics_finished = time.monotonic() - started
+        mark('diagnosticsFinished')
         exits = [process.wait(timeout=duration + 10) for process in consumers]
         elapsed = time.monotonic() - started
         producer_exit = producer.poll()
