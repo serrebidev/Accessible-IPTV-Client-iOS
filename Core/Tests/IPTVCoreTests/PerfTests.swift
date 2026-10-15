@@ -51,4 +51,23 @@ final class PerfTests: XCTestCase {
 		XCTAssertEqual(n, 100_000)
 		XCTAssertLessThan(secs, 60)
 	}
+
+	/// What a fresh launch does per channel (guide fingerprint) and what each search keystroke does.
+	func testNameKeyAndSearchSpeed() {
+		let names = (0..<50_000).map { "UK: Channel Number \($0) HD | Sports & News" }
+		var t0 = Date()
+		var total = 0
+		for n in names { total += Xmltv.nameKey(n).count }
+		print("nameKey: 50k names in \(String(format: "%.3f", Date().timeIntervalSince(t0))) s")
+		let list = names.enumerated().map { Channel(sourceId: "s", itemId: String($0.offset), name: $0.element, group: "G", url: "u") }
+		let lower = list.map { Lists.lowerName($0.name) }
+		t0 = Date()
+		let hits = Lists.ranked(list, lower, "number 12")
+		print("ranked (names kept by the Library): 50k in \(String(format: "%.3f", Date().timeIntervalSince(t0))) s, \(hits.count) hits")
+		t0 = Date()
+		_ = Lists.searchRanked(list, "number 12")
+		print("searchRanked (lowercases every name first): 50k in \(String(format: "%.3f", Date().timeIntervalSince(t0))) s")
+		XCTAssertGreaterThan(total, 0)
+		XCTAssertEqual(hits.count, 1111)
+	}
 }

@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Typing in the search field uses about a third of the CPU: the names it matches against are prepared when a list loads, instead of on every keystroke. Searching a 50,000 channel list went from 0.23 s to 0.073 s.
+- A fresh launch no longer hashes every channel on the main thread to check whether the guide is still current; that is done once, in the background, while the list loads.
+
 ## 0.1.1
 
 - Much less CPU when a guide imports: the guide reader is about 12 times faster and skips the programmes of channels you do not have without reading them. Xtream guides import in seconds instead of minutes.

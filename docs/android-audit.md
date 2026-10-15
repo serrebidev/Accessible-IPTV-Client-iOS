@@ -102,3 +102,33 @@ Memory, unchanged and acceptable:
 - The list cache is written and read as one JSON blob, briefly doubling a section's memory
   while it saves or loads.
 - libVLC holds the live cushion: 25 s at 8 Mbit/s is about 25 MB.
+
+# iOS CPU audit (0.1.2)
+
+Reported: high CPU on a fresh launch, and while typing in the search field.
+
+Measured with `Core/Tests/IPTVCoreTests/PerfTests.swift` (debug build, desktop CPU; a phone is
+roughly 3 to 5 times slower), 50,000 channels with playlist-shaped names.
+
+| One keystroke over 50k channels | 0.1.1 | 0.1.2 |
+| --- | --- | --- |
+| Search | 0.230 s | 0.073 s |
+
+Fixes:
+
+1. Every keystroke trimmed and lowercased all 50,000 names before matching any of them. The Library
+   now keeps the search form of each name from load time. Search itself is unchanged and still runs
+   off the main thread, so this was CPU, not a frozen screen. The 300 ms debounce hides it for a
+   fast typist; typing one key at a time (screen reader, or a slow typist) searched on every key.
+2. `guideStale()` hashed every live channel's match key (`Xmltv.nameKey`: 0.33 s per 50,000) on the
+   main thread at every launch. The hash is now computed once per load, on the thread doing the
+   load. It is only reached when the guide was imported within the last day, so this was a
+   launch-time stall rather than a steady cost.
+
+Left alone, deliberately:
+
+- A search still matches every loaded channel and sorts the hits, exactly like the desktop and
+  Android versions (neither caps the result count). A 250,000 movie section costs about 5x the
+  table above per keystroke. ponytail: a search index if that ever proves too slow on a phone.
+- The groups list and picker are rebuilt when the screen redraws. It is a few hundred entries, so
+  it is small next to the search, and it is not worth a second Equatable view yet.

@@ -217,22 +217,36 @@ public enum Lists {
 
 	/// Port of the desktop's search_rank; the sort is stable, so ties keep playlist order.
 	public static func searchRanked(_ list: [Channel], _ q: String) -> [Channel] {
-		let query = q.trimmingCharacters(in: .whitespaces).lowercased()
-		if query.isEmpty { return list }
-		let hits = list.enumerated().filter { $0.element.name.containsCI(query) }
-			.map { (i: $0.offset, c: $0.element, r: rank($0.element.name, query), n: $0.element.name.trimmingCharacters(in: .whitespaces).count) }
-		return hits.sorted { ($0.r, $0.n, $0.i) < ($1.r, $1.n, $1.i) }.map(\.c)
+		ranked(list, list.map { lowerName($0.name) }, q)
 	}
 
-	private static func rank(_ name: String, _ query: String) -> Int {
-		let n = name.trimmingCharacters(in: .whitespaces).lowercased()
-		if n == query { return 0 }
-		var from = n.startIndex
-		while let r = n.range(of: query, range: from..<n.endIndex) {
-			if r.lowerBound == n.startIndex || !(n[n.index(before: r.lowerBound)].isLetter || n[n.index(before: r.lowerBound)].isNumber) { return 1 }
-			from = n.index(after: r.lowerBound)
+	/// The form names are searched in; the Library keeps one per entry so a keystroke does not
+	/// lowercase 250,000 names again.
+	public static func lowerName(_ s: String) -> String { s.trimmingCharacters(in: .whitespaces).lowercased() }
+
+	/// [searchRanked] over names already in [lowerName] form (same order as [list]).
+	public static func ranked(_ list: [Channel], _ lower: [String], _ q: String) -> [Channel] {
+		let query = q.trimmingCharacters(in: .whitespaces).lowercased()
+		if query.isEmpty { return list }
+		var hits: [(r: Int, n: Int, i: Int)] = []
+		for i in list.indices {
+			let n = lower[i]
+			if let r = rank(n, query) { hits.append((r, n.utf8.count, i)) }
 		}
-		return 2
+		return hits.sorted { ($0.r, $0.n, $0.i) < ($1.r, $1.n, $1.i) }.map { list[$0.i] }
+	}
+
+	/// nil when [query] is not in [n]; else 0 exact, 1 at a word start, 2 inside a word.
+	private static func rank(_ n: String, _ query: String) -> Int? {
+		guard var hit = n.range(of: query) else { return nil }
+		if n == query { return 0 }
+		while true {
+			if hit.lowerBound == n.startIndex { return 1 }
+			let before = n[n.index(before: hit.lowerBound)]
+			if !(before.isLetter || before.isNumber) { return 1 }
+			guard let next = n.range(of: query, range: n.index(after: hit.lowerBound)..<n.endIndex) else { return 2 }
+			hit = next
+		}
 	}
 
 }

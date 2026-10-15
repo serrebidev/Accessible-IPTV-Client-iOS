@@ -13,11 +13,23 @@ public final class Library {
 	public static func xtreamBehind(_ src: Source) -> Source? { Lists.xtreamBehind(src) }
 	public static func searchRanked(_ list: [Channel], _ q: String) -> [Channel] { Lists.searchRanked(list, q) }
 
+	/// Search across one section, using the names prepared at load time.
+	public func search(_ section: String, _ q: String) -> [Channel] {
+		lock.lock(); let items = lists[section] ?? []; let lower = lowerNames[section] ?? []; lock.unlock()
+		return lower.count == items.count ? Lists.ranked(items, lower, q) : Lists.searchRanked(items, q)
+	}
+
 	public let prefs: Prefs
 	public let epg: Epg
 	private let dir: URL
 	private let lock = NSLock()
 	private var lists: [String: [Channel]] = [:]
+	/// Search form of every name, built once per load (see Lists.lowerName).
+	private var lowerNames: [String: [String]] = [:]
+	/// Match keys of the live list, hashed once per load so [guideStale] stays off the main thread.
+	private var fingerprintCache: Int?
+	/// When the last guide import failed this run: a failing guide is not retried on every load.
+	private var lastGuideFailure: Int64 = 0
 	private var stalkers: [String: Stalker] = [:]
 
 	/// Reads a picked M3U file; the app resolves its security-scoped bookmark.
@@ -58,7 +70,12 @@ public final class Library {
 				all += (try? readCache(cache)) ?? []
 			}
 		}
-		lock.lock(); lists[section] = all; lock.unlock()
+		let lower = all.map { Lists.lowerName($0.name) }
+		// Hashing every live channel is a second of work on a phone: do it here, off the main thread.
+		let fp = section == Library.live ? Self.fingerprint(all) : nil
+		lock.lock(); lists[section] = all; lowerNames[section] = lower
+		if let fp { fingerprintCache = fp }
+		lock.unlock()
 		if section == Library.live && !epg.hasGuide { epg.loadIndex() }
 		return errors
 	}
@@ -201,8 +218,15 @@ public final class Library {
 		for s in prefs.sources { let u = s.effectiveEpgUrl; if !u.trimmingCharacters(in: .whitespaces).isEmpty && !urls.contains(u) { urls.append(u) } }
 		let now = nowMs()
 		let back = Int64(min(7, max(1, channels.map(\.catchupDays).max() ?? 0)))
-		let n = try await epg.importGuide(urls.map { u in { [openGuide] in try await openGuide(u) } }, channels: channels,
-			fromMs: now - back * 86_400_000, toMs: now + Int64(prefs.epgDaysAhead) * 86_400_000, progress: progress)
+		let n: Int
+		do {
+			n = try await epg.importGuide(urls.map { u in { [openGuide] in try await openGuide(u) } }, channels: channels,
+				fromMs: now - back * 86_400_000, toMs: now + Int64(prefs.epgDaysAhead) * 86_400_000, progress: progress)
+		} catch {
+			lastGuideFailure = nowMs()
+			throw error
+		}
+		lastGuideFailure = 0
 		prefs.lastEpgImport = now
 		prefs.guideFingerprint = guideFingerprint()
 		return n
@@ -212,14 +236,24 @@ public final class Library {
 	/// channels since the last import has channels with no guide at all. The fingerprint is
 	/// the set of match keys (FNV-1a, stable across launches); any change means re-import now.
 	func guideFingerprint() -> Int {
-		let keys = Set(channels.map { $0.tvgId.isEmpty ? Xmltv.nameKey($0.name) : $0.tvgId.lowercased() }).sorted()
+		lock.lock(); let cached = fingerprintCache; lock.unlock()
+		return cached ?? Self.fingerprint(channels)
+	}
+
+	/// The live list is hashed once per load (see [load]); this is only reached without a load.
+	private static func fingerprint(_ list: [Channel]) -> Int {
+		let keys = Set(list.map { $0.tvgId.isEmpty ? Xmltv.nameKey($0.name) : $0.tvgId.lowercased() }).sorted()
 		var h: UInt32 = 2_166_136_261
 		for k in keys { for b in k.utf8 + [10] { h = (h ^ UInt32(b)) &* 16_777_619 } }
 		return Int(Int32(bitPattern: h))
 	}
 
+	/// Never imported, a day old, or built for another channel list. A guide that matched no
+	/// channel counts as imported (it used to be fetched again on every load), and a failed
+	/// import waits an hour before the next automatic try.
 	public func guideStale() -> Bool {
-		!channels.isEmpty && (!epg.hasGuide || nowMs() - prefs.lastEpgImport > 86_400_000 || guideFingerprint() != prefs.guideFingerprint)
+		if channels.isEmpty || nowMs() - lastGuideFailure < 3_600_000 { return false }
+		return prefs.lastEpgImport == 0 || nowMs() - prefs.lastEpgImport > 86_400_000 || guideFingerprint() != prefs.guideFingerprint
 	}
 }
 #endif

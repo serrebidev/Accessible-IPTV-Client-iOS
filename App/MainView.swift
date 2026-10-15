@@ -375,7 +375,7 @@ struct MainView: View {
 		let lib = library, s = section, g = group
 		let list = await Task.detached {
 			// Search covers every group in the section; otherwise show the chosen group.
-			q.isEmpty ? lib.channelsIn(s, g) : Library.searchRanked(lib.list(s), q)
+			q.isEmpty ? lib.channelsIn(s, g) : lib.search(s, q)
 		}.value
 		channels = list
 		listVersion += 1
