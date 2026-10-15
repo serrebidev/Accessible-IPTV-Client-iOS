@@ -46,7 +46,7 @@ final class SharePlayCenter: ObservableObject {
 	private var declinedActivations = Set<UUID>()
 	private var channel: RelayChannel?
 	private var hosting: (producer: RelayProducer, server: RelayServer, host: RelayHost, player: PlayerController)?
-	private var guesting: (guest: RelayGuest, url: String?, content: ShareContent)?
+	private var guesting: (guest: RelayGuest, server: RelayServer, content: ShareContent)?
 
 	func listen() {
 		guard listener == nil else { return }
@@ -271,7 +271,7 @@ final class SharePlayCenter: ObservableObject {
 		model.stopPlayback(leavingSharePlay: false)
 		let guest = RelayGuest(channel: channel, host: host)
 		let server = RelayServer(buffer: guest.buffer)
-		guesting = (guest, nil, content)
+		guesting = (guest, server, content)
 		report(L("shareplay_loading"))
 		let live = content.kind == Channel.kindLive && content.archiveStart == nil
 		let request: (Bool) -> Void = { [weak guest] pause in guest?.request(pause ? .pause : .play) }
@@ -283,7 +283,6 @@ final class SharePlayCenter: ObservableObject {
 				report(L("shareplay_failed"))
 				return
 			}
-			guesting = (guest, url, content)
 			model.play(url, title: content.name, key: "", catchup: !live, fromSharePlay: true)
 			model.player?.useRelay(url, request: request)
 			guest.onReset = { model.player?.useRelay(url, request: request) }

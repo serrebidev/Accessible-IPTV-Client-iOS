@@ -42,6 +42,14 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
   `.heading()`. Status changes go through `announce()`. Errors: text under the field, VoiceOver focus moved
   there, error announced. Blunt wording, explanations in Help.
 - Settings keys and JSON shapes match the Android app, so its export imports here.
+- SharePlay (0.3.0+): only `WatchTVActivity.relayHost` opens the provider. A second VLC instance remuxes it
+  (`#std{access=http,mux=ts}` on loopback, Basic auth) into `RelayBuffer`; `RelayServer` (loopback NWListener)
+  feeds local VLC; `RelayHost` puts 2 s whole-packet chunks in `GroupSessionJournal` and announces them
+  (`RelayWindow`, SHA-256) over the messenger. Guests verify and never touch the provider. No server.
+  `relayHost` nil = v0.2.0 per-device path. `tools/shareplay-probe` (its own workflow) validates the VLC remux;
+  journal throughput is unmeasured on real devices.
+- Siri: phrase parameters match only `suggestedEntities` (100); Spotlight `IndexedEntity` (iOS 18+, 1000).
+  AltStore re-signs as `<bundle id>.<team id>`; the IPA's Metadata.appintents still carries the original id.
 
 ## Release
 
