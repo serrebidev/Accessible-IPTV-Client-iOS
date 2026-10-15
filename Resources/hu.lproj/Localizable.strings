@@ -187,7 +187,7 @@
 "settings_imported" = "Beállítások betöltve.";
 "show_stream_url" = "Adatfolyam URL megjelenítése";
 "siri_failed" = "A csatorna vagy műsorújság nem tölthető be. A részletekhez nyissa meg az alkalmazást.";
-"siri_help" = "iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.4-et vagy újabbat és rendszertámogatást igényel.";
+"siri_help" = "iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.2-et vagy újabbat és rendszertámogatást igényel.";
 "siri_shortcuts" = "Siri és Parancsok";
 "source_deleted" = "%1$@ törölve.";
 "source_saved" = "%1$@ mentve.";

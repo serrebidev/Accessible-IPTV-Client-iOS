@@ -25,7 +25,7 @@ This is the iOS port of [Accessible IPTV Client for Android](https://github.com/
 - Export and import every setting, playlist and favourite as one file, including a file exported from the Android app.
 - 14 languages: English, Spanish, Arabic, Portuguese (Brazilian), French, German, Russian, Turkish, Italian, Polish, Hindi, Chinese (Simplified), Japanese and Hungarian.
 - CarPlay lists favourite and recently watched channels and plays their sound (needs a build signed with Apple's CarPlay audio permission).
-- On iPhone, App Intents expose channel tuning, now/next guide answers, guide search, channel-guide navigation, and pause/resume/stop to Siri and Shortcuts. Channel rows and the player provide onscreen entity context on iOS 18.4 or later.
+- On iPhone, App Intents expose channel tuning, now/next guide answers, guide search, channel-guide navigation, and pause/resume/stop to Siri and Shortcuts. Focused channel rows and the player provide onscreen entity context on iOS 18.2 or later.
 
 ## Siri and Apple Intelligence
 

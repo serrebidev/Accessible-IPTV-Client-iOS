@@ -68,4 +68,4 @@ Apple TV’de sesli arama, M3U dosyası ve ayar dosyası yoktur. Sistem uygulama
 
 # Siri ve Kestirmeler
 
-iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.4 veya sonrası ve sistem desteği gerektirir.
+iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.2 veya sonrası ve sistem desteği gerektirir.

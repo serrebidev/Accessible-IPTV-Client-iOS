@@ -54,6 +54,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
+        NSUserActivityTypes: [dev.serrebi.accessibleiptv.channel]
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         # Wheelchair mounts and TV stands: every orientation.

@@ -68,4 +68,4 @@ A Apple TV não tem busca por voz, arquivos M3U nem arquivos de configurações.
 
 # Siri e Atalhos
 
-No iPhone, Siri e Atalhos podem sintonizar canais por nome ou número, ler o programa atual e seguinte, pesquisar no guia, abrir o guia de um canal e controlar a reprodução. Inclua o nome do app. A Siri pede o texto da pesquisa. Adicione uma lista e abra o app para importar o guia. As respostas usam o guia importado. As ações funcionam sem Apple Intelligence; o contexto na tela exige iOS 18.4 ou posterior e suporte do sistema.
+No iPhone, Siri e Atalhos podem sintonizar canais por nome ou número, ler o programa atual e seguinte, pesquisar no guia, abrir o guia de um canal e controlar a reprodução. Inclua o nome do app. A Siri pede o texto da pesquisa. Adicione uma lista e abra o app para importar o guia. As respostas usam o guia importado. As ações funcionam sem Apple Intelligence; o contexto na tela exige iOS 18.2 ou posterior e suporte do sistema.

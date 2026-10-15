@@ -17,10 +17,10 @@ final class VoiceSearch: ObservableObject {
 		if listening { stop(); return }
 		SFSpeechRecognizer.requestAuthorization { auth in
 			Task { @MainActor in
-				guard auth == .authorized, let rec = SFSpeechRecognizer(), rec.isAvailable else { status(L("voice_unavailable")); return }
+				guard auth == .authorized, SFSpeechRecognizer()?.isAvailable == true else { status(L("voice_unavailable")); return }
 				AVAudioApplication.requestRecordPermission { ok in
 					Task { @MainActor in
-						guard ok else { status(L("voice_unavailable")); return }
+						guard ok, let rec = SFSpeechRecognizer(), rec.isAvailable else { status(L("voice_unavailable")); return }
 						do { try self.start(rec, heard: heard, status: status) } catch { status(L("voice_unavailable")) }
 					}
 				}

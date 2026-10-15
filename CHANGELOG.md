@@ -6,7 +6,7 @@
 - Minimize playback into a persistent video miniplayer while browsing. Expanding it keeps the same player and stream. Pause and Stop playback are separate controls.
 - Playback survives closing the expanded player and uses the iOS background audio session, lock-screen and headset controls. Calls interrupt playback, automatic resume respects an explicit pause, and disconnecting headphones pauses playback.
 - Siri and Shortcuts on iPhone can tune channels by name or number, read the current and next programme, search the imported guide, open a channel guide, and pause, resume or stop playback. Favourites and recent channels provide bounded suggestions; duplicate channel numbers remain separate choices.
-- Channel rows and the player expose onscreen App Entity context on iOS 18.4 or later. Apple Intelligence experiences depend on device, language and system support; the actions also work without Apple Intelligence. Guide answers use imported XMLTV data.
+- Focused channel rows and the player expose onscreen App Entity context on iOS 18.2 or later. Apple Intelligence experiences depend on device, language and system support; the actions also work without Apple Intelligence. Guide answers use imported XMLTV data.
 - New controls, shortcut phrases and help are translated into all 14 app languages.
 
 ## 0.1.9

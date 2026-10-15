@@ -181,10 +181,15 @@ struct IPTVShortcuts: AppShortcutsProvider {
 #endif
 
 extension View {
-	@ViewBuilder func siriChannel(_ channel: Channel?) -> some View {
+	@ViewBuilder func siriChannel(_ channel: Channel?, active: Bool = true) -> some View {
 		#if os(iOS)
-		if #available(iOS 18.4, *), let channel {
-			appEntityIdentifier(EntityIdentifier(for: TVChannelEntity(channel)))
+		if #available(iOS 18.2, *), let channel {
+			userActivity("dev.serrebi.accessibleiptv.channel", isActive: active) { activity in
+				let entity = TVChannelEntity(channel)
+				activity.title = entity.name
+				activity.appEntityIdentifier = EntityIdentifier(for: entity)
+				activity.isEligibleForHandoff = false
+			}
 		} else { self }
 		#else
 		self

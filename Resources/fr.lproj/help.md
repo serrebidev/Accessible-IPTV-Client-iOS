@@ -68,4 +68,4 @@ Apple TV n’a ni recherche vocale, ni fichiers M3U, ni fichiers de réglages. L
 
 # Siri et Raccourcis
 
-Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.4 ou ultérieur et la prise en charge du système.
+Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.2 ou ultérieur et la prise en charge du système.

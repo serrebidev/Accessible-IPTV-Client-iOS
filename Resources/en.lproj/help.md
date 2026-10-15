@@ -68,4 +68,4 @@ Apple TV has no voice search, M3U files or settings files. The system can clear 
 
 # Siri and Shortcuts
 
-On iPhone, Siri and Shortcuts can tune channels by name or number, read what’s on now and next, search the guide, open a channel guide, and pause, resume or stop playback. Include the app name in your request. Siri asks for the search text. Add a playlist and open the app once to import its guide. Answers use the imported guide. These actions also work without Apple Intelligence; onscreen channel context needs iOS 18.4 or later and system support.
+On iPhone, Siri and Shortcuts can tune channels by name or number, read what’s on now and next, search the guide, open a channel guide, and pause, resume or stop playback. Include the app name in your request. Siri asks for the search text. Add a playlist and open the app once to import its guide. Answers use the imported guide. These actions also work without Apple Intelligence; onscreen channel context needs iOS 18.2 or later and system support.

@@ -68,4 +68,4 @@ Apple TV nie ma wyszukiwania głosowego, plików M3U ani plików ustawień. Syst
 
 # Siri i Skróty
 
-Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.4 lub nowszego i wsparcia systemu.
+Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.2 lub nowszego i wsparcia systemu.

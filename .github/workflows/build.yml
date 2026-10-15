@@ -22,7 +22,7 @@ jobs:
     runs-on: macos-26
     timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Xcode
         run: |
@@ -41,7 +41,7 @@ jobs:
         run: git clone --depth 1 https://github.com/cvs-health/ios-swiftui-accessibility-techniques.git "$RUNNER_TEMP/cvs"
 
       - name: a11y-check build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ runner.temp }}/cvs/a11y-check/.build
           key: a11ycheck-${{ runner.os }}-v1
@@ -59,7 +59,7 @@ jobs:
           xcodegen generate
 
       - name: Package cache (VLCKit is an 800 MB download)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: SourcePackages
           key: spm-${{ hashFiles('project.yml') }}
@@ -125,7 +125,7 @@ jobs:
           build visionOS xros visionOS
           ls -la *.ipa
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ipa
           path: |

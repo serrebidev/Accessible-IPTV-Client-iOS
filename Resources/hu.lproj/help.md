@@ -68,4 +68,4 @@ Az Apple TV-n nincs hangalapú keresés, M3U fájl és beállításfájl. A rend
 
 # Siri és Parancsok
 
-iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.4-et vagy újabbat és rendszertámogatást igényel.
+iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.2-et vagy újabbat és rendszertámogatást igényel.

@@ -68,4 +68,4 @@ Apple TV non ha ricerca vocale, file M3U né file di impostazioni. Il sistema pu
 
 # Siri e Comandi Rapidi
 
-Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.4 o successivo e supporto del sistema.
+Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.2 o successivo e supporto del sistema.

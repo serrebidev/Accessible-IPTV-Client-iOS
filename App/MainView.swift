@@ -760,7 +760,7 @@ private struct ChannelRows: View, Equatable {
 			RowLabel(line1: fav ? L("favorite_name", ch.name) : ch.name, line2: line2)
 		}
 		.row(speech, actions: actions(ch, fav))
-		.siriChannel(ch)
+		.siriChannel(ch, active: focusedKey.wrappedValue == ch.key || voFocus.wrappedValue == ch.key)
 		.focused(focusedKey, equals: ch.key)
 		.accessibilityFocused(voFocus, equals: ch.key)
 	}
