@@ -138,10 +138,10 @@ struct PlayChannelAudioIntent: AudioStartingIntent {
 	@MainActor func perform() async throws -> some IntentResult {
 		let identifier = audioEntity.channelIdentifier
 		let channels = try await SiriLibrary.live()
-		guard let channel = await Task.detached(operation: { TVChannelQuery.resolve([identifier], in: channels).first }).value else {
+		guard let entity = await Task.detached(operation: { TVChannelQuery.resolve([identifier], in: channels).first }).value else {
 			throw SiriLibrary.ActionError.message(L("channel_unavailable"))
 		}
-		_ = try await SiriLibrary.tune(TVChannelEntity(channel))
+		_ = try await SiriLibrary.tune(entity)
 		return .result()
 	}
 }
