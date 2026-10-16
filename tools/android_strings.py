@@ -150,8 +150,7 @@ EXTRA = {
                   "Aucune destination de lecture trouvée.", "कोई प्लेबैक गंतव्य नहीं मिला।", "Nem található lejátszási cél.", "Nessuna destinazione di riproduzione trovata.",
                   "再生先が見つかりません。", "Nie znaleziono miejsc odtwarzania.", "Nenhum destino de reprodução encontrado.", "Устройства воспроизведения не найдены.",
                   "Oynatma hedefi bulunamadı.", "未找到播放目标。"],
-    # Said when the system AirPlay picker moves the sound to a receiver. The picture stays here,
-    # so "playing on" would be a lie; only the sound went there.
+    # Audio routing is announced separately from the native player’s external-video state.
     "sound_on": ["Sound on %1$@", "الصوت على %1$@", "Ton auf %1$@", "Sonido en %1$@", "Son sur %1$@", "आवाज़ %1$@ पर", "Hang: %1$@", "Audio su %1$@", "音声は%1$@", "Dźwięk na %1$@", "Som em %1$@", "Звук на %1$@", "Ses %1$@ cihazında", "声音在%1$@上"],
     # Playlists used to be a button on the main screen. iOS calls them Sources, and they live in
     # Settings, so the word is overridden everywhere it appears.

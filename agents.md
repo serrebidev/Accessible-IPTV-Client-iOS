@@ -27,8 +27,13 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
 
 ## Rules
 
-- Player is libVLC (VLCKit 4.0.0-a22 from code.videolan.org SPM): AVPlayer cannot play raw MPEG-TS,
-  which is what Xtream live URLs are. Live URLs stay `.ts` (Dispatcharr answers `.m3u8` with 500).
+- AVPlayer prefers compatible streams; VLCKit 4.0.0-a22 handles raw MPEG-TS and compatibility fallback.
+  Provider URLs stay `.ts` (Dispatcharr answers `.m3u8` with 500). On iPhone/iPad, VideoRelay uses
+  shipped VLC transcode/HLS modules to create local H.264/AAC HLS for AirPlay video and Chromecast.
+  No separate server. Conversion needs foreground use and receiver access to the phone’s LAN address.
+  PlaybackTeardown waits for VLC’s asynchronous stop before another provider reader starts.
+  Preserve HLS manifest normalization, complete-manifest caching and expired-segment cleanup: a22
+  emits absent rendition references, an incorrect EVENT tag, and leaves evicted files on disk.
 - libVLC never hands over subtitle text: embedded subtitles are drawn in the picture; only a loaded
   SRT/WebVTT file is spoken (same limit as the desktop).
 - Live cushion = desktop's VLC method: `media.statistics` read vs demux bytes, rate 0.95 until the

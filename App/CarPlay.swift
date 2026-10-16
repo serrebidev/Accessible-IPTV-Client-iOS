@@ -72,15 +72,17 @@ final class CarAudio {
 		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
 		try? AVAudioSession.sharedInstance().setActive(true)
 		player.media = media
-		player.play()
+		PlaybackTeardown.play(player)
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: ch.name, MPNowPlayingInfoPropertyIsLiveStream: true]
 		let rc = MPRemoteCommandCenter.shared()
 		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
-		rc.playCommand.addTarget { [weak self] _ in self?.player.play(); return .success }
+		rc.playCommand.addTarget { [weak self] _ in
+			Task { @MainActor in if let self { PlaybackTeardown.play(self.player) } }; return .success
+		}
 		rc.pauseCommand.addTarget { [weak self] _ in self?.player.pause(); return .success }
 		rc.togglePlayPauseCommand.addTarget { [weak self] _ in
 			guard let p = self?.player else { return .commandFailed }
-			p.isPlaying ? p.pause() : p.play()
+			Task { @MainActor in p.isPlaying ? p.pause() : PlaybackTeardown.play(p) }
 			return .success
 		}
 	}

@@ -11,7 +11,7 @@ final class VideoRelayTests: XCTestCase {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
 		let source = VLCMediaPlayer()
 		source.media = VLCMedia(url: fixture)
-		source.play()
+		PlaybackTeardown.play(source)
 		defer { PlaybackTeardown.stop(source) }
 		let deadline = Date().addingTimeInterval(15)
 		while source.videoTracks.isEmpty || source.audioTracks.isEmpty {
@@ -44,5 +44,47 @@ final class VideoRelayTests: XCTestCase {
 			try await Task.sleep(nanoseconds: 200_000_000)
 		}
 		XCTFail("Converted HLS produced no decoded video frame")
+	}
+
+	@MainActor
+	func testImmediateStopCancelsQueuedPlayback() async throws {
+		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
+		let source = VLCMediaPlayer()
+		for _ in 0..<3 {
+			source.media = VLCMedia(url: fixture)
+			PlaybackTeardown.play(source)
+			PlaybackTeardown.stop(source)
+			let stopped = await PlaybackTeardown.ready()
+			XCTAssertTrue(stopped)
+			try await Task.sleep(nanoseconds: 200_000_000)
+			XCTAssertNil(source.media)
+			XCTAssertFalse(source.isPlaying)
+			XCTAssertEqual(source.state, .stopped)
+		}
+	}
+
+	@MainActor
+	func testNaturalEndDoesNotCompleteTheNextTeardown() async throws {
+		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
+		let source = VLCMediaPlayer()
+		let media = try XCTUnwrap(VLCMedia(url: fixture))
+		media.addOption(":stop-time=1")
+		source.media = media
+		PlaybackTeardown.play(source)
+		defer { PlaybackTeardown.stop(source) }
+		var active = false
+		let deadline = Date().addingTimeInterval(15)
+		while Date() < deadline {
+			if source.state != .stopped { active = true }
+			if active, source.state == .stopped { break }
+			try await Task.sleep(nanoseconds: 50_000_000)
+		}
+		guard active, source.state == .stopped else { XCTFail("Source did not reach natural EOF"); return }
+		PlaybackTeardown.play(source)
+		PlaybackTeardown.stop(source)
+		let stopped = await PlaybackTeardown.ready()
+		XCTAssertTrue(stopped)
+		XCTAssertNil(source.media)
+		XCTAssertEqual(source.state, .stopped)
 	}
 }

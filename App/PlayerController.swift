@@ -76,6 +76,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var cues: [SubtitleCues.Cue] = []
 	private var cueIndex: Int?
 	private var pendingSubtitle: URL?
+	private var loadedSubtitleFile: URL?
+	private var selectedSubtitleName: String?
 	private var videoOff = false
 	private var sharePlayback: SharePlaybackCoordinator?
 	private var sharedPausePending = false
@@ -230,7 +232,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		buffering = false
 		paced = 1
 		player.media = media
-		player.play()
+		PlaybackTeardown.play(player)
 	}
 
 	// MARK: native playback
@@ -532,7 +534,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			else { nativePlayer.play(); armNativeTimeout() }
 			return
 		}
-		if failed || player.state == .stopped || player.state == .error {
+		if failed || player.state == .stopped || player.state == .stopping || player.state == .error {
 			// Retry after a failure: a live stream starts again at the live edge.
 			retryTask?.cancel()
 			retryTask = nil
@@ -541,7 +543,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			open()
 			return
 		}
-		player.play()
+		PlaybackTeardown.play(player)
 	}
 
 	/// A status line, spoken only up to the Announcements level in Settings
@@ -661,6 +663,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	// MARK: subtitles
 
 	func selectSubtitle(_ c: TrackChoice?) {
+		selectedSubtitleName = c?.name
 		if let c {
 			chooseTrack(c)
 			say(L("subtitles_set", c.name), 2)
@@ -689,6 +692,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			return
 		}
 		// External subtitle files use VLC's existing renderer and spoken-cue path.
+		loadedSubtitleFile = copy
+		selectedSubtitleName = picked.lastPathComponent
 		if usesNative && !isRelayingVideo { fallbackToVLC() }
 		#if os(iOS)
 		let subtitlePlayer = videoRelay?.player ?? player
@@ -798,17 +803,29 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			self.autoTrackTries = 0
 			self.autoTrack()
 			let audio = self.player.audioTracks.first(where: { $0.isSelected }) ?? self.player.audioTracks.first
+			let subtitles = self.named(self.player.textTracks)
+			if let name = self.selectedSubtitleName {
+				let index = AudioTracks.choose(names: subtitles.map(\.name), describesVideo: subtitles.map { _ in false }, remembered: name, preferAd: false, keywords: [])
+				if index >= 0 { subtitles[index].track?.isSelectedExclusively = true }
+			}
+			let subtitleID = self.player.textTracks.first(where: { $0.isSelected })?.trackId
 			let tracks = [video.trackId] + (audio.map { [$0.trackId] } ?? [])
 			PlaybackTeardown.stop(self.player)
 			guard await PlaybackTeardown.ready(), !Task.isCancelled, !self.closing else {
 				if !Task.isCancelled, !self.closing { self.relayFailed() }
 				return
 			}
+			// Some single-session providers retain the old session briefly after its connection closes.
+			if !self.localFile {
+				do { try await Task.sleep(nanoseconds: 2_500_000_000) } catch { return }
+			}
+			guard !Task.isCancelled, !self.closing else { return }
 			let relay = VideoRelay()
 			self.videoRelay = relay
 			self.relayStartTime = position
 			relay.onFailure = { [weak self] in self?.relayFailed() }
-			relay.start(source: self.request.url, tracks: tracks, seconds: position, live: self.live) { [weak self, weak relay] result in
+			relay.start(source: self.request.url, tracks: tracks, seconds: position, subtitleID: subtitleID,
+				subtitleFile: subtitleID == nil ? nil : self.loadedSubtitleFile, live: self.live) { [weak self, weak relay] result in
 				guard let self, let relay, self.videoRelay === relay, !self.closing else { return }
 				self.preparingVideo = false
 				switch result {

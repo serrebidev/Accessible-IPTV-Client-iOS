@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.0
+
+- AVPlayer now handles compatible HLS, MP4 and other native media. Unsupported formats and playback failures fall back to VLCKit. Raw provider `.ts` URLs remain unchanged.
+- On iPhone and iPad, Prepare AirPlay video converts other IPTV video on the device to H.264/AAC HLS, then exposes Apple’s AirPlay destination picker. Playback destination uses the same conversion for Chromecast. No separate server or new media dependency is required.
+- Conversion targets up to 720p at 30 frames per second. Choose audio and subtitles before casting and keep the app open on the receiver’s Wi-Fi. Protected streams, unavailable encoders and device performance can prevent conversion; local playback remains available. Physical receiver, thermal and locked-phone behavior still require device testing.
+- Provider handoffs wait for VLC’s asynchronous stop, cancel old reconnect work and allow single-session providers to release the old connection. HLS output fixes invalid rendition references and live playlist tags, caches complete manifests and removes expired segment files.
+- Playback, conversion failures and AirPlay connection changes have visible and spoken status. Controls and help cover all 14 app languages. Sources are available in Settings, with Add sources shown when Browse is empty.
+- Adds an iOS simulator integration gate using MPEG-2/MP2 input and a decoded AVPlayer video frame, plus immediate-stop and natural-end restart regressions. iOS, tvOS and visionOS builds retain the existing signing and SharePlay entitlements.
+
 ## 0.2.0
 
 - SharePlay uses FaceTime and Apple's native custom-player coordinator for shared channel selection, play and pause, and seekable movie, episode and catch-up timing. Each participant resolves content through their own playlist and login; stream URLs and credentials are never shared. Leave and End for everyone are separate controls. Live streams share controls, with timing limited by provider buffering.
