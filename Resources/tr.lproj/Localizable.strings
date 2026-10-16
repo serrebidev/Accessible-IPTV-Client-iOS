@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, geri izleme";
 "channel" = "Kanal";
 "channel_guide" = "Rehber";
+"channel_guide_desc" = "Uygulamada kanalın rehberini açar.";
 "channel_number" = "Numara";
+"channel_parameter_desc" = "Oynatılacak kanal.";
 "channel_typed" = "Kanal %1$@";
 "channel_unavailable" = "Bu kanal artık kullanılamıyor. Başka bir kanal seçin.";
 "channels" = "Kanallar";
@@ -139,6 +141,7 @@
 "ok" = "Tamam";
 "on_now" = "şimdi yayında";
 "open_channel" = "Kanalı aç";
+"open_channel_desc" = "Canlı kanalı uygulamada açar.";
 "open_player" = "Oynatıcıyı aç";
 "pause" = "Duraklat";
 "play" = "Oynat";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ - %2$@";
 "search" = "Ara";
 "search_guide" = "Rehberde ara";
+"search_guide_desc" = "TV rehberinde program arar.";
 "search_index_failed" = "Spotlight araması güncellenemedi. Yeniden denemek için uygulamayı açın.";
 "search_index_ready" = "Arama hazır: %1$ld kanal.";
 "search_index_updating" = "Kanallar arama için dizine ekleniyor…";
+"search_parameter_desc" = "Program adlarında aranacak sözcükler.";
 "season_episode" = "Sezon %1$@, bölüm %2$@";
 "section" = "Bölüm";
 "selected" = "seçili";
@@ -238,6 +243,7 @@
 "subtitles_set" = "Altyazı: %1$@";
 "track_n" = "Parça %1$ld";
 "tune_channel" = "Kanalı aç";
+"tune_channel_desc" = "Listenizdeki canlı kanalı ad veya numarayla oynatır.";
 "until" = "%1$@, %2$@ saatine kadar";
 "up_to_date" = "Güncel.";
 "update_available" = "%1$@ sürümü var";
@@ -253,6 +259,7 @@
 "voice_search" = "Ses";
 "voice_unavailable" = "Bu cihazda sesli arama yok.";
 "whats_on_channel" = "Bu kanalda ne var";
+"whats_on_channel_desc" = "Kanaldaki şimdiki ve sonraki programı okur.";
 "whats_on_now" = "Şimdi yayında";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Evet";

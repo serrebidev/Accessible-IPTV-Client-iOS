@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import UniformTypeIdentifiers
+import AppIntents
 import IPTVCore
 
 /// Options. Saved when the screen is left: no Save button to hunt for.
@@ -33,6 +34,18 @@ struct SettingsView: View {
 				// Playlists used to be a button on the main screen; the providers live here now.
 				NavigationLink { SourcesView() } label: { Label(L("playlists_and_guides"), systemImage: "list.bullet") }
 			}
+
+			#if os(iOS)
+			// Apple requires the app name in App Shortcut phrases. A shortcut of your own is the
+			// way to use a phrase without it, so the way there is a row, not a paragraph of Help.
+			Section {
+				ShortcutsLink()
+			} header: {
+				Text(L("siri_shortcuts")).accessibilityAddTraits(.isHeader)
+			} footer: {
+				Text(L("siri_tuning_help"))
+			}
+			#endif
 
 			Section {
 				Toggle(L("prefer_ad"), isOn: $preferAd).accessibilityLabel(L("prefer_ad"))

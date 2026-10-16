@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, Mediathek";
 "channel" = "Sender";
 "channel_guide" = "Programm";
+"channel_guide_desc" = "Öffnet den Programmführer eines Senders in der App.";
 "channel_number" = "Nummer";
+"channel_parameter_desc" = "Der Sender, der abgespielt werden soll.";
 "channel_typed" = "Sender %1$@";
 "channel_unavailable" = "Dieser Sender ist nicht mehr verfügbar. Wähle einen anderen Sender.";
 "channels" = "Sender";
@@ -139,6 +141,7 @@
 "ok" = "OK";
 "on_now" = "läuft jetzt";
 "open_channel" = "Sender öffnen";
+"open_channel_desc" = "Öffnet einen Live-Sender in der App.";
 "open_player" = "Player öffnen";
 "pause" = "Pause";
 "play" = "Abspielen";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ bis %2$@";
 "search" = "Suchen";
 "search_guide" = "Programmsuche";
+"search_guide_desc" = "Sucht Sendungen im Programmführer.";
 "search_index_failed" = "Spotlight-Suche konnte nicht aktualisiert werden. Öffne die App, um es erneut zu versuchen.";
 "search_index_ready" = "Suche bereit: %1$ld Sender.";
 "search_index_updating" = "Sender werden für die Suche indiziert…";
+"search_parameter_desc" = "Wörter, die in Sendungstiteln gesucht werden.";
 "season_episode" = "Staffel %1$@, Folge %2$@";
 "section" = "Bereich";
 "selected" = "ausgewählt";
@@ -238,6 +243,7 @@
 "subtitles_set" = "Untertitel: %1$@";
 "track_n" = "Spur %1$ld";
 "tune_channel" = "Sender einschalten";
+"tune_channel_desc" = "Spielt einen Live-Sender aus deiner Liste nach Name oder Nummer.";
 "until" = "%1$@, bis %2$@";
 "up_to_date" = "Aktuell.";
 "update_available" = "Version %1$@ verfügbar";
@@ -253,6 +259,7 @@
 "voice_search" = "Sprache";
 "voice_unavailable" = "Keine Sprachsuche auf diesem Gerät.";
 "whats_on_channel" = "Was läuft auf diesem Sender";
+"whats_on_channel_desc" = "Liest vor, was jetzt und danach auf einem Sender läuft.";
 "whats_on_now" = "Jetzt";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Ja";

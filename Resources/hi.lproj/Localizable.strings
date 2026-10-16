@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, कैच-अप";
 "channel" = "चैनल";
 "channel_guide" = "गाइड";
+"channel_guide_desc" = "ऐप में चैनल की गाइड खोलता है।";
 "channel_number" = "नंबर";
+"channel_parameter_desc" = "चलाने के लिए चैनल।";
 "channel_typed" = "चैनल %1$@";
 "channel_unavailable" = "यह चैनल अब उपलब्ध नहीं है। दूसरा चैनल चुनें।";
 "channels" = "चैनल";
@@ -139,6 +141,7 @@
 "ok" = "ठीक है";
 "on_now" = "अभी प्रसारित";
 "open_channel" = "चैनल खोलें";
+"open_channel_desc" = "ऐप में लाइव चैनल खोलता है।";
 "open_player" = "प्लेयर खोलें";
 "pause" = "रोकें";
 "play" = "चलाएँ";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ से %2$@";
 "search" = "खोजें";
 "search_guide" = "गाइड में खोजें";
+"search_guide_desc" = "टीवी गाइड में कार्यक्रम खोजता है।";
 "search_index_failed" = "Spotlight खोज अपडेट नहीं हुई। दोबारा कोशिश करने के लिए ऐप खोलें।";
 "search_index_ready" = "खोज तैयार: %1$ld चैनल।";
 "search_index_updating" = "खोज के लिए चैनलों की सूची बन रही है…";
+"search_parameter_desc" = "कार्यक्रम शीर्षकों में खोजे जाने वाले शब्द।";
 "season_episode" = "सीज़न %1$@, एपिसोड %2$@";
 "section" = "अनुभाग";
 "selected" = "चुना गया";
@@ -238,6 +243,7 @@
 "subtitles_set" = "उपशीर्षक: %1$@";
 "track_n" = "ट्रैक %1$ld";
 "tune_channel" = "चैनल चलाएँ";
+"tune_channel_desc" = "आपकी सूची से नाम या नंबर से लाइव चैनल चलाता है।";
 "until" = "%1$@, %2$@ तक";
 "up_to_date" = "नवीनतम है।";
 "update_available" = "संस्करण %1$@ उपलब्ध";
@@ -253,6 +259,7 @@
 "voice_search" = "आवाज़";
 "voice_unavailable" = "इस डिवाइस पर आवाज़ से खोज नहीं है।";
 "whats_on_channel" = "इस चैनल पर क्या चल रहा है";
+"whats_on_channel_desc" = "चैनल पर अभी और आगे क्या चल रहा है, पढ़ता है।";
 "whats_on_now" = "अभी प्रसारित";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "हाँ";

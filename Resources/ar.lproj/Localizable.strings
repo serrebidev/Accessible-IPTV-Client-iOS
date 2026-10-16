@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@، مشاهدة لاحقة";
 "channel" = "قناة";
 "channel_guide" = "الدليل";
+"channel_guide_desc" = "يفتح دليل القناة داخل التطبيق.";
 "channel_number" = "الرقم";
+"channel_parameter_desc" = "القناة المطلوب تشغيلها.";
 "channel_typed" = "القناة %1$@";
 "channel_unavailable" = "لم تعد هذه القناة متاحة. اختر قناة أخرى.";
 "channels" = "القنوات";
@@ -139,6 +141,7 @@
 "ok" = "حسنًا";
 "on_now" = "يُعرض الآن";
 "open_channel" = "افتح القناة";
+"open_channel_desc" = "يفتح قناة مباشرة في التطبيق.";
 "open_player" = "فتح المشغل";
 "pause" = "إيقاف مؤقت";
 "play" = "تشغيل";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ إلى %2$@";
 "search" = "بحث";
 "search_guide" = "البحث في الدليل";
+"search_guide_desc" = "يبحث عن عناوين البرامج في دليل التلفزيون.";
 "search_index_failed" = "تعذّر تحديث بحث Spotlight. افتح التطبيق للمحاولة مجددًا.";
 "search_index_ready" = "البحث جاهز: %1$ld قناة.";
 "search_index_updating" = "جارٍ فهرسة القنوات للبحث…";
+"search_parameter_desc" = "كلمات للبحث عنها في عناوين البرامج.";
 "season_episode" = "الموسم %1$@، الحلقة %2$@";
 "section" = "القسم";
 "selected" = "محدد";
@@ -238,6 +243,7 @@
 "subtitles_set" = "الترجمة: %1$@";
 "track_n" = "المسار %1$ld";
 "tune_channel" = "تشغيل قناة";
+"tune_channel_desc" = "يشغّل قناة مباشرة من قائمتك بالاسم أو الرقم.";
 "until" = "%1$@، حتى %2$@";
 "up_to_date" = "محدث.";
 "update_available" = "الإصدار %1$@ متاح";
@@ -253,6 +259,7 @@
 "voice_search" = "صوت";
 "voice_unavailable" = "لا يوجد بحث صوتي على هذا الجهاز.";
 "whats_on_channel" = "ما يُعرض على هذه القناة";
+"whats_on_channel_desc" = "يقرأ ما يُعرض الآن وبعده على القناة.";
 "whats_on_now" = "يُعرض الآن";
 "xtream_at" = "Xtream، %1$@";
 "yes" = "نعم";

@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@、見逃し";
 "channel" = "チャンネル";
 "channel_guide" = "番組表";
+"channel_guide_desc" = "アプリでチャンネルの番組表を開きます。";
 "channel_number" = "番号";
+"channel_parameter_desc" = "再生するチャンネル。";
 "channel_typed" = "チャンネル %1$@";
 "channel_unavailable" = "このチャンネルは利用できなくなりました。別のチャンネルを選んでください。";
 "channels" = "チャンネル";
@@ -139,6 +141,7 @@
 "ok" = "OK";
 "on_now" = "放送中";
 "open_channel" = "チャンネルを開く";
+"open_channel_desc" = "アプリでライブチャンネルを開きます。";
 "open_player" = "プレーヤーを開く";
 "pause" = "一時停止";
 "play" = "再生";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ から %2$@";
 "search" = "検索";
 "search_guide" = "番組表を検索";
+"search_guide_desc" = "テレビ番組表で番組を検索します。";
 "search_index_failed" = "Spotlight検索を更新できませんでした。アプリを開いて再試行してください。";
 "search_index_ready" = "検索の準備ができました。%1$ldチャンネル。";
 "search_index_updating" = "検索用にチャンネルを登録中…";
+"search_parameter_desc" = "番組タイトルで検索する語。";
 "season_episode" = "シーズン %1$@、エピソード %2$@";
 "section" = "セクション";
 "selected" = "選択中";
@@ -238,6 +243,7 @@
 "subtitles_set" = "字幕: %1$@";
 "track_n" = "トラック %1$ld";
 "tune_channel" = "チャンネルを再生";
+"tune_channel_desc" = "リストのライブチャンネルを名前または番号で再生します。";
 "until" = "%1$@、%2$@ まで";
 "up_to_date" = "最新です。";
 "update_available" = "バージョン %1$@ があります";
@@ -253,6 +259,7 @@
 "voice_search" = "音声";
 "voice_unavailable" = "この端末では音声検索が使えません。";
 "whats_on_channel" = "このチャンネルの番組";
+"whats_on_channel_desc" = "チャンネルで現在放送中と次の番組を読み上げます。";
 "whats_on_now" = "放送中";
 "xtream_at" = "Xtream、%1$@";
 "yes" = "はい";

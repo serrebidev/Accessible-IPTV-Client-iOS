@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@,回看";
 "channel" = "频道";
 "channel_guide" = "节目单";
+"channel_guide_desc" = "在应用中打开频道指南。";
 "channel_number" = "号码";
+"channel_parameter_desc" = "要播放的频道。";
 "channel_typed" = "频道 %1$@";
 "channel_unavailable" = "此频道已不可用。请选择其他频道。";
 "channels" = "频道";
@@ -139,6 +141,7 @@
 "ok" = "好";
 "on_now" = "正在播出";
 "open_channel" = "打开频道";
+"open_channel_desc" = "在应用中打开直播频道。";
 "open_player" = "打开播放器";
 "pause" = "暂停";
 "play" = "播放";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ 至 %2$@";
 "search" = "搜索";
 "search_guide" = "搜索节目单";
+"search_guide_desc" = "在节目指南中搜索节目。";
 "search_index_failed" = "无法更新 Spotlight 搜索。请打开应用重试。";
 "search_index_ready" = "搜索已就绪：%1$ld 个频道。";
 "search_index_updating" = "正在为搜索建立频道索引…";
+"search_parameter_desc" = "在节目名称中查找的词。";
 "season_episode" = "第 %1$@ 季，第 %2$@ 集";
 "section" = "栏目";
 "selected" = "已选中";
@@ -238,6 +243,7 @@
 "subtitles_set" = "字幕: %1$@";
 "track_n" = "音轨 %1$ld";
 "tune_channel" = "播放频道";
+"tune_channel_desc" = "按名称或编号播放列表中的直播频道。";
 "until" = "%1$@,至 %2$@";
 "up_to_date" = "已是最新。";
 "update_available" = "有新版本 %1$@";
@@ -253,6 +259,7 @@
 "voice_search" = "语音";
 "voice_unavailable" = "此设备没有语音搜索。";
 "whats_on_channel" = "此频道正在播放什么";
+"whats_on_channel_desc" = "读出频道正在播放和接下来的节目。";
 "whats_on_now" = "正在播出";
 "xtream_at" = "Xtream,%1$@";
 "yes" = "是";

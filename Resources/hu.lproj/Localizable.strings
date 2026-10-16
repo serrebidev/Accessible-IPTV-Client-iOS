@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, visszajátszás";
 "channel" = "Csatorna";
 "channel_guide" = "Műsorújság";
+"channel_guide_desc" = "Megnyitja a csatorna műsorújságját az alkalmazásban.";
 "channel_number" = "Szám";
+"channel_parameter_desc" = "A lejátszandó csatorna.";
 "channel_typed" = "%1$@. csatorna";
 "channel_unavailable" = "Ez a csatorna már nem érhető el. Válasszon másikat.";
 "channels" = "Csatornák";
@@ -139,6 +141,7 @@
 "ok" = "OK";
 "on_now" = "most műsoron";
 "open_channel" = "Csatorna megnyitása";
+"open_channel_desc" = "Élő csatornát nyit meg az alkalmazásban.";
 "open_player" = "Lejátszó megnyitása";
 "pause" = "Szünet";
 "play" = "Lejátszás";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ – %2$@";
 "search" = "Keresés";
 "search_guide" = "Keresés a műsorújságban";
+"search_guide_desc" = "Programot keres a műsorújságban.";
 "search_index_failed" = "A Spotlight-keresés nem frissíthető. Nyissa meg az alkalmazást az újrapróbáláshoz.";
 "search_index_ready" = "A keresés kész: %1$ld csatorna.";
 "search_index_updating" = "Csatornák indexelése a kereséshez…";
+"search_parameter_desc" = "Szavak, amelyeket a műsorcímekben keres.";
 "season_episode" = "%1$@. évad, %2$@. rész";
 "section" = "Szakasz";
 "selected" = "kijelölve";
@@ -238,6 +243,7 @@
 "subtitles_set" = "Feliratok: %1$@";
 "track_n" = "%1$ld. sáv";
 "tune_channel" = "Csatorna lejátszása";
+"tune_channel_desc" = "Élő csatornát indít a listájáról név vagy szám alapján.";
 "until" = "%1$@, %2$@-ig";
 "up_to_date" = "Naprakész.";
 "update_available" = "Elérhető: %1$@ verzió";
@@ -253,6 +259,7 @@
 "voice_search" = "Hang";
 "voice_unavailable" = "Ezen az eszközön nincs hangalapú keresés.";
 "whats_on_channel" = "Mi megy ezen a csatornán";
+"whats_on_channel_desc" = "Felolvassa, mi megy most és utána a csatornán.";
 "whats_on_now" = "Most műsoron";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Igen";

@@ -167,8 +167,10 @@ enum SiriLibrary {
 
 struct TuneChannelIntent: AppIntent {
 	static var title: LocalizedStringResource = "tune_channel"
+	/// Siri and Apple Intelligence match what people say against this text.
+	static var description: IntentDescription? = IntentDescription("tune_channel_desc")
 	static var openAppWhenRun = true
-	@Parameter(title: "channel") var channel: TVChannelEntity
+	@Parameter(title: "channel", description: "channel_parameter_desc") var channel: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<TVChannelEntity> {
@@ -178,8 +180,9 @@ struct TuneChannelIntent: AppIntent {
 
 struct OpenTVChannelIntent: OpenIntent {
 	static var title: LocalizedStringResource = "open_channel"
+	static var description: IntentDescription? = IntentDescription("open_channel_desc")
 	static var openAppWhenRun = true
-	@Parameter(title: "channel") var target: TVChannelEntity
+	@Parameter(title: "channel", description: "channel_parameter_desc") var target: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$target)") }
 
 	@MainActor func perform() async throws -> some IntentResult {
@@ -190,7 +193,8 @@ struct OpenTVChannelIntent: OpenIntent {
 
 struct WhatsOnChannelIntent: AppIntent {
 	static var title: LocalizedStringResource = "whats_on_channel"
-	@Parameter(title: "channel") var channel: TVChannelEntity
+	static var description: IntentDescription? = IntentDescription("whats_on_channel_desc")
+	@Parameter(title: "channel", description: "channel_parameter_desc") var channel: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
@@ -207,7 +211,8 @@ struct WhatsOnChannelIntent: AppIntent {
 
 struct SearchGuideIntent: AppIntent {
 	static var title: LocalizedStringResource = "search_guide"
-	@Parameter(title: "search") var query: String
+	static var description: IntentDescription? = IntentDescription("search_guide_desc")
+	@Parameter(title: "search", description: "search_parameter_desc") var query: String
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$query)") }
 
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
@@ -225,8 +230,9 @@ struct SearchGuideIntent: AppIntent {
 
 struct OpenChannelGuideIntent: AppIntent {
 	static var title: LocalizedStringResource = "channel_guide"
+	static var description: IntentDescription? = IntentDescription("channel_guide_desc")
 	static var openAppWhenRun = true
-	@Parameter(title: "channel") var channel: TVChannelEntity
+	@Parameter(title: "channel", description: "channel_parameter_desc") var channel: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
 	@MainActor func perform() async throws -> some IntentResult {
@@ -269,15 +275,27 @@ struct IPTVShortcuts: AppShortcutsProvider {
 	static var appShortcuts: [AppShortcut] {
 		AppShortcut(intent: TuneChannelIntent(), phrases: [
 			"Play \(\.$channel) in \(.applicationName)",
-			"Tune to \(\.$channel) in \(.applicationName)",
 			"Watch \(\.$channel) in \(.applicationName)",
+			"Tune to \(\.$channel) in \(.applicationName)",
+			"Put on \(\.$channel) in \(.applicationName)",
+			"Start \(\.$channel) in \(.applicationName)",
 			"Play TV in \(.applicationName)",
-			"Tune to a channel in \(.applicationName)",
-			"Watch TV in \(.applicationName)"
+			"Watch TV in \(.applicationName)",
+			"Watch live TV in \(.applicationName)",
+			"Tune to a channel in \(.applicationName)"
 		], shortTitle: "tune_channel", systemImageName: "tv")
-		AppShortcut(intent: WhatsOnChannelIntent(), phrases: ["What is on \(\.$channel) in \(.applicationName)"], shortTitle: "whats_on_channel", systemImageName: "list.bullet.rectangle")
-		AppShortcut(intent: SearchGuideIntent(), phrases: ["Search the guide in \(.applicationName)"], shortTitle: "search_guide", systemImageName: "magnifyingglass")
-		AppShortcut(intent: OpenChannelGuideIntent(), phrases: ["Show the guide for \(\.$channel) in \(.applicationName)"], shortTitle: "channel_guide", systemImageName: "calendar")
+		AppShortcut(intent: WhatsOnChannelIntent(), phrases: [
+			"What is on \(\.$channel) in \(.applicationName)",
+			"What is playing on \(\.$channel) in \(.applicationName)"
+		], shortTitle: "whats_on_channel", systemImageName: "list.bullet.rectangle")
+		AppShortcut(intent: SearchGuideIntent(), phrases: [
+			"Search the guide in \(.applicationName)",
+			"Search the TV guide in \(.applicationName)"
+		], shortTitle: "search_guide", systemImageName: "magnifyingglass")
+		AppShortcut(intent: OpenChannelGuideIntent(), phrases: [
+			"Show the guide for \(\.$channel) in \(.applicationName)",
+			"Open the guide for \(\.$channel) in \(.applicationName)"
+		], shortTitle: "channel_guide", systemImageName: "calendar")
 		AppShortcut(intent: PauseTVIntent(), phrases: ["Pause playback in \(.applicationName)"], shortTitle: "pause", systemImageName: "pause")
 		AppShortcut(intent: ResumeTVIntent(), phrases: ["Resume playback in \(.applicationName)"], shortTitle: "play", systemImageName: "play")
 		AppShortcut(intent: StopTVIntent(), phrases: ["Stop playback in \(.applicationName)"], shortTitle: "stop_playback", systemImageName: "stop")

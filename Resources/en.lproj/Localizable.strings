@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, catch-up";
 "channel" = "Channel";
 "channel_guide" = "Guide";
+"channel_guide_desc" = "Opens a channel’s guide inside the app.";
 "channel_number" = "Number";
+"channel_parameter_desc" = "The channel to play.";
 "channel_typed" = "Channel %1$@";
 "channel_unavailable" = "This channel is no longer available. Choose another channel.";
 "channels" = "Channels";
@@ -139,6 +141,7 @@
 "ok" = "OK";
 "on_now" = "on now";
 "open_channel" = "Open channel";
+"open_channel_desc" = "Opens a live channel in the app.";
 "open_player" = "Open player";
 "pause" = "Pause";
 "play" = "Play";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ to %2$@";
 "search" = "Search";
 "search_guide" = "Guide search";
+"search_guide_desc" = "Searches the TV guide for programme titles.";
 "search_index_failed" = "Couldn’t update Spotlight search. Open the app to try again.";
 "search_index_ready" = "Search ready: %1$ld channels.";
 "search_index_updating" = "Indexing channels for search…";
+"search_parameter_desc" = "Words to look for in programme titles.";
 "season_episode" = "Season %1$@, Episode %2$@";
 "section" = "Section";
 "selected" = "selected";
@@ -238,6 +243,7 @@
 "subtitles_set" = "Subtitles: %1$@";
 "track_n" = "Track %1$ld";
 "tune_channel" = "Tune channel";
+"tune_channel_desc" = "Plays a live channel from your playlist by name or number.";
 "until" = "%1$@, until %2$@";
 "up_to_date" = "Up to date.";
 "update_available" = "Version %1$@ available";
@@ -253,6 +259,7 @@
 "voice_search" = "Voice";
 "voice_unavailable" = "No voice search on this device.";
 "whats_on_channel" = "What’s on this channel";
+"whats_on_channel_desc" = "Reads what is on now and next on a channel.";
 "whats_on_now" = "On now";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Yes";

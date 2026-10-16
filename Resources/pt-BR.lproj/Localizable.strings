@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, reprise";
 "channel" = "Canal";
 "channel_guide" = "Guia";
+"channel_guide_desc" = "Abre o guia de um canal no app.";
 "channel_number" = "Número";
+"channel_parameter_desc" = "O canal a reproduzir.";
 "channel_typed" = "Canal %1$@";
 "channel_unavailable" = "Este canal não está mais disponível. Escolha outro.";
 "channels" = "Canais";
@@ -139,6 +141,7 @@
 "ok" = "OK";
 "on_now" = "no ar";
 "open_channel" = "Abrir canal";
+"open_channel_desc" = "Abre um canal ao vivo no app.";
 "open_player" = "Abrir player";
 "pause" = "Pausar";
 "play" = "Reproduzir";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ até %2$@";
 "search" = "Pesquisar";
 "search_guide" = "Pesquisar no guia";
+"search_guide_desc" = "Procura programas no guia de TV.";
 "search_index_failed" = "Não foi possível atualizar a busca do Spotlight. Abra o app para tentar novamente.";
 "search_index_ready" = "Pesquisa pronta: %1$ld canais.";
 "search_index_updating" = "Indexando canais para pesquisa…";
+"search_parameter_desc" = "Palavras a procurar nos títulos dos programas.";
 "season_episode" = "Temporada %1$@, episódio %2$@";
 "section" = "Seção";
 "selected" = "selecionado";
@@ -238,6 +243,7 @@
 "subtitles_set" = "Legendas: %1$@";
 "track_n" = "Faixa %1$ld";
 "tune_channel" = "Sintonizar canal";
+"tune_channel_desc" = "Reproduz um canal ao vivo da sua lista por nome ou número.";
 "until" = "%1$@, até %2$@";
 "up_to_date" = "Atualizado.";
 "update_available" = "Versão %1$@ disponível";
@@ -253,6 +259,7 @@
 "voice_search" = "Voz";
 "voice_unavailable" = "Sem pesquisa por voz neste aparelho.";
 "whats_on_channel" = "O que passa neste canal";
+"whats_on_channel_desc" = "Lê o que passa agora e depois em um canal.";
 "whats_on_now" = "No ar";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Sim";

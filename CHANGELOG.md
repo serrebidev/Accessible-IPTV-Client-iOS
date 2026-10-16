@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1
+
+- Siri and Apple Intelligence now receive a written description of every channel, guide and search action, and of their channel and search parameters, alongside the spoken phrases. These descriptions are the signals the system matches a request against.
+- More ways to ask with the app name: Watch, Play, Tune to, Put on and Start a channel, plus Watch live TV, and additional phrasings for what is on, guide search and opening a channel guide.
+- Settings has a Siri and Shortcuts row that opens this app's page in Shortcuts, with the phrase guidance beside it. Apple requires App Shortcut phrases to include the app name; a shortcut of your own is the way to use a phrase without one.
+- Audit result recorded in `research_notes/Siri channel playback/ios27-routing.md`: the conversational route Siri AI uses for everyday phrasing needs an action schema, and the audio schemas for live playback are iOS 27 APIs that need Xcode 27, which the build runner does not provide yet. Until then, the app-named phrases are the supported path and were verified in the 0.4.0 build's App Intents metadata and per-language NLU assets.
+
 ## 0.4.0
 
 - Spotlight can find live channels by name or provider number on iPhone and iPad. Choosing a result opens the app and starts the channel. The full loaded live catalogue is indexed in batches, with spoken indexing status, retry after interruptions and removal of unavailable results after source changes. Stream URLs, logins and raw channel keys stay out of the index.

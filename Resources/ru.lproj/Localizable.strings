@@ -52,7 +52,9 @@
 "catchup_title" = "%1$@, архив";
 "channel" = "Канал";
 "channel_guide" = "Программа";
+"channel_guide_desc" = "Открывает телегид канала в приложении.";
 "channel_number" = "Номер";
+"channel_parameter_desc" = "Канал для воспроизведения.";
 "channel_typed" = "Канал %1$@";
 "channel_unavailable" = "Этот канал больше недоступен. Выберите другой.";
 "channels" = "Каналы";
@@ -139,6 +141,7 @@
 "ok" = "ОК";
 "on_now" = "в эфире";
 "open_channel" = "Открыть канал";
+"open_channel_desc" = "Открывает прямой канал в приложении.";
 "open_player" = "Открыть плеер";
 "pause" = "Пауза";
 "play" = "Играть";
@@ -189,9 +192,11 @@
 "scheduled_for" = "%1$@ – %2$@";
 "search" = "Поиск";
 "search_guide" = "Поиск по программе";
+"search_guide_desc" = "Ищет передачи в телегиде.";
 "search_index_failed" = "Не удалось обновить поиск Spotlight. Откройте приложение и повторите попытку.";
 "search_index_ready" = "Поиск готов: %1$ld каналов.";
 "search_index_updating" = "Индексация каналов для поиска…";
+"search_parameter_desc" = "Слова для поиска в названиях передач.";
 "season_episode" = "Сезон %1$@, серия %2$@";
 "section" = "Раздел";
 "selected" = "выбрано";
@@ -238,6 +243,7 @@
 "subtitles_set" = "Субтитры: %1$@";
 "track_n" = "Дорожка %1$ld";
 "tune_channel" = "Включить канал";
+"tune_channel_desc" = "Включает прямой канал из вашего списка по названию или номеру.";
 "until" = "%1$@, до %2$@";
 "up_to_date" = "Обновлений нет.";
 "update_available" = "Доступна версия %1$@";
@@ -253,6 +259,7 @@
 "voice_search" = "Голос";
 "voice_unavailable" = "На этом устройстве нет голосового поиска.";
 "whats_on_channel" = "Что идёт на этом канале";
+"whats_on_channel_desc" = "Читает, что идёт сейчас и дальше на канале.";
 "whats_on_now" = "Сейчас в эфире";
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Да";
