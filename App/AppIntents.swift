@@ -16,11 +16,11 @@ struct TVChannelEntity: AppEntity {
 
 	init(_ channel: Channel) {
 		id = Self.identifier(channel)
+		spokenName = ChannelDiscovery.spokenName(channel.name)
 		let publicName = ChannelDiscovery.publicText(channel.name)
 		name = publicName.isEmpty ? L("channel") : publicName
 		category = ChannelDiscovery.publicText(channel.group)
 		number = ChannelDiscovery.publicText(channel.number)
-		spokenName = ChannelDiscovery.spokenName(channel.name)
 	}
 
 	static func identifier(_ channel: Channel) -> String {

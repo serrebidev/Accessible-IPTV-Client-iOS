@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.3
+## 0.3.4
 
 - Siri channel tuning now recognises the app-qualified Play, Tune to and Watch phrases. Provider names such as UK: Sky | Mix HD expose the spoken alias Sky Mix, and channel numbers are alternate spoken names.
 - Every favourite and recently watched channel is offered to Siri, with vocabulary refreshed after playback and favourite changes. The former twenty-channel limit could hide recent channels behind favourites. Default suggestions stay small for large playlists.
