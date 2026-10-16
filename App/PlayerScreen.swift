@@ -57,7 +57,9 @@ private struct NativeVideoView: UIViewControllerRepresentable {
 		let view = AVPlayerViewController()
 		// Keep the app's labelled, always-visible controls and single Now Playing owner.
 		view.showsPlaybackControls = false
+		#if !os(tvOS)
 		view.updatesNowPlayingInfoCenter = false
+		#endif
 		return view
 	}
 	func updateUIViewController(_ view: AVPlayerViewController, context: Context) {
