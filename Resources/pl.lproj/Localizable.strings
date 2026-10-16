@@ -42,6 +42,7 @@
 "cancel_recording_q" = "Anulować %1$@?";
 "cannot_record_this" = "Tylko kanały na żywo.";
 "cast" = "Miejsce odtwarzania";
+"cast_device" = "%1$@, urządzenie Cast";
 "cast_local_file" = "Nagrania nie można wysłać do miejsca odtwarzania.";
 "cast_none" = "Nie znaleziono miejsc odtwarzania.";
 "cast_stopped" = "Odtwarzanie na tym urządzeniu";
@@ -64,6 +65,8 @@
 "delete" = "Usuń";
 "delete_recording_q" = "Usunąć %1$@?";
 "delete_source_q" = "Usunąć %1$@?";
+"destination_airplay" = "Urządzenie AirPlay";
+"destination_this_device" = "To urządzenie";
 "download" = "Pobierz";
 "download_ended_early" = "Przerwane za wcześnie: %1$@";
 "downloading" = "Pobieranie: %1$@";
@@ -150,7 +153,6 @@
 "prefer_ad" = "Preferuj audiodeskrypcję";
 "preferred_tracks" = "Preferowany dźwięk, po przecinku";
 "preferred_tracks_hint" = "Polski, Angielski";
-"prepare_airplay_video" = "Przygotuj wideo AirPlay";
 "preparing_video_cast" = "Przygotowywanie wideo na tym urządzeniu…";
 "previous_channel" = "Poprzedni kanał";
 "programme_details" = "Szczegóły";
@@ -235,7 +237,7 @@
 "use_external_player" = "Użyj innej aplikacji odtwarzacza";
 "video_cast_failed" = "Nie udało się przekonwertować wideo na tym urządzeniu. Dostępne jest odtwarzanie lokalne.";
 "video_cast_help" = "Na iPhonie i iPadzie AirPlay wysyła zgodne wideo przez odtwarzacz Apple. Pozostałe wideo IPTV jest konwertowane do H.264 i AAC na tym urządzeniu, bez osobnego serwera. Miejsce odtwarzania używa tej samej konwersji dla Chromecasta. Podczas konwersji pozostaw aplikację otwartą w tej samej sieci Wi-Fi co odbiornik. Konwersja zużywa baterię i może nie działać ze strumieniami chronionymi lub na zbyt wolnym urządzeniu. Odbiorniki audio odtwarzają tylko dźwięk. Apple TV i Vision Pro obsługują odtwarzanie lokalne; wysyłanie wideo nie jest gwarantowane.";
-"video_cast_prepare_help" = "Jeśli pojawi się Przygotuj wideo AirPlay, wybierz je najpierw. Po przygotowaniu wybierz odbiornik przez AirPlay.";
+"video_cast_prepare_help" = "Wybierz Miejsce odtwarzania, a potem urządzenie. Urządzenia AirPlay i Cast są oznaczone. Konwersja wideo zaczyna się automatycznie, gdy jest potrzebna.";
 "video_cast_ready" = "Wideo gotowe do AirPlay";
 "video_cast_tracks" = "Wybierz dźwięk i napisy przed wysłaniem wideo.";
 "video_full_screen" = "Wideo. Aktywuj, aby pokazać przyciski.";

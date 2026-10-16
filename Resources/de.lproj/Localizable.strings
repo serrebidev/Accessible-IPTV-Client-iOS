@@ -42,6 +42,7 @@
 "cancel_recording_q" = "%1$@ abbrechen?";
 "cannot_record_this" = "Nur Live-Sender.";
 "cast" = "Wiedergabeziel";
+"cast_device" = "%1$@, Cast-Gerät";
 "cast_local_file" = "Eine Aufnahme lässt sich nicht an ein Wiedergabeziel senden.";
 "cast_none" = "Keine Wiedergabeziele gefunden.";
 "cast_stopped" = "Wiedergabe auf diesem Gerät";
@@ -64,6 +65,8 @@
 "delete" = "Löschen";
 "delete_recording_q" = "%1$@ löschen?";
 "delete_source_q" = "%1$@ löschen?";
+"destination_airplay" = "AirPlay-Gerät";
+"destination_this_device" = "Dieses Gerät";
 "download" = "Herunterladen";
 "download_ended_early" = "Zu früh beendet: %1$@";
 "downloading" = "Lade %1$@ herunter";
@@ -150,7 +153,6 @@
 "prefer_ad" = "Audiodeskription bevorzugen";
 "preferred_tracks" = "Bevorzugter Ton, durch Kommas getrennt";
 "preferred_tracks_hint" = "Deutsch, Englisch";
-"prepare_airplay_video" = "AirPlay-Video vorbereiten";
 "preparing_video_cast" = "Video wird auf diesem Gerät vorbereitet…";
 "previous_channel" = "Vorheriger Sender";
 "programme_details" = "Details";
@@ -235,7 +237,7 @@
 "use_external_player" = "Andere Player-App verwenden";
 "video_cast_failed" = "Video konnte auf diesem Gerät nicht umgewandelt werden. Lokale Wiedergabe ist verfügbar.";
 "video_cast_help" = "Auf iPhone und iPad sendet AirPlay kompatibles Video über Apples Player. Andere IPTV-Videos werden auf diesem Gerät in H.264 und AAC umgewandelt; ein separater Server ist nicht nötig. Wiedergabeziel nutzt dieselbe Umwandlung für Chromecast. Lass die App dabei geöffnet und bleibe im selben WLAN wie der Empfänger. Die Umwandlung benötigt Akku und kann bei geschützten Streams oder zu geringer Geräteleistung scheitern. Reine Audioempfänger geben nur Ton aus. Apple TV und Vision Pro unterstützen lokale Wiedergabe; Videosenden wird dort nicht zugesichert.";
-"video_cast_prepare_help" = "Wähle zuerst AirPlay-Video vorbereiten, falls angezeigt. Wähle danach den Empfänger über AirPlay.";
+"video_cast_prepare_help" = "Wähle Wiedergabeziel und dann ein Gerät. AirPlay- und Cast-Geräte sind gekennzeichnet. Die Videoumwandlung startet bei Bedarf automatisch.";
 "video_cast_ready" = "Video für AirPlay bereit";
 "video_cast_tracks" = "Wähle Ton und Untertitel vor dem Senden des Videos.";
 "video_full_screen" = "Video. Aktivieren zeigt die Steuerung.";

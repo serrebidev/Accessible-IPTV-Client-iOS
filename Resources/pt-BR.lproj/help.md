@@ -40,7 +40,7 @@ Quando o programa muda, o player diz o que está no ar. Configurações, Anúnci
 
 Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada.
 
-No iPhone e iPad, o AirPlay envia vídeos compatíveis pelo player da Apple. Os demais vídeos IPTV são convertidos para H.264 e AAC neste aparelho, sem servidor separado. Destino de reprodução usa a mesma conversão para Chromecast. Mantenha o app aberto na mesma rede Wi-Fi do receptor durante a conversão. Ela consome bateria e pode falhar com transmissões protegidas ou aparelhos sem desempenho suficiente. Receptores de áudio reproduzem apenas som. Apple TV e Vision Pro oferecem reprodução local; o envio de vídeo não é garantido. Se aparecer Preparar vídeo AirPlay, escolha essa opção primeiro. Depois escolha o receptor pelo AirPlay. Escolha o áudio e as legendas antes de enviar o vídeo.
+No iPhone e iPad, o AirPlay envia vídeos compatíveis pelo player da Apple. Os demais vídeos IPTV são convertidos para H.264 e AAC neste aparelho, sem servidor separado. Destino de reprodução usa a mesma conversão para Chromecast. Mantenha o app aberto na mesma rede Wi-Fi do receptor durante a conversão. Ela consome bateria e pode falhar com transmissões protegidas ou aparelhos sem desempenho suficiente. Receptores de áudio reproduzem apenas som. Apple TV e Vision Pro oferecem reprodução local; o envio de vídeo não é garantido. Escolha Destino de reprodução e depois um aparelho. Os aparelhos AirPlay e Cast estão etiquetados. A conversão de vídeo começa automaticamente quando necessário. Escolha o áudio e as legendas antes de enviar o vídeo.
 
 # Gravações
 

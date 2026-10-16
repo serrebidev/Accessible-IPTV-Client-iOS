@@ -42,6 +42,7 @@
 "cancel_recording_q" = "Megszakítja ezt: %1$@?";
 "cannot_record_this" = "Csak élő csatornák.";
 "cast" = "Lejátszási cél";
+"cast_device" = "%1$@, Cast eszköz";
 "cast_local_file" = "A rögzítés nem küldhető lejátszási célra.";
 "cast_none" = "Nem található lejátszási cél.";
 "cast_stopped" = "Lejátszás ezen az eszközön";
@@ -64,6 +65,8 @@
 "delete" = "Törlés";
 "delete_recording_q" = "Törli ezt: %1$@?";
 "delete_source_q" = "Törli ezt: %1$@?";
+"destination_airplay" = "AirPlay-eszköz";
+"destination_this_device" = "Ez az eszköz";
 "download" = "Letöltés";
 "download_ended_early" = "Idő előtt véget ért: %1$@";
 "downloading" = "Letöltés: %1$@";
@@ -150,7 +153,6 @@
 "prefer_ad" = "Hangalámondás előnyben";
 "preferred_tracks" = "Kedvelt hang, vesszővel elválasztva";
 "preferred_tracks_hint" = "Magyar, Angol";
-"prepare_airplay_video" = "AirPlay-videó előkészítése";
 "preparing_video_cast" = "Videó előkészítése ezen az eszközön…";
 "previous_channel" = "Előző csatorna";
 "programme_details" = "Részletek";
@@ -235,7 +237,7 @@
 "use_external_player" = "Másik lejátszó alkalmazás használata";
 "video_cast_failed" = "A videó nem alakítható át ezen az eszközön. Helyi lejátszás elérhető.";
 "video_cast_help" = "iPhone-on és iPaden az AirPlay az Apple lejátszójával küldi a kompatibilis videót. A többi IPTV-videót az eszköz H.264 és AAC formátumba alakítja; külön kiszolgáló nem kell. A lejátszási cél ugyanezt használja a Chromecasthoz. Átalakítás közben tartsa nyitva az alkalmazást, a vevővel azonos Wi-Fi-hálózaton. Az átalakítás fogyasztja az akkumulátort, védett adásnál vagy lassú eszközön sikertelen lehet. A csak hangot fogadó eszközökön nincs kép. Apple TV-n és Vision Prón helyi lejátszás érhető el; videóküldést nem ígérünk.";
-"video_cast_prepare_help" = "Ha megjelenik, először válassza az AirPlay-videó előkészítése gombot. Ezután az AirPlayjel válassza ki a vevőt.";
+"video_cast_prepare_help" = "Válassza a Lejátszási célt, majd egy eszközt. Az AirPlay- és Cast-eszközök feliratozva vannak. A videóátalakítás szükség esetén automatikusan indul.";
 "video_cast_ready" = "A videó készen áll az AirPlayhez";
 "video_cast_tracks" = "A videó küldése előtt válassza ki a hangot és a feliratot.";
 "video_full_screen" = "Videó. Aktiválja a vezérlők megjelenítéséhez.";

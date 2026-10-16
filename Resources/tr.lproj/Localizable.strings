@@ -42,6 +42,7 @@
 "cancel_recording_q" = "%1$@ iptal edilsin mi?";
 "cannot_record_this" = "Yalnızca canlı kanallar.";
 "cast" = "Oynatma hedefi";
+"cast_device" = "%1$@, Cast cihazı";
 "cast_local_file" = "Bir kayıt oynatma hedefine gönderilemez.";
 "cast_none" = "Oynatma hedefi bulunamadı.";
 "cast_stopped" = "Bu cihazda oynatılıyor";
@@ -64,6 +65,8 @@
 "delete" = "Sil";
 "delete_recording_q" = "%1$@ silinsin mi?";
 "delete_source_q" = "%1$@ silinsin mi?";
+"destination_airplay" = "AirPlay cihazı";
+"destination_this_device" = "Bu cihaz";
 "download" = "İndir";
 "download_ended_early" = "Erken bitti: %1$@";
 "downloading" = "İndiriliyor: %1$@";
@@ -150,7 +153,6 @@
 "prefer_ad" = "Sesli betimlemeyi tercih et";
 "preferred_tracks" = "Tercih edilen ses, virgülle ayrılmış";
 "preferred_tracks_hint" = "Türkçe, İngilizce";
-"prepare_airplay_video" = "AirPlay videosunu hazırla";
 "preparing_video_cast" = "Video bu cihazda hazırlanıyor…";
 "previous_channel" = "Önceki kanal";
 "programme_details" = "Ayrıntılar";
@@ -235,7 +237,7 @@
 "use_external_player" = "Başka bir oynatıcı uygulaması kullan";
 "video_cast_failed" = "Video bu cihazda dönüştürülemedi. Yerel oynatma kullanılabilir.";
 "video_cast_help" = "iPhone ve iPad’de AirPlay, uyumlu videoyu Apple oynatıcısıyla gönderir. Diğer IPTV videoları bu cihazda H.264 ve AAC’ye dönüştürülür; ayrı sunucu gerekmez. Oynatma hedefi, Chromecast için aynı dönüşümü kullanır. Dönüştürürken uygulamayı açık tutun ve alıcıyla aynı Wi-Fi ağına bağlanın. Dönüşüm pil tüketir; korumalı akışlarda veya yavaş cihazlarda başarısız olabilir. Yalnızca ses alıcıları sadece ses çalar. Apple TV ve Vision Pro yerel oynatmayı destekler; video gönderimi garanti edilmez.";
-"video_cast_prepare_help" = "AirPlay videosunu hazırla görünürse önce onu seçin. Hazır olduğunda AirPlay ile alıcıyı seçin.";
+"video_cast_prepare_help" = "Oynatma hedefini, sonra bir cihaz seçin. AirPlay ve Cast cihazları etiketlidir. Video dönüşümü gerektiğinde otomatik başlar.";
 "video_cast_ready" = "Video AirPlay için hazır";
 "video_cast_tracks" = "Videoyu göndermeden önce sesi ve altyazıları seçin.";
 "video_full_screen" = "Video. Denetimleri göstermek için etkinleştirin.";

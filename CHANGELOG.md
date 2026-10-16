@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+
+- Playback destination is now one combined list: This device, AirPlay device, and every Cast device labelled as a Cast device. The separate Prepare AirPlay video button is gone. Picking an AirPlay device starts on-device conversion automatically when the stream needs it; compatible streams play natively as before.
+- Converted video keeps the source resolution instead of being capped at 720p. It is still converted at 30 frames per second, and the receiver decides what it can decode, so an older receiver may still refuse a high-resolution stream.
+
 ## 0.3.0
 
 - AVPlayer now handles compatible HLS, MP4 and other native media. Unsupported formats and playback failures fall back to VLCKit. Raw provider `.ts` URLs remain unchanged.

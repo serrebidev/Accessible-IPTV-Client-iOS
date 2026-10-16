@@ -17,7 +17,7 @@ public enum VideoCasting {
 			(48...57).contains($0) || (65...90).contains($0) || (97...122).contains($0) || $0 == 47
 		} }), !directory.contains("\""), !baseURL.contains("\"") else { throw CocoaError(.fileWriteInvalidFileName) }
 		// a22's PCR snapshots break when a second encoded ES arrives; isolate audio and video.
-		return ":sout=#transcode{acodec=mp4a,aenc=avcodec{codec=aac,aac-profile=low},ab=128,channels=2,samplerate=48000}:transcode{vcodec=h264,venc=avcodec{codec=h264_videotoolbox,keyint=60,bframes=0},vb=2500,fps=30,maxwidth=1280,maxheight=720,deinterlace,soverlay}:hls{variants=\"{\(tracks.joined(separator: ","))}\",seg-type=ts,out-dir=\"\(directory)\",base-url=\"\(baseURL)\",num-seg=6,seg-len=2,pace=true}"
+		return ":sout=#transcode{acodec=mp4a,aenc=avcodec{codec=aac,aac-profile=low},ab=128,channels=2,samplerate=48000}:transcode{vcodec=h264,venc=avcodec{codec=h264_videotoolbox,keyint=60,bframes=0},vb=2500,fps=30,deinterlace,soverlay}:hls{variants=\"{\(tracks.joined(separator: ","))}\",seg-type=ts,out-dir=\"\(directory)\",base-url=\"\(baseURL)\",num-seg=6,seg-len=2,pace=true}"
 	}
 
 	/// VLC a22 marks a bounded sliding window as EVENT; receivers must treat it as live.

@@ -40,7 +40,7 @@ Quand le programme change, le lecteur annonce ce qui passe. Réglages, Annonces 
 
 Un direct coupé se reconnecte tout seul. Le son continue écran verrouillé.
 
-Sur iPhone et iPad, AirPlay envoie les vidéos compatibles avec le lecteur Apple. Les autres vidéos IPTV sont converties en H.264 et AAC sur cet appareil, sans serveur séparé. Destination de lecture utilise la même conversion pour Chromecast. Gardez l’app ouverte sur le même Wi-Fi que le récepteur pendant la conversion. Elle consomme de la batterie et peut échouer avec un flux protégé ou un appareil trop lent. Les récepteurs audio ne lisent que le son. Apple TV et Vision Pro permettent la lecture locale ; l’envoi vidéo n’y est pas garanti. Si Préparer la vidéo AirPlay apparaît, choisissez-le d’abord. Ensuite, choisissez le récepteur avec AirPlay. Choisissez l’audio et les sous-titres avant d’envoyer la vidéo.
+Sur iPhone et iPad, AirPlay envoie les vidéos compatibles avec le lecteur Apple. Les autres vidéos IPTV sont converties en H.264 et AAC sur cet appareil, sans serveur séparé. Destination de lecture utilise la même conversion pour Chromecast. Gardez l’app ouverte sur le même Wi-Fi que le récepteur pendant la conversion. Elle consomme de la batterie et peut échouer avec un flux protégé ou un appareil trop lent. Les récepteurs audio ne lisent que le son. Apple TV et Vision Pro permettent la lecture locale ; l’envoi vidéo n’y est pas garanti. Choisissez Destination de lecture, puis un appareil. Les appareils AirPlay et Cast sont étiquetés. La conversion vidéo démarre automatiquement si nécessaire. Choisissez l’audio et les sous-titres avant d’envoyer la vidéo.
 
 # Enregistrements
 

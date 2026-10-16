@@ -13,14 +13,14 @@ private struct RoutePicker: UIViewRepresentable {
 	@MainActor final class Coordinator: NSObject, AVRoutePickerViewDelegate {
 		let controller: PlayerController
 		init(_ controller: PlayerController) { self.controller = controller }
-		func routePickerViewWillBeginPresentingRoutes(_ routePickerView: AVRoutePickerView) { controller.prepareAirPlay() }
+		func routePickerViewDidEndPresentingRoutes(_ routePickerView: AVRoutePickerView) { controller.airPlayDevicePicked() }
 	}
 	func makeUIView(context: Context) -> AVRoutePickerView {
 		let v = AVRoutePickerView()
 		v.delegate = context.coordinator
 		v.prioritizesVideoDevices = true
-		v.tintColor = .white
-		v.activeTintColor = .white
+		v.tintColor = .label
+		v.activeTintColor = .label
 		return v
 	}
 	func updateUIView(_ v: AVRoutePickerView, context: Context) {}
@@ -138,6 +138,9 @@ struct PlayerScreen: View {
 	@EnvironmentObject private var model: AppModel
 	@State private var choosing: Choosing?
 	@State private var pickingSubtitle = false
+	#if os(iOS)
+	@State private var pickingAirPlay = false
+	#endif
 	@AccessibilityFocusState private var voFocus: Target?
 	@FocusState private var focus: Target?
 
@@ -146,18 +149,33 @@ struct PlayerScreen: View {
 	private enum Choosing: Identifiable {
 		case audio([PlayerController.TrackChoice]), subtitles([PlayerController.TrackChoice])
 		#if os(iOS)
-		case cast([PlayerController.Renderer])
+		case destination([Destination])
 		#endif
 		var id: Int {
 			switch self {
 			case .audio: return 0
 			case .subtitles: return 1
 			#if os(iOS)
-			case .cast: return 2
+			case .destination: return 2
 			#endif
 			}
 		}
 	}
+
+	#if os(iOS)
+	/// One combined destination list. Every entry says whether it is this device, AirPlay or Cast.
+	private enum Destination {
+		case thisDevice, airPlay
+		case renderer(PlayerController.Renderer)
+		var label: String {
+			switch self {
+			case .thisDevice: return L("destination_this_device")
+			case .airPlay: return L("destination_airplay")
+			case .renderer(let renderer): return L("cast_device", renderer.name)
+			}
+		}
+	}
+	#endif
 
 	var body: some View {
 		Group {
@@ -231,11 +249,26 @@ struct PlayerScreen: View {
 					if i == 0 { c.selectSubtitle(nil) } else if i <= list.count { c.selectSubtitle(list[i - 1]) } else { pickingSubtitle = true }
 				}
 			#if os(iOS)
-			case .cast(let list):
-				ChoiceSheet(title: L("cast"), options: list.map(\.name)) { c.cast(to: list[$0]) }
+			case .destination(let list):
+				ChoiceSheet(title: L("cast"), options: list.map(\.label), selected: selectedDestination(list)) { choose(list[$0]) }
 			#endif
 			}
 		}
+		#if os(iOS)
+		.sheet(isPresented: $pickingAirPlay) {
+			NavigationStack {
+				VStack(spacing: 16) {
+					Text(L("video_cast_prepare_help")).frame(maxWidth: .infinity, alignment: .leading)
+					RoutePicker(controller: c).frame(width: 56, height: 56)
+				}
+				.padding()
+				.navigationTitle(L("destination_airplay"))
+				.toolbar {
+					ToolbarItem(placement: .cancellationAction) { Button(L("cancel")) { pickingAirPlay = false } }
+				}
+			}
+		}
+		#endif
 		#if !os(tvOS)
 		.fileImporter(isPresented: $pickingSubtitle, allowedContentTypes: [.data, .plainText]) { r in
 			if case .success(let url) = r { c.loadSubtitle(url) }
@@ -251,22 +284,13 @@ struct PlayerScreen: View {
 			Button(L("audio_track")) { chooseAudio() }.key("a")
 			Button(L("subtitles")) { chooseSubtitles() }.key("s")
 			Button(L("record")) { record() }
-			Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
-			airPlayControl
+			Button(L("cast")) { destination() }
 			Button(L("full_screen")) { setFullscreen(true) }.key("f")
 				.focused($focus, equals: .full).accessibilityFocused($voFocus, equals: .full)
 		}
 		.buttonStyle(.bordered).controlSize(.large).padding(.horizontal)
 	}
 
-	@ViewBuilder private var airPlayControl: some View {
-		if c.usesNative {
-			RoutePicker(controller: c).frame(maxWidth: .infinity, minHeight: 44)
-		} else {
-			Button(L("prepare_airplay_video")) { c.prepareAirPlay() }
-				.disabled(c.isRelayingVideo && c.casting == nil)
-		}
-	}
 	#endif
 
 	private var canPickFiles: Bool {
@@ -310,8 +334,7 @@ struct PlayerScreen: View {
 					.key("s")
 				Button(L("record")) { record() }
 				#if os(iOS)
-				Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
-				airPlayControl
+				Button(L("cast")) { destination() }
 				#endif
 				Button(L("full_screen")) { setFullscreen(true) }
 					.key("f")
@@ -355,11 +378,31 @@ struct PlayerScreen: View {
 	}
 
 	#if os(iOS)
-	private func cast() {
+	/// One list for every destination: this device, AirPlay, and each Cast device, labelled by type.
+	private func destination() {
 		if c.localFile { c.say(L("cast_local_file"), 1); return }
-		if c.casting != nil { c.cast(to: nil); return }
-		let list = c.renderers()
-		if list.isEmpty { c.say(L("cast_none"), 1) } else { choosing = .cast(list) }
+		var list: [Destination] = [.thisDevice, .airPlay]
+		list += c.renderers().map { .renderer($0) }
+		choosing = .destination(list)
+	}
+
+	private func selectedDestination(_ list: [Destination]) -> Int {
+		if let name = c.casting, let index = list.firstIndex(where: {
+			if case .renderer(let renderer) = $0 { return renderer.name == name }
+			return false
+		}) { return index }
+		if c.usesNative && c.nativePlayer.isExternalPlaybackActive,
+			let index = list.firstIndex(where: { if case .airPlay = $0 { return true }; return false }) { return index }
+		return 0
+	}
+
+	private func choose(_ destination: Destination) {
+		switch destination {
+		case .thisDevice:
+			if c.casting != nil || c.isRelayingVideo { c.cast(to: nil) }
+		case .airPlay: pickingAirPlay = true
+		case .renderer(let renderer): c.cast(to: renderer)
+		}
 	}
 	#endif
 }

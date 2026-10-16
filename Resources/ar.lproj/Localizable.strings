@@ -42,6 +42,7 @@
 "cancel_recording_q" = "إلغاء %1$@؟";
 "cannot_record_this" = "القنوات المباشرة فقط.";
 "cast" = "وجهة التشغيل";
+"cast_device" = "%1$@، جهاز Cast";
 "cast_local_file" = "لا يمكن إرسال تسجيل إلى وجهة تشغيل.";
 "cast_none" = "لم يُعثر على وجهات تشغيل.";
 "cast_stopped" = "التشغيل على هذا الجهاز";
@@ -64,6 +65,8 @@
 "delete" = "حذف";
 "delete_recording_q" = "حذف %1$@؟";
 "delete_source_q" = "حذف %1$@؟";
+"destination_airplay" = "جهاز AirPlay";
+"destination_this_device" = "هذا الجهاز";
 "download" = "تنزيل";
 "download_ended_early" = "انتهى مبكرًا: %1$@";
 "downloading" = "جارٍ تنزيل %1$@";
@@ -150,7 +153,6 @@
 "prefer_ad" = "تفضيل الوصف الصوتي";
 "preferred_tracks" = "الصوت المفضل، مفصولًا بفواصل";
 "preferred_tracks_hint" = "العربية, الإنجليزية";
-"prepare_airplay_video" = "تجهيز فيديو AirPlay";
 "preparing_video_cast" = "جارٍ تجهيز الفيديو على هذا الجهاز…";
 "previous_channel" = "القناة السابقة";
 "programme_details" = "التفاصيل";
@@ -235,7 +237,7 @@
 "use_external_player" = "استخدام تطبيق مشغل آخر";
 "video_cast_failed" = "تعذّر تحويل الفيديو على هذا الجهاز. التشغيل المحلي متاح.";
 "video_cast_help" = "على iPhone وiPad يرسل AirPlay الفيديو المتوافق عبر مشغل Apple. يُحوّل فيديو IPTV الآخر إلى H.264 وAAC على هذا الجهاز دون خادم منفصل. تستخدم وجهة التشغيل التحويل نفسه مع Chromecast. أبقِ التطبيق مفتوحًا وعلى شبكة Wi-Fi نفسها مع جهاز الاستقبال أثناء التحويل. يستهلك التحويل البطارية وقد يفشل مع البث المحمي أو إذا كان الجهاز بطيئًا. أجهزة استقبال الصوت تشغّل الصوت فقط. يدعم Apple TV وVision Pro التشغيل المحلي؛ لا نَعِد بإرسال الفيديو منهما.";
-"video_cast_prepare_help" = "إذا ظهر تجهيز فيديو AirPlay، فاختره أولًا. بعد التجهيز اختر جهاز الاستقبال من AirPlay.";
+"video_cast_prepare_help" = "اختر وجهة التشغيل، ثم اختر جهازًا. أجهزة AirPlay وCast مُسمّاة. يبدأ تحويل الفيديو تلقائيًا عند الحاجة.";
 "video_cast_ready" = "الفيديو جاهز لـ AirPlay";
 "video_cast_tracks" = "اختر الصوت والترجمة قبل إرسال الفيديو.";
 "video_full_screen" = "فيديو. فعّله لإظهار الأزرار.";

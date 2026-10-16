@@ -40,7 +40,7 @@ Gdy zmienia się audycja, odtwarzacz mówi, co jest teraz. Ustawienia, Komunikat
 
 Przerwany kanał na żywo sam łączy się ponownie. Dźwięk gra dalej przy zablokowanym ekranie.
 
-Na iPhonie i iPadzie AirPlay wysyła zgodne wideo przez odtwarzacz Apple. Pozostałe wideo IPTV jest konwertowane do H.264 i AAC na tym urządzeniu, bez osobnego serwera. Miejsce odtwarzania używa tej samej konwersji dla Chromecasta. Podczas konwersji pozostaw aplikację otwartą w tej samej sieci Wi-Fi co odbiornik. Konwersja zużywa baterię i może nie działać ze strumieniami chronionymi lub na zbyt wolnym urządzeniu. Odbiorniki audio odtwarzają tylko dźwięk. Apple TV i Vision Pro obsługują odtwarzanie lokalne; wysyłanie wideo nie jest gwarantowane. Jeśli pojawi się Przygotuj wideo AirPlay, wybierz je najpierw. Po przygotowaniu wybierz odbiornik przez AirPlay. Wybierz dźwięk i napisy przed wysłaniem wideo.
+Na iPhonie i iPadzie AirPlay wysyła zgodne wideo przez odtwarzacz Apple. Pozostałe wideo IPTV jest konwertowane do H.264 i AAC na tym urządzeniu, bez osobnego serwera. Miejsce odtwarzania używa tej samej konwersji dla Chromecasta. Podczas konwersji pozostaw aplikację otwartą w tej samej sieci Wi-Fi co odbiornik. Konwersja zużywa baterię i może nie działać ze strumieniami chronionymi lub na zbyt wolnym urządzeniu. Odbiorniki audio odtwarzają tylko dźwięk. Apple TV i Vision Pro obsługują odtwarzanie lokalne; wysyłanie wideo nie jest gwarantowane. Wybierz Miejsce odtwarzania, a potem urządzenie. Urządzenia AirPlay i Cast są oznaczone. Konwersja wideo zaczyna się automatycznie, gdy jest potrzebna. Wybierz dźwięk i napisy przed wysłaniem wideo.
 
 # Nagrania
 

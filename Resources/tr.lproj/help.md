@@ -40,7 +40,7 @@ Program değişince oynatıcı şimdi neyin yayında olduğunu söyler. Ayarlar,
 
 Kopan canlı yayın kendiliğinden yeniden bağlanır. Ekran kilitliyken ses çalmaya devam eder.
 
-iPhone ve iPad’de AirPlay, uyumlu videoyu Apple oynatıcısıyla gönderir. Diğer IPTV videoları bu cihazda H.264 ve AAC’ye dönüştürülür; ayrı sunucu gerekmez. Oynatma hedefi, Chromecast için aynı dönüşümü kullanır. Dönüştürürken uygulamayı açık tutun ve alıcıyla aynı Wi-Fi ağına bağlanın. Dönüşüm pil tüketir; korumalı akışlarda veya yavaş cihazlarda başarısız olabilir. Yalnızca ses alıcıları sadece ses çalar. Apple TV ve Vision Pro yerel oynatmayı destekler; video gönderimi garanti edilmez. AirPlay videosunu hazırla görünürse önce onu seçin. Hazır olduğunda AirPlay ile alıcıyı seçin. Videoyu göndermeden önce sesi ve altyazıları seçin.
+iPhone ve iPad’de AirPlay, uyumlu videoyu Apple oynatıcısıyla gönderir. Diğer IPTV videoları bu cihazda H.264 ve AAC’ye dönüştürülür; ayrı sunucu gerekmez. Oynatma hedefi, Chromecast için aynı dönüşümü kullanır. Dönüştürürken uygulamayı açık tutun ve alıcıyla aynı Wi-Fi ağına bağlanın. Dönüşüm pil tüketir; korumalı akışlarda veya yavaş cihazlarda başarısız olabilir. Yalnızca ses alıcıları sadece ses çalar. Apple TV ve Vision Pro yerel oynatmayı destekler; video gönderimi garanti edilmez. Oynatma hedefini, sonra bir cihaz seçin. AirPlay ve Cast cihazları etiketlidir. Video dönüşümü gerektiğinde otomatik başlar. Videoyu göndermeden önce sesi ve altyazıları seçin.
 
 # Kayıtlar
 

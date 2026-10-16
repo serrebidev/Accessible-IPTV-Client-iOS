@@ -40,7 +40,7 @@ Wechselt die Sendung, sagt der Player, was jetzt läuft. Einstellungen, Ansagen 
 
 Ein abgebrochener Livestream verbindet sich selbst neu. Der Ton läuft bei gesperrtem Bildschirm weiter.
 
-Auf iPhone und iPad sendet AirPlay kompatibles Video über Apples Player. Andere IPTV-Videos werden auf diesem Gerät in H.264 und AAC umgewandelt; ein separater Server ist nicht nötig. Wiedergabeziel nutzt dieselbe Umwandlung für Chromecast. Lass die App dabei geöffnet und bleibe im selben WLAN wie der Empfänger. Die Umwandlung benötigt Akku und kann bei geschützten Streams oder zu geringer Geräteleistung scheitern. Reine Audioempfänger geben nur Ton aus. Apple TV und Vision Pro unterstützen lokale Wiedergabe; Videosenden wird dort nicht zugesichert. Wähle zuerst AirPlay-Video vorbereiten, falls angezeigt. Wähle danach den Empfänger über AirPlay. Wähle Ton und Untertitel vor dem Senden des Videos.
+Auf iPhone und iPad sendet AirPlay kompatibles Video über Apples Player. Andere IPTV-Videos werden auf diesem Gerät in H.264 und AAC umgewandelt; ein separater Server ist nicht nötig. Wiedergabeziel nutzt dieselbe Umwandlung für Chromecast. Lass die App dabei geöffnet und bleibe im selben WLAN wie der Empfänger. Die Umwandlung benötigt Akku und kann bei geschützten Streams oder zu geringer Geräteleistung scheitern. Reine Audioempfänger geben nur Ton aus. Apple TV und Vision Pro unterstützen lokale Wiedergabe; Videosenden wird dort nicht zugesichert. Wähle Wiedergabeziel und dann ein Gerät. AirPlay- und Cast-Geräte sind gekennzeichnet. Die Videoumwandlung startet bei Bedarf automatisch. Wähle Ton und Untertitel vor dem Senden des Videos.
 
 # Aufnahmen
 

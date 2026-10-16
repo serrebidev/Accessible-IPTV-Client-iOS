@@ -765,6 +765,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		prepareVideoRelay(renderer: nil)
 	}
 
+	/// Picking an AirPlay device starts conversion automatically; no Prepare step.
+	/// Compatible streams already play natively, and audio-only routes need no video.
+	func airPlayDevicePicked() {
+		guard !usesNative else { return }
+		guard AVAudioSession.sharedInstance().currentRoute.outputs.contains(where: { $0.portType == .airPlay }) else { return }
+		prepareAirPlay()
+	}
+
 	private func prepareVideoRelay(renderer: Renderer?) {
 		guard !closing, !preparingVideo else { return }
 		if sharePlayback != nil { SharePlayCenter.shared.leave() }

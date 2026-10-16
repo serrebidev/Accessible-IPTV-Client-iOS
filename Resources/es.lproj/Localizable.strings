@@ -42,6 +42,7 @@
 "cancel_recording_q" = "¿Cancelar %1$@?";
 "cannot_record_this" = "Solo canales en directo.";
 "cast" = "Destino de reproducción";
+"cast_device" = "%1$@, dispositivo Cast";
 "cast_local_file" = "Una grabación no se puede enviar a un destino de reproducción.";
 "cast_none" = "No se encontraron destinos de reproducción.";
 "cast_stopped" = "Reproduciendo en este dispositivo";
@@ -64,6 +65,8 @@
 "delete" = "Eliminar";
 "delete_recording_q" = "¿Eliminar %1$@?";
 "delete_source_q" = "¿Eliminar %1$@?";
+"destination_airplay" = "Dispositivo AirPlay";
+"destination_this_device" = "Este dispositivo";
 "download" = "Descargar";
 "download_ended_early" = "Terminó antes de tiempo: %1$@";
 "downloading" = "Descargando %1$@";
@@ -150,7 +153,6 @@
 "prefer_ad" = "Preferir audiodescripción";
 "preferred_tracks" = "Audio preferido, separado por comas";
 "preferred_tracks_hint" = "Español, Inglés";
-"prepare_airplay_video" = "Preparar vídeo AirPlay";
 "preparing_video_cast" = "Preparando vídeo en este dispositivo…";
 "previous_channel" = "Canal anterior";
 "programme_details" = "Detalles";
@@ -235,7 +237,7 @@
 "use_external_player" = "Usar otra app de reproducción";
 "video_cast_failed" = "No se pudo convertir el vídeo en este dispositivo. La reproducción local está disponible.";
 "video_cast_help" = "En iPhone y iPad, AirPlay envía vídeo compatible mediante el reproductor de Apple. Los demás vídeos IPTV se convierten a H.264 y AAC en este dispositivo, sin otro servidor. Destino de reproducción usa la misma conversión para Chromecast. Mantén la aplicación abierta y en la misma red Wi-Fi que el receptor durante la conversión. Consume batería y puede fallar con emisiones protegidas o si el dispositivo no tiene suficiente rendimiento. Los receptores de audio solo reproducen sonido. Apple TV y Vision Pro permiten reproducción local; no se garantiza el envío de vídeo.";
-"video_cast_prepare_help" = "Si aparece Preparar vídeo AirPlay, elígelo primero. Cuando esté listo, elige el receptor con AirPlay.";
+"video_cast_prepare_help" = "Elige Destino de reproducción y luego un dispositivo. Los dispositivos AirPlay y Cast están etiquetados. La conversión de vídeo empieza automáticamente cuando hace falta.";
 "video_cast_ready" = "Vídeo listo para AirPlay";
 "video_cast_tracks" = "Elige el audio y los subtítulos antes de enviar el vídeo.";
 "video_full_screen" = "Vídeo. Actívalo para ver los controles.";

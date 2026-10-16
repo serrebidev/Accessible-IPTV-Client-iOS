@@ -40,7 +40,7 @@ Ha változik a műsor, a lejátszó bemondja, mi megy most. A Beállítások, Be
 
 A megszakadt élő adás magától újrakapcsolódik. Lezárt képernyőnél a hang tovább szól.
 
-iPhone-on és iPaden az AirPlay az Apple lejátszójával küldi a kompatibilis videót. A többi IPTV-videót az eszköz H.264 és AAC formátumba alakítja; külön kiszolgáló nem kell. A lejátszási cél ugyanezt használja a Chromecasthoz. Átalakítás közben tartsa nyitva az alkalmazást, a vevővel azonos Wi-Fi-hálózaton. Az átalakítás fogyasztja az akkumulátort, védett adásnál vagy lassú eszközön sikertelen lehet. A csak hangot fogadó eszközökön nincs kép. Apple TV-n és Vision Prón helyi lejátszás érhető el; videóküldést nem ígérünk. Ha megjelenik, először válassza az AirPlay-videó előkészítése gombot. Ezután az AirPlayjel válassza ki a vevőt. A videó küldése előtt válassza ki a hangot és a feliratot.
+iPhone-on és iPaden az AirPlay az Apple lejátszójával küldi a kompatibilis videót. A többi IPTV-videót az eszköz H.264 és AAC formátumba alakítja; külön kiszolgáló nem kell. A lejátszási cél ugyanezt használja a Chromecasthoz. Átalakítás közben tartsa nyitva az alkalmazást, a vevővel azonos Wi-Fi-hálózaton. Az átalakítás fogyasztja az akkumulátort, védett adásnál vagy lassú eszközön sikertelen lehet. A csak hangot fogadó eszközökön nincs kép. Apple TV-n és Vision Prón helyi lejátszás érhető el; videóküldést nem ígérünk. Válassza a Lejátszási célt, majd egy eszközt. Az AirPlay- és Cast-eszközök feliratozva vannak. A videóátalakítás szükség esetén automatikusan indul. A videó küldése előtt válassza ki a hangot és a feliratot.
 
 # Rögzítések
 

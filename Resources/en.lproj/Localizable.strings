@@ -42,6 +42,7 @@
 "cancel_recording_q" = "Cancel %1$@?";
 "cannot_record_this" = "Live channels only.";
 "cast" = "Playback destination";
+"cast_device" = "%1$@, Cast device";
 "cast_local_file" = "A recording can’t be sent to a playback destination.";
 "cast_none" = "No playback destinations found.";
 "cast_stopped" = "Playing on this device";
@@ -64,6 +65,8 @@
 "delete" = "Delete";
 "delete_recording_q" = "Delete %1$@?";
 "delete_source_q" = "Delete %1$@?";
+"destination_airplay" = "AirPlay device";
+"destination_this_device" = "This device";
 "download" = "Download";
 "download_ended_early" = "Ended early: %1$@";
 "downloading" = "Downloading %1$@";
@@ -150,7 +153,6 @@
 "prefer_ad" = "Prefer audio description";
 "preferred_tracks" = "Preferred audio, comma separated";
 "preferred_tracks_hint" = "English, Polish";
-"prepare_airplay_video" = "Prepare AirPlay video";
 "preparing_video_cast" = "Preparing video on this device…";
 "previous_channel" = "Previous channel";
 "programme_details" = "Details";
@@ -235,7 +237,7 @@
 "use_external_player" = "Use another player app";
 "video_cast_failed" = "Couldn’t convert video on this device. Local playback is available.";
 "video_cast_help" = "On iPhone and iPad, AirPlay sends compatible video through Apple’s player. Other IPTV video is converted to H.264 and AAC on this device; no separate server is needed. Playback destination uses the same conversion for Chromecast. Keep the app open on the same Wi-Fi as the receiver while converting. Conversion uses battery and may fail for protected streams or when the device cannot keep up. Audio-only receivers play sound only. Apple TV and Vision Pro use local playback; video sending is not promised there.";
-"video_cast_prepare_help" = "If shown, choose Prepare AirPlay video first. When ready, use AirPlay to choose a receiver.";
+"video_cast_prepare_help" = "Choose Playback destination, then pick a device. AirPlay and Cast devices are labelled. Video conversion starts automatically when the stream needs it.";
 "video_cast_ready" = "Video ready for AirPlay";
 "video_cast_tracks" = "Choose audio and subtitles before sending video.";
 "video_full_screen" = "Video. Activate to show controls.";
