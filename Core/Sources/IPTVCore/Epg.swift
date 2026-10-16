@@ -212,12 +212,13 @@ public final class Epg {
 	/// read: a dropped download never leaves half a guide or none.
 	public func importGuide(_ sources: [() async throws -> ByteSource], channels: [Channel], fromMs: Int64, toMs: Int64, progress: (Int) -> Void = { _ in }) async throws -> Int {
 		// One import at a time. A flag, not a held lock: awaits may resume on another thread.
-		importLock.lock()
-		let busy = importing
-		importing = true
-		importLock.unlock()
+		let busy = importLock.withLock {
+			let busy = importing
+			importing = true
+			return busy
+		}
 		if busy { throw DBError(errorDescription: "Guide import already running") }
-		defer { importLock.lock(); importing = false; importLock.unlock() }
+		defer { importLock.withLock { importing = false } }
 		let wantIds = Set(channels.compactMap { $0.tvgId.isEmpty ? nil : $0.tvgId.lowercased() })
 		let wantNames = Set(channels.map { Xmltv.nameKey($0.name) })
 		let db = writer

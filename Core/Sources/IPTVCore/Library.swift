@@ -76,9 +76,10 @@ public final class Library {
 		// Hashing every live channel is a second of work on a phone: only when the guide could need
 		// it, and here, on the thread doing the load rather than on the main thread at every check.
 		let fp = section == Library.live && guideRecent ? Self.fingerprint(all) : nil
-		lock.lock(); lists[section] = all; lowerNames[section] = lower
-		if section == Library.live { fingerprintCache = fp }
-		lock.unlock()
+		lock.withLock {
+			lists[section] = all; lowerNames[section] = lower
+			if section == Library.live { fingerprintCache = fp }
+		}
 		if section == Library.live { epg.forgetChannelIds(); if !epg.hasGuide { epg.loadIndex() } }
 		return errors
 	}

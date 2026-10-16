@@ -10,7 +10,7 @@ import AVKit
 private struct RoutePicker: UIViewRepresentable {
 	let controller: PlayerController
 	func makeCoordinator() -> Coordinator { Coordinator(controller) }
-	@MainActor final class Coordinator: NSObject, AVRoutePickerViewDelegate {
+	@MainActor final class Coordinator: NSObject, @preconcurrency AVRoutePickerViewDelegate {
 		let controller: PlayerController
 		init(_ controller: PlayerController) { self.controller = controller }
 		func routePickerViewDidEndPresentingRoutes(_ routePickerView: AVRoutePickerView) { controller.airPlayDevicePicked() }
