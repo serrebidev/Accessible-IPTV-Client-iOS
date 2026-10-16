@@ -15,6 +15,7 @@ final class VideoCastingTests: XCTestCase {
 		XCTAssertTrue(output.contains("variants=\"{video/0,audio/1}\""))
 		XCTAssertTrue(output.contains("codec=h264_videotoolbox"))
 		XCTAssertTrue(output.contains("codec=aac"))
+		XCTAssertTrue(output.contains("samplerate=48000}:transcode{vcodec=h264"))
 		XCTAssertTrue(output.contains("num-seg=6"))
 		XCTAssertTrue(output.contains("seg-type=ts"))
 		XCTAssertThrowsError(try VideoCasting.output(directory: "/tmp", baseURL: "http://host", tracks: []))

@@ -8,24 +8,39 @@ import VLCKit
 final class VideoRelayTests: XCTestCase {
 	@MainActor
 	func testIncompatibleVideoBecomesDecodableNativeHLS() async throws {
+		try await assertDecodedVideo(subtitles: false)
+	}
+
+	@MainActor
+	func testSelectedSubtitleStillProducesNativeVideo() async throws {
+		try await assertDecodedVideo(subtitles: true)
+	}
+
+	@MainActor
+	private func assertDecodedVideo(subtitles: Bool) async throws {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
-		let source = VLCMediaPlayer()
-		source.media = VLCMedia(url: fixture)
+		let subtitleFile = subtitles ? Bundle(for: Self.self).url(forResource: "captions", withExtension: "srt") : nil
+		let source = VLCMediaPlayer(options: ["--vout=dummy", "--aout=dummy"])
+		let sourceMedia = try XCTUnwrap(VLCMedia(url: fixture))
+		if let subtitleFile { sourceMedia.addOption(":sub-file=\(subtitleFile.path)") }
+		source.media = sourceMedia
 		PlaybackTeardown.play(source)
 		defer { PlaybackTeardown.stop(source) }
 		let deadline = Date().addingTimeInterval(15)
-		while source.videoTracks.isEmpty || source.audioTracks.isEmpty {
+		while source.videoTracks.isEmpty || source.audioTracks.isEmpty || subtitles && source.textTracks.isEmpty {
 			guard Date() < deadline else { XCTFail("VLC did not discover MPEG-2 and MP2 tracks"); return }
 			try await Task.sleep(nanoseconds: 200_000_000)
 		}
 		let tracks = [try XCTUnwrap(source.videoTracks.first).trackId, try XCTUnwrap(source.audioTracks.first).trackId]
+		let subtitleID = subtitles ? source.textTracks.first?.trackId : nil
 		PlaybackTeardown.stop(source)
 		let stopped = await PlaybackTeardown.ready()
 		XCTAssertTrue(stopped)
 		let relay = VideoRelay()
 		defer { relay.stop() }
 		let url: URL = try await withCheckedThrowingContinuation { continuation in
-			relay.start(source: fixture.absoluteString, tracks: tracks, seconds: 0, live: false) { continuation.resume(with: $0) }
+			relay.start(source: fixture.absoluteString, tracks: tracks, seconds: 0, subtitleID: subtitleID,
+				subtitleFile: subtitleFile, live: false) { continuation.resume(with: $0) }
 		}
 		let (manifest, response) = try await URLSession.shared.data(from: url)
 		XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
@@ -49,7 +64,7 @@ final class VideoRelayTests: XCTestCase {
 	@MainActor
 	func testImmediateStopCancelsQueuedPlayback() async throws {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
-		let source = VLCMediaPlayer()
+		let source = VLCMediaPlayer(options: ["--vout=dummy", "--aout=dummy"])
 		for _ in 0..<3 {
 			source.media = VLCMedia(url: fixture)
 			PlaybackTeardown.play(source)
@@ -66,7 +81,7 @@ final class VideoRelayTests: XCTestCase {
 	@MainActor
 	func testNaturalEndDoesNotCompleteTheNextTeardown() async throws {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
-		let source = VLCMediaPlayer()
+		let source = VLCMediaPlayer(options: ["--vout=dummy", "--aout=dummy"])
 		let media = try XCTUnwrap(VLCMedia(url: fixture))
 		media.addOption(":stop-time=1")
 		source.media = media
