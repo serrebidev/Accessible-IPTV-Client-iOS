@@ -68,6 +68,7 @@ enum ChannelAudioItem {
 	case liveRadioStation(LiveChannelSchemaEntity)
 }
 
+@available(iOS 27.0, *)
 extension ChannelAudioItem {
 	var channelIdentifier: String {
 		switch self {
