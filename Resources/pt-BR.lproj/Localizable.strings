@@ -98,6 +98,7 @@
 "guide_for" = "Guia: %1$@";
 "guide_heading" = "Guia";
 "guide_imported" = "Guia pronto.";
+"guide_search_hint" = "Digite pelo menos 2 caracteres para buscar no guia.";
 "help" = "Ajuda";
 "import_guide" = "Atualizar guia";
 "import_settings" = "Importar configurações";
@@ -178,6 +179,7 @@
 "refreshing" = "Atualizando…";
 "remove_favorite" = "Remover dos favoritos";
 "removed_favorite" = "%1$@ removido.";
+"results_limited" = "Mostrando os primeiros 500 resultados. Digite mais para reduzi-los.";
 "retry" = "Tentar de novo";
 "row_actions_hint" = "Mais ações disponíveis.";
 "save" = "Salvar";

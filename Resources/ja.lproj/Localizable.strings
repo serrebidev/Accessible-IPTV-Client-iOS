@@ -98,6 +98,7 @@
 "guide_for" = "番組表: %1$@";
 "guide_heading" = "番組表";
 "guide_imported" = "番組表の準備ができました。";
+"guide_search_hint" = "ガイドを検索するには2文字以上入力してください。";
 "help" = "ヘルプ";
 "import_guide" = "番組表を更新";
 "import_settings" = "設定をインポート";
@@ -178,6 +179,7 @@
 "refreshing" = "更新中…";
 "remove_favorite" = "お気に入りから削除";
 "removed_favorite" = "%1$@ を削除しました。";
+"results_limited" = "最初の500件を表示しています。追加で入力すると絞り込めます。";
 "retry" = "再試行";
 "row_actions_hint" = "ほかの操作を利用できます。";
 "save" = "保存";

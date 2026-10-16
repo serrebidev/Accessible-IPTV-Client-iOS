@@ -98,6 +98,7 @@
 "guide_for" = "Programm: %1$@";
 "guide_heading" = "Programm";
 "guide_imported" = "Programm bereit.";
+"guide_search_hint" = "Gib mindestens 2 Zeichen ein, um im Programmführer zu suchen.";
 "help" = "Hilfe";
 "import_guide" = "Programm aktualisieren";
 "import_settings" = "Einstellungen importieren";
@@ -178,6 +179,7 @@
 "refreshing" = "Aktualisiert…";
 "remove_favorite" = "Aus Favoriten entfernen";
 "removed_favorite" = "%1$@ entfernt.";
+"results_limited" = "Die ersten 500 Ergebnisse werden gezeigt. Tippe mehr, um sie einzugrenzen.";
 "retry" = "Erneut";
 "row_actions_hint" = "Weitere Aktionen verfügbar.";
 "save" = "Speichern";

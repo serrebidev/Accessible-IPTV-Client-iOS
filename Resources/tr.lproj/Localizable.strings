@@ -98,6 +98,7 @@
 "guide_for" = "Rehber: %1$@";
 "guide_heading" = "Rehber";
 "guide_imported" = "Rehber hazır.";
+"guide_search_hint" = "Rehberde aramak için en az 2 karakter yazın.";
 "help" = "Yardım";
 "import_guide" = "Rehberi yenile";
 "import_settings" = "Ayarları içe aktar";
@@ -178,6 +179,7 @@
 "refreshing" = "Yenileniyor…";
 "remove_favorite" = "Favorilerden çıkar";
 "removed_favorite" = "%1$@ çıkarıldı.";
+"results_limited" = "İlk 500 sonuç gösteriliyor. Daraltmak için yazmaya devam edin.";
 "retry" = "Yeniden dene";
 "row_actions_hint" = "Başka eylemler kullanılabilir.";
 "save" = "Kaydet";

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2
+
+- Guide audit fixes. What's On Now, guide search and one channel's guide now load in windows of 2,000 programmes with a More row, instead of building every row at once, and filtering no longer re-runs on every redraw.
+- One channel's guide now has the filter field, and programmes are grouped under day headings so VoiceOver heading navigation jumps a day at a time. Past programmes speak their date, a finished load announces its programme count, and the screen refreshes itself when a guide import completes behind it. An empty guide offers Import guide in place.
+- The Guide section now has a Channel guide picker: pick a channel by name instead of hunting through Browse categories.
+- Searching the guide says when two characters are needed and when only the first 500 results are shown; typing another character now narrows the last answer instead of scanning the whole guide again. Guide match and now/next caches evict a slice at their caps instead of emptying, so scrolling a huge category no longer re-runs queries row by row.
+- Tapping a programme that has not started yet now shows its details instead of playing the channel; recording it stays in its row actions.
+
 ## 0.3.1
 
 - Playback destination is now one combined list: This device, AirPlay device, and every Cast device labelled as a Cast device. The separate Prepare AirPlay video button is gone. Picking an AirPlay device starts on-device conversion automatically when the stream needs it; compatible streams play natively as before.

@@ -63,6 +63,7 @@ struct MainView: View {
 				List {
 					NavigationLink(value: Route.onNow) { Label(L("whats_on_now"), systemImage: "tv") }
 					NavigationLink(value: Route.guideSearch) { Label(L("search_guide"), systemImage: "magnifyingglass") }
+					NavigationLink(value: Route.guideChannels) { Label(L("channel_guide"), systemImage: "list.bullet.rectangle") }
 				}
 				.navigationTitle(L("guide_heading"))
 				.safeAreaInset(edge: .bottom, spacing: 0) { miniPlayer }
@@ -111,6 +112,7 @@ struct MainView: View {
 		case .sources: SourcesView()
 		case .onNow: ProgrammesView(mode: .onNow)
 		case .guideSearch: ProgrammesView(mode: .search)
+		case .guideChannels: GuideChannelPicker()
 		case .recordings: RecordingsView()
 		case .settings: SettingsView()
 		case .help: HelpView()

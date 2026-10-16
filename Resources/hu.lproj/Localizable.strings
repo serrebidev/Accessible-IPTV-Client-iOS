@@ -98,6 +98,7 @@
 "guide_for" = "Műsorújság: %1$@";
 "guide_heading" = "Műsorújság";
 "guide_imported" = "A műsorújság kész.";
+"guide_search_hint" = "Írjon be legalább 2 karaktert a műsorújság kereséséhez.";
 "help" = "Súgó";
 "import_guide" = "Műsorújság frissítése";
 "import_settings" = "Beállítások importálása";
@@ -178,6 +179,7 @@
 "refreshing" = "Frissítés…";
 "remove_favorite" = "Eltávolítás a kedvencekből";
 "removed_favorite" = "%1$@ eltávolítva.";
+"results_limited" = "Az első 500 találat látható. Írjon be többet a szűkítéshez.";
 "retry" = "Újra";
 "row_actions_hint" = "További műveletek érhetők el.";
 "save" = "Mentés";

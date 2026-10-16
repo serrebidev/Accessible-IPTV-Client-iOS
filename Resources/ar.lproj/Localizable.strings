@@ -98,6 +98,7 @@
 "guide_for" = "الدليل: %1$@";
 "guide_heading" = "الدليل";
 "guide_imported" = "الدليل جاهز.";
+"guide_search_hint" = "اكتب حرفين على الأقل للبحث في الدليل.";
 "help" = "المساعدة";
 "import_guide" = "تحديث الدليل";
 "import_settings" = "استيراد الإعدادات";
@@ -178,6 +179,7 @@
 "refreshing" = "جارٍ التحديث…";
 "remove_favorite" = "إزالة من المفضلة";
 "removed_favorite" = "تمت إزالة %1$@.";
+"results_limited" = "عرض أول 500 نتيجة. اكتب المزيد لتضييق النتائج.";
 "retry" = "إعادة المحاولة";
 "row_actions_hint" = "تتوفر إجراءات أخرى.";
 "save" = "حفظ";

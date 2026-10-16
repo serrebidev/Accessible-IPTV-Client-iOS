@@ -111,6 +111,8 @@ public final class Epg {
 		var id: String?
 		if !ch.tvgId.isEmpty { id = byId[ch.tvgId.lowercased()] }
 		if id == nil { id = byName[Xmltv.nameKey(ch.name)] }
+		// Bounded like the now/next cache; a slice goes, not the whole match table.
+		if idCache.count >= 16_384 { for k in idCache.keys.prefix(4_096) { idCache.removeValue(forKey: k) } }
 		idCache[ch.key] = .some(id)
 		return id
 	}
@@ -147,8 +149,9 @@ public final class Epg {
 			else { value = NowNext(now: nil, next: two.first) }
 		}
 		nowLock.lock()
-		// shortcut: emptied once it outgrows the cap, rather than evicting the oldest entry.
-		if nowCache.count >= Epg.nowMax { nowCache.removeAll(keepingCapacity: true) }
+		// Evict a slice once it outgrows the cap, rather than emptying it: a flush made
+		// every row past the cap re-run its query on the main thread while scrolling.
+		if nowCache.count >= Epg.nowMax { for k in nowCache.keys.prefix(1_024) { nowCache.removeValue(forKey: k) } }
 		nowCache[ch.key] = (now, value)
 		nowLock.unlock()
 		return value

@@ -98,6 +98,7 @@
 "guide_for" = "节目单: %1$@";
 "guide_heading" = "节目单";
 "guide_imported" = "节目单已就绪。";
+"guide_search_hint" = "至少输入 2 个字符搜索节目指南。";
 "help" = "帮助";
 "import_guide" = "刷新节目单";
 "import_settings" = "导入设置";
@@ -178,6 +179,7 @@
 "refreshing" = "正在刷新…";
 "remove_favorite" = "取消收藏";
 "removed_favorite" = "已移除 %1$@。";
+"results_limited" = "显示前 500 条结果。继续输入可缩小范围。";
 "retry" = "重试";
 "row_actions_hint" = "有更多可用操作。";
 "save" = "保存";

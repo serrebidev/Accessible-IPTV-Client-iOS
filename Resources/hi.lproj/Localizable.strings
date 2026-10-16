@@ -98,6 +98,7 @@
 "guide_for" = "गाइड: %1$@";
 "guide_heading" = "गाइड";
 "guide_imported" = "गाइड तैयार।";
+"guide_search_hint" = "गाइड में खोजने के लिए कम से कम 2 अक्षर लिखें।";
 "help" = "सहायता";
 "import_guide" = "गाइड रीफ़्रेश करें";
 "import_settings" = "सेटिंग्स आयात करें";
@@ -178,6 +179,7 @@
 "refreshing" = "रीफ़्रेश हो रहा है…";
 "remove_favorite" = "पसंदीदा से हटाएँ";
 "removed_favorite" = "%1$@ हटाया गया।";
+"results_limited" = "पहले 500 परिणाम दिखाए जा रहे हैं। और लिखकर इन्हें कम करें।";
 "retry" = "फिर से";
 "row_actions_hint" = "और क्रियाएँ उपलब्ध हैं।";
 "save" = "सहेजें";

@@ -78,7 +78,7 @@ struct InfoText: Identifiable {
 
 /// Screens pushed on the main navigation stack.
 enum Route: Hashable {
-	case sources, onNow, guideSearch, recordings, settings, help
+	case sources, onNow, guideSearch, guideChannels, recordings, settings, help
 	case category(String)
 	case channelGuide(String)
 	case episodes(String)
