@@ -106,7 +106,16 @@ final class AppModel: ObservableObject {
 	/// Installed players to pick from for "Play in another app".
 	@Published var externalChoice: [(String, URL)]?
 	/// Set when playlists change so the main screen reloads on return.
-	var sourcesChanged = false
+	var sourcesChanged = false {
+		didSet {
+			#if os(iOS)
+			if sourcesChanged {
+				let snapshot = library.liveSnapshot
+				refreshSystemDiscovery(snapshot.channels, sources: snapshot.sources)
+			}
+			#endif
+		}
+	}
 	private var opening: Task<Void, Never>?
 
 	/// Where lists, the guide and (tvOS) recordings live. tvOS has no persistent app storage
@@ -137,6 +146,15 @@ final class AppModel: ObservableObject {
 		library.readFile = Bookmarks.read
 		recorder = RecorderCenter(prefs: prefs)
 		recorder.library = library
+		#if os(iOS)
+		_ = ChannelSpotlight.shared
+		library.liveChannelsDidLoad = { [weak self] channels, sources in
+			Task { @MainActor in
+				guard let self, Source.samePlaylists(sources, self.prefs.sources) else { return }
+				self.refreshSystemDiscovery(channels, sources: sources)
+			}
+		}
+		#endif
 	}
 
 	static var version: String { Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0" }
@@ -148,6 +166,13 @@ final class AppModel: ObservableObject {
 	}
 
 	func refresh() { revision += 1 }
+	#if os(iOS)
+	func refreshSystemDiscovery(_ channels: [Channel], sources: [Source]) {
+		let active = Set(sources.filter { loaded in prefs.sources.contains { $0.refersToSamePlaylist(as: loaded) } }.map(\.id))
+		ChannelSpotlight.shared.update(channels.filter { active.contains($0.sourceId) })
+		IPTVShortcuts.updateAppShortcutParameters()
+	}
+	#endif
 	func rememberChannel(_ channel: Channel) {
 		prefs.addRecent(channel.key)
 		#if os(iOS)

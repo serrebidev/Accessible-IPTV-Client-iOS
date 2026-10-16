@@ -40,9 +40,21 @@ Add a source and open the app once to import its guide. Then try:
 - “Show the guide for BBC One in Accessible IPTV.” Opens that channel’s guide while keeping existing playback in the miniplayer.
 - “Pause playback in Accessible IPTV”, “Resume playback in Accessible IPTV”, or “Stop playback in Accessible IPTV”.
 
-All seven actions also appear in Shortcuts and can be combined with its Apple Intelligence actions on supported devices. The app supplies real channel and guide data through [Apple’s App Intents framework](https://developer.apple.com/documentation/appintents/appintent). These commands also work on iPhones without Apple Intelligence. System support, language, and device determine which Apple Intelligence experiences are available. The app does not generate programme listings or send provider credentials to an AI service.
+The playback and guide actions also appear in Shortcuts and can be combined with its Apple Intelligence actions on supported devices. Find Channels supports filters for name, group and channel number, sorting and a result limit. Pass a found channel into Tune channel or a guide action. Tune channel returns the selected channel for later steps. Existing saved channel IDs remain valid, and multi-channel inputs keep their requested order. Channel entities can also be converted to their names as text.
+
+The app supplies real channel and guide data through [Apple’s App Intents framework](https://developer.apple.com/documentation/appintents/appintent). These commands also work on iPhones without Apple Intelligence. System support, language, and device determine which Apple Intelligence experiences are available. The app does not generate programme listings or send provider credentials to an AI service.
 
 Implementation references: [Apple’s entity and intent sample](https://developer.apple.com/documentation/appintents/acceleratingappinteractionswithappintents/), [onscreen entity context](https://developer.apple.com/documentation/appintents/providing-contextual-cues-to-apple-intelligence-and-siri), and [RetroArch’s App Intents integration on GitHub](https://github.com/libretro/RetroArch/blob/master/pkg/apple/AppIntents/RetroArchAppShortcuts.swift). No third-party AI package is required.
+
+## Spotlight search
+
+On iPhone and iPad, opening the app and loading a live playlist indexes its channels for Spotlight. Search by channel name or number, then choose a result to start playback. Provider punctuation and quality labels have clean alternate names. Indexing runs in batches; leave the app open until it announces Search ready for a large playlist.
+
+On iOS 18 or later, Spotlight items are associated with indexed channel entities so Apple Intelligence and Siri can discover more than the small App Shortcut suggestion list. This supplies searchable data; Siri recognition and Apple Intelligence availability still depend on Apple’s system. iOS 17 uses ordinary Core Spotlight results with the same playback action.
+
+Source changes remove unavailable channel results. Index updates retain a private manifest of opaque IDs so interrupted work can be retried safely, and Spotlight can request a rebuild. Indexed metadata contains names, groups and numbers; stream URLs, provider logins, raw channel keys and remote logos are excluded.
+
+References: [Making app entities available in Spotlight](https://developer.apple.com/documentation/appintents/making-app-entities-available-in-spotlight), [Core Spotlight searchable items](https://developer.apple.com/documentation/corespotlight/cssearchableitem), and [Shortcuts property queries](https://developer.apple.com/documentation/appintents/entitypropertyquery).
 
 ## SharePlay
 

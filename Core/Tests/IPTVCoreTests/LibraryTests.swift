@@ -58,6 +58,42 @@ final class LibraryTests: XCTestCase {
 		XCTAssertEqual(groups.map(\.count), [2, 1, 1, 1])
 	}
 
+	func testDiscoveryReceivesOnlyCompletedLiveLoadsIncludingEmptyCatalogues() async {
+		var snapshots: [[Channel]] = []
+		lib.liveChannelsDidLoad = { channels, _ in snapshots.append(channels) }
+		_ = await lib.load(Library.live, force: false)
+		XCTAssertEqual(snapshots.first?.map(\.name), ["BBC One", "Arena"])
+		_ = await lib.load(Library.movies, force: false)
+		XCTAssertEqual(snapshots.count, 1)
+		prefs.sources = []
+		_ = await lib.load(Library.live, force: false)
+		XCTAssertEqual(snapshots.count, 2)
+		XCTAssertTrue(snapshots.last?.isEmpty == true)
+	}
+
+	func testEditedSourceCannotPublishOrCacheAnOlderInFlightPlaylist() async throws {
+		let replacement = Source(id: src.id, type: src.type, name: "Replacement", url: Source.fileScheme + "new")
+		let updated = "#EXTM3U\n#EXTINF:-1,New channel\nhttp://new/live/1.ts"
+		lib.readFile = { [unowned self] value in
+			reads += 1
+			if value == src.url {
+				prefs.sources = [replacement]
+				lib.forgetCache(src)
+				return LibraryTests.text
+			}
+			return updated
+		}
+		_ = await lib.load(Library.live, force: true)
+		XCTAssertEqual(lib.channels.map(\.name), ["New channel"])
+		XCTAssertEqual(lib.liveSnapshot.sources, [replacement])
+		XCTAssertEqual(reads, 2)
+		playlist = updated
+		try fresh()
+		_ = await lib.load(Library.live, force: false)
+		XCTAssertEqual(lib.channels.map(\.name), ["New channel"])
+		XCTAssertEqual(reads, 2, "The new source cache must survive a relaunch")
+	}
+
 	func testCacheIsUsedAndRoundTripsEveryField() async throws {
 		_ = await lib.load(Library.live, force: false)
 		let fetched = lib.channels

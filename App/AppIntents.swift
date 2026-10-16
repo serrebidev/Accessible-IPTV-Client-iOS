@@ -4,8 +4,10 @@ import IPTVCore
 #if os(iOS)
 import AppIntents
 import CryptoKit
+import CoreSpotlight
+import CoreTransferable
 
-struct TVChannelEntity: AppEntity {
+struct TVChannelEntity: AppEntity, Transferable {
 	static var typeDisplayRepresentation: TypeDisplayRepresentation = "channel"
 	static var defaultQuery = TVChannelQuery()
 	let id: String
@@ -31,13 +33,70 @@ struct TVChannelEntity: AppEntity {
 		DisplayRepresentation(title: "\(name)", subtitle: "\(Format.sentences([category, number]))",
 			synonyms: [spokenName, number].filter { !$0.isEmpty && $0 != name }.map { LocalizedStringResource(stringLiteral: $0) })
 	}
+
+	static var transferRepresentation: some TransferRepresentation { ProxyRepresentation(exporting: \.name) }
 }
 
-struct TVChannelQuery: EntityStringQuery {
+@available(iOS 18, *)
+extension TVChannelEntity: IndexedEntity {
+	var attributeSet: CSSearchableItemAttributeSet { ChannelSpotlight.attributes(self) }
+}
+
+struct TVChannelQuery: EntityStringQuery, EntityPropertyQuery {
+	static var properties = QueryProperties {
+		Property(\TVChannelEntity.$name) {
+			EqualToComparator { value in { (ch: Channel) in ChannelDiscovery.nameMatches(ch.name, value, exact: true) } }
+			ContainsComparator { value in { (ch: Channel) in ChannelDiscovery.nameMatches(ch.name, value, exact: false) } }
+		}
+		Property(\TVChannelEntity.$category) {
+			EqualToComparator { value in { (ch: Channel) in ChannelDiscovery.publicText(ch.group).compare(value, options: .caseInsensitive) == .orderedSame } }
+			ContainsComparator { value in { (ch: Channel) in ChannelDiscovery.publicText(ch.group).localizedCaseInsensitiveContains(value) } }
+		}
+		Property(\TVChannelEntity.$number) {
+			EqualToComparator { value in { (ch: Channel) in ChannelDiscovery.publicText(ch.number) == value } }
+		}
+	}
+	static var sortingOptions = SortingOptions {
+		SortableBy(\TVChannelEntity.$name)
+		SortableBy(\TVChannelEntity.$category)
+		SortableBy(\TVChannelEntity.$number)
+	}
+
+	static func resolve(_ identifiers: [String], in channels: [Channel]) -> [TVChannelEntity] {
+		let byID = Dictionary(channels.map { (TVChannelEntity.identifier($0), $0) }, uniquingKeysWith: { first, _ in first })
+		return identifiers.compactMap { byID[$0].map(TVChannelEntity.init) }
+	}
+
+	static func find(_ channels: [Channel], matching comparators: [(Channel) -> Bool], mode: ComparatorMode,
+		sortedBy: [Sort<TVChannelEntity>], limit: Int?) -> [TVChannelEntity] {
+		var matches = channels.filter { ch in
+			comparators.isEmpty || (mode == .and ? comparators.allSatisfy { $0(ch) } : comparators.contains { $0(ch) })
+		}
+		for sort in sortedBy.reversed() {
+			let field: (Channel) -> String
+			switch sort.by {
+			case \TVChannelEntity.$name: field = { ChannelDiscovery.publicText($0.name) }
+			case \TVChannelEntity.$category: field = { ChannelDiscovery.publicText($0.group) }
+			case \TVChannelEntity.$number: field = { ChannelDiscovery.publicText($0.number) }
+			default: continue
+			}
+			matches.sort { a, b in
+				let order = field(a).localizedStandardCompare(field(b))
+				return sort.order == .ascending ? order == .orderedAscending : order == .orderedDescending
+			}
+		}
+		return matches.prefix(max(0, limit ?? matches.count)).map(TVChannelEntity.init)
+	}
+
 	@MainActor func entities(for identifiers: [String]) async throws -> [TVChannelEntity] {
 		let channels = try await SiriLibrary.live()
-		let ids = Set(identifiers)
-		return await Task.detached { channels.filter { ids.contains(TVChannelEntity.identifier($0)) }.map(TVChannelEntity.init) }.value
+		return await Task.detached { Self.resolve(identifiers, in: channels) }.value
+	}
+
+	@MainActor func entities(matching comparators: [(Channel) -> Bool], mode: ComparatorMode,
+		sortedBy: [Sort<TVChannelEntity>], limit: Int?) async throws -> [TVChannelEntity] {
+		let channels = try await SiriLibrary.live()
+		return await Task.detached { Self.find(channels, matching: comparators, mode: mode, sortedBy: sortedBy, limit: limit) }.value
 	}
 
 	@MainActor func entities(matching string: String) async throws -> [TVChannelEntity] {
@@ -56,15 +115,30 @@ struct TVChannelQuery: EntityStringQuery {
 }
 
 @MainActor
-private enum SiriLibrary {
+enum SiriLibrary {
+	private static var loading: Task<[Channel], Error>?
+
 	static func live() async throws -> [Channel] {
 		let model = AppModel.shared
 		guard !model.prefs.sources.isEmpty else { throw ActionError.message(L("no_sources")) }
-		if !model.library.isLoaded(Library.live) || model.sourcesChanged {
-			let errors = await model.library.load(Library.live, force: false)
-			if model.library.channels.isEmpty, !errors.isEmpty { throw ActionError.message(L("siri_failed")) }
+		if let loading { return try await loading.value }
+		if !model.library.isLoaded(Library.live) || !Source.samePlaylists(model.library.liveSnapshot.sources, model.prefs.sources) {
+			let task = Task {
+				let errors = await model.library.load(Library.live, force: false)
+				if model.library.channels.isEmpty, !errors.isEmpty { throw ActionError.message(L("siri_failed")) }
+				return current()
+			}
+			loading = task
+			defer { loading = nil }
+			return try await task.value
 		}
-		return model.library.channels
+		return current()
+	}
+
+	private static func current() -> [Channel] {
+		let model = AppModel.shared, snapshot = model.library.liveSnapshot
+		let active = Set(snapshot.sources.filter { loaded in model.prefs.sources.contains { $0.refersToSamePlaylist(as: loaded) } }.map(\.id))
+		return snapshot.channels.filter { active.contains($0.sourceId) }
 	}
 
 	static func channel(_ entity: TVChannelEntity) async throws -> Channel {
@@ -73,6 +147,16 @@ private enum SiriLibrary {
 			throw ActionError.message(L("channel_unavailable"))
 		}
 		return channel
+	}
+
+	static func tune(_ entity: TVChannelEntity) async throws -> TVChannelEntity {
+		let ch = try await channel(entity)
+		let model = AppModel.shared
+		guard let url = try? await model.library.resolveUrl(ch) else { throw ActionError.message(L("siri_failed")) }
+		let current = TVChannelEntity(ch)
+		model.rememberChannel(ch)
+		model.play(url, title: current.name, key: ch.key, channel: ch)
+		return current
 	}
 
 	enum ActionError: LocalizedError {
@@ -87,12 +171,19 @@ struct TuneChannelIntent: AppIntent {
 	@Parameter(title: "channel") var channel: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
+	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<TVChannelEntity> {
+		return .result(value: try await SiriLibrary.tune(channel))
+	}
+}
+
+struct OpenTVChannelIntent: OpenIntent {
+	static var title: LocalizedStringResource = "open_channel"
+	static var openAppWhenRun = true
+	@Parameter(title: "channel") var target: TVChannelEntity
+	static var parameterSummary: some ParameterSummary { Summary("\(\.$target)") }
+
 	@MainActor func perform() async throws -> some IntentResult {
-		let ch = try await SiriLibrary.channel(channel)
-		let model = AppModel.shared
-		guard let url = try? await model.library.resolveUrl(ch) else { throw SiriLibrary.ActionError.message(L("siri_failed")) }
-		model.rememberChannel(ch)
-		model.play(url, title: channel.name, key: ch.key, channel: ch)
+		_ = try await SiriLibrary.tune(target)
 		return .result()
 	}
 }
@@ -100,6 +191,7 @@ struct TuneChannelIntent: AppIntent {
 struct WhatsOnChannelIntent: AppIntent {
 	static var title: LocalizedStringResource = "whats_on_channel"
 	@Parameter(title: "channel") var channel: TVChannelEntity
+	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
 		let ch = try await SiriLibrary.channel(channel)
@@ -116,6 +208,7 @@ struct WhatsOnChannelIntent: AppIntent {
 struct SearchGuideIntent: AppIntent {
 	static var title: LocalizedStringResource = "search_guide"
 	@Parameter(title: "search") var query: String
+	static var parameterSummary: some ParameterSummary { Summary("\(\.$query)") }
 
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
 		let channels = try await SiriLibrary.live()
@@ -134,6 +227,7 @@ struct OpenChannelGuideIntent: AppIntent {
 	static var title: LocalizedStringResource = "channel_guide"
 	static var openAppWhenRun = true
 	@Parameter(title: "channel") var channel: TVChannelEntity
+	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
 	@MainActor func perform() async throws -> some IntentResult {
 		let ch = try await SiriLibrary.channel(channel)

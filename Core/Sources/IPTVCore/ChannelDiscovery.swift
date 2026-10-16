@@ -27,9 +27,18 @@ public enum ChannelDiscovery {
 		guard !key.isEmpty else { return ranked }
 		let lowerQuery = Lists.lowerName(query)
 		let exact = ranked.filter { Lists.lowerName($0.name) == lowerQuery }
-		let aliases = channels.filter { !publicText($0.name).isEmpty && Xmltv.nameKey($0.name) == key }
+		let names = channels.map { Xmltv.nameKey(publicText($0.name)) }
+		let aliases = Lists.ranked(channels, names, key)
 		var seen = Set<String>()
 		return (exact + aliases + ranked).filter { seen.insert($0.key).inserted }
+	}
+
+	public static func nameMatches(_ name: String, _ query: String, exact: Bool) -> Bool {
+		let name = publicText(name), query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+		guard !name.isEmpty, !query.isEmpty else { return false }
+		if exact ? name.compare(query, options: .caseInsensitive) == .orderedSame : name.containsCI(query) { return true }
+		let key = Xmltv.nameKey(query), candidate = Xmltv.nameKey(name)
+		return !key.isEmpty && (exact ? candidate == key : candidate.contains(key))
 	}
 
 	public static func suggestions(_ channels: [Channel], favorites: Set<String>, recent: [String]) -> [Channel] {

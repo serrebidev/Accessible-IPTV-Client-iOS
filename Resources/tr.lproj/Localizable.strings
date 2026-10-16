@@ -138,6 +138,7 @@
 "number_not_found" = "%1$@ numaralı kanal yok.";
 "ok" = "Tamam";
 "on_now" = "şimdi yayında";
+"open_channel" = "Kanalı aç";
 "open_player" = "Oynatıcıyı aç";
 "pause" = "Duraklat";
 "play" = "Oynat";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ - %2$@";
 "search" = "Ara";
 "search_guide" = "Rehberde ara";
+"search_index_failed" = "Spotlight araması güncellenemedi. Yeniden denemek için uygulamayı açın.";
+"search_index_ready" = "Arama hazır: %1$ld kanal.";
+"search_index_updating" = "Kanallar arama için dizine ekleniyor…";
 "season_episode" = "Sezon %1$@, bölüm %2$@";
 "section" = "Bölüm";
 "selected" = "seçili";
@@ -218,6 +222,7 @@
 "source_deleted" = "%1$@ silindi.";
 "source_saved" = "%1$@ kaydedildi.";
 "speak_subtitles" = "Altyazıları seslendir";
+"spotlight_shortcuts_help" = "Canlı liste yüklendikten sonra Spotlight kanalları ad veya numarayla bulur. Oynatmak için sonucu seçin. Büyük listeler zaman alır; Arama hazır duyurusuna kadar uygulamayı açık tutun. iOS 18 veya sonrasında dizindeki kanal varlıkları, sistem desteğine bağlı olarak Apple Intelligence keşfini de destekler. Kestirmeler’de Kanal bul; ad, grup ve numara filtreleri, sıralama ve sonuç sınırı sunar. Sonuçları Kanal aç eylemine verin; seçilen kanal sonraki adımlara döndürülür. Yayın adresleri ve giriş bilgileri dizine eklenmez.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Tümünü durdur";
 "stop_casting" = "Göndermeyi durdur";

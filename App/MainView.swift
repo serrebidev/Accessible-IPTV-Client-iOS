@@ -502,12 +502,10 @@ struct MainView: View {
 		Task {
 			let t0 = nowMs()
 			// Live always loads (the guide needs it); the other sections only once they are opened.
-			let sections = all ? Library.sections.filter { $0 == Library.live || $0 == current || library.isLoaded($0) } : [current]
+			let sections = all ? Library.sections.filter { $0 == Library.live || $0 == current || library.isLoaded($0) }
+				: (current == Library.live ? [current] : [Library.live, current])
 			var errors: [String] = []
 			for s in sections { errors += await library.load(s, force: force) }
-			#if os(iOS)
-			IPTVShortcuts.updateAppShortcutParameters()
-			#endif
 			favs = prefs.favorites
 			await refreshGroupCounts()
 			await showChannels()

@@ -38,6 +38,15 @@ public struct Source: Codable, Hashable, Identifiable {
 	}
 
 	public var isXtream: Bool { type == Source.typeXtream }
+	/// Guide URLs and display labels can change without replacing the channel catalogue.
+	public func refersToSamePlaylist(as other: Source) -> Bool {
+		id == other.id && type == other.type && url == other.url
+			&& username == other.username && password == other.password && mac == other.mac
+	}
+
+	public static func samePlaylists(_ a: [Source], _ b: [Source]) -> Bool {
+		a.count == b.count && zip(a, b).allSatisfy { pair in pair.0.refersToSamePlaylist(as: pair.1) }
+	}
 	public var isStalker: Bool { type == Source.typeStalker }
 	/// An M3U file the user picked; its bookmark lives in [url].
 	public var isFile: Bool { url.hasPrefix(Source.fileScheme) }

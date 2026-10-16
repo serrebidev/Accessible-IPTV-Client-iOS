@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.0
+
+- Spotlight can find live channels by name or provider number on iPhone and iPad. Choosing a result opens the app and starts the channel. The full loaded live catalogue is indexed in batches, with spoken indexing status, retry after interruptions and removal of unavailable results after source changes. Stream URLs, logins and raw channel keys stay out of the index.
+- On iOS 18 or later, channel search results are associated with indexed App Entities for Siri and Apple Intelligence discovery. iOS 17 retains ordinary Spotlight results. The system still determines recognition and availability; bare Siri commands continue to require personally named shortcuts.
+- Shortcuts adds native Find Channels filters for name, group and number, sorting and result limits. Tune channel returns the selected channel for later actions. Saved multi-channel inputs preserve their requested order, and channel entities can be converted to their public names as text.
+- Channel search now matches partial spoken names across provider punctuation, including Sky Mix, Sky | Mix and SkyMix. Discovery refreshes after every live catalogue load, including when the app opens on Movies or Series. Concurrent Siri loads share their work.
+- Help, indexing status and the Open channel action are translated into all fourteen app languages. Physical Siri recognition and Spotlight ranking still require device testing.
+
 ## 0.3.4
 
 - Siri channel tuning now recognises the app-qualified Play, Tune to and Watch phrases. Provider names such as UK: Sky | Mix HD expose the spoken alias Sky Mix, and channel numbers are alternate spoken names.

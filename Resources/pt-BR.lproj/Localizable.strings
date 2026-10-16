@@ -138,6 +138,7 @@
 "number_not_found" = "Nenhum canal %1$@.";
 "ok" = "OK";
 "on_now" = "no ar";
+"open_channel" = "Abrir canal";
 "open_player" = "Abrir player";
 "pause" = "Pausar";
 "play" = "Reproduzir";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ até %2$@";
 "search" = "Pesquisar";
 "search_guide" = "Pesquisar no guia";
+"search_index_failed" = "Não foi possível atualizar a busca do Spotlight. Abra o app para tentar novamente.";
+"search_index_ready" = "Pesquisa pronta: %1$ld canais.";
+"search_index_updating" = "Indexando canais para pesquisa…";
 "season_episode" = "Temporada %1$@, episódio %2$@";
 "section" = "Seção";
 "selected" = "selecionado";
@@ -218,6 +222,7 @@
 "source_deleted" = "%1$@ excluído.";
 "source_saved" = "%1$@ salvo.";
 "speak_subtitles" = "Ler legendas";
+"spotlight_shortcuts_help" = "Após carregar uma lista ao vivo, o Spotlight encontra canais por nome ou número. Escolha um resultado para reproduzir. Listas grandes demoram; mantenha o app aberto até o anúncio Pesquisa pronta. No iOS 18 ou posterior, as entidades indexadas também permitem a descoberta pela Apple Intelligence, conforme o sistema. Em Atalhos, Buscar canais oferece filtros por nome, grupo e número, ordenação e limite. Passe os resultados para Sintonizar canal; a ação retorna o canal escolhido para os próximos passos. URLs de transmissão e credenciais não são indexados.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Parar tudo";
 "stop_casting" = "Parar de enviar";

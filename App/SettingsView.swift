@@ -101,7 +101,9 @@ struct SettingsView: View {
 				let url = try result.get()
 				let ok = url.startAccessingSecurityScopedResource()
 				defer { if ok { url.stopAccessingSecurityScopedResource() } }
+				let oldSources = prefs.sources
 				try prefs.importSettings(Data(contentsOf: url))
+				for source in oldSources + prefs.sources { model.library.forgetCache(source) }
 				prefs.lastEpgImport = 0
 				model.sourcesChanged = true
 				load()

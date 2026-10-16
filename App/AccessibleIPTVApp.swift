@@ -1,6 +1,9 @@
 import SwiftUI
 import UIKit
 import IPTVCore
+#if os(iOS)
+import CoreSpotlight
+#endif
 
 @main
 struct AccessibleIPTVApp: App {
@@ -15,6 +18,9 @@ struct AccessibleIPTVApp: App {
 			MainView()
 				.environmentObject(model)
 				.task { SharePlayCenter.shared.listen() }
+				#if os(iOS)
+				.onContinueUserActivity(CSSearchableItemActionType) { model.openSpotlight($0) }
+				#endif
 				.fullScreenCover(isPresented: $model.playerPresented) {
 					if let player = model.player {
 						PlayerScreen(c: player).id(player.request.id).environmentObject(model)

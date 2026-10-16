@@ -138,6 +138,7 @@
 "number_not_found" = "No channel %1$@.";
 "ok" = "OK";
 "on_now" = "on now";
+"open_channel" = "Open channel";
 "open_player" = "Open player";
 "pause" = "Pause";
 "play" = "Play";
@@ -173,7 +174,7 @@
 "recording_stopped" = "Stopped: %1$@";
 "recording_until" = "Recording until %1$@";
 "recordings" = "Recordings";
-"recordings_heading" = "%1$ld recording, %2$ld scheduled, %3$ld saved";
+"recordings_heading" = "%1$ld in progress, %2$ld scheduled, %3$ld saved";
 "recordings_stopped" = "Stopped.";
 "refresh_playlists" = "Refresh sources";
 "refreshing" = "Refreshing…";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ to %2$@";
 "search" = "Search";
 "search_guide" = "Guide search";
+"search_index_failed" = "Couldn’t update Spotlight search. Open the app to try again.";
+"search_index_ready" = "Search ready: %1$ld channels.";
+"search_index_updating" = "Indexing channels for search…";
 "season_episode" = "Season %1$@, Episode %2$@";
 "section" = "Section";
 "selected" = "selected";
@@ -218,6 +222,7 @@
 "source_deleted" = "Deleted %1$@.";
 "source_saved" = "Saved %1$@.";
 "speak_subtitles" = "Speak subtitles";
+"spotlight_shortcuts_help" = "After the app loads a live playlist, Spotlight can find channels by name or number. Choose a result to play it. Large lists take time; keep the app open until Search ready is announced. On iOS 18 or later, indexed channel entities also support Apple Intelligence discovery; recognition depends on system support. In Shortcuts, Find Channels supports name, group and number filters, sorting and limits. Pass its results to Tune channel. Tune channel returns the chosen channel for later actions. No stream URLs or logins are indexed.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Stop all";
 "stop_casting" = "Stop sending";

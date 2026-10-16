@@ -138,6 +138,7 @@
 "number_not_found" = "没有频道 %1$@。";
 "ok" = "好";
 "on_now" = "正在播出";
+"open_channel" = "打开频道";
 "open_player" = "打开播放器";
 "pause" = "暂停";
 "play" = "播放";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ 至 %2$@";
 "search" = "搜索";
 "search_guide" = "搜索节目单";
+"search_index_failed" = "无法更新 Spotlight 搜索。请打开应用重试。";
+"search_index_ready" = "搜索已就绪：%1$ld 个频道。";
+"search_index_updating" = "正在为搜索建立频道索引…";
 "season_episode" = "第 %1$@ 季，第 %2$@ 集";
 "section" = "栏目";
 "selected" = "已选中";
@@ -218,6 +222,7 @@
 "source_deleted" = "已删除 %1$@。";
 "source_saved" = "已保存 %1$@。";
 "speak_subtitles" = "朗读字幕";
+"spotlight_shortcuts_help" = "应用载入直播列表后，Spotlight可按名称或编号查找频道。选择结果即可播放。大型列表需要时间，请保持应用开启，直到听到搜索已就绪。iOS 18或更新版本上，已索引频道实体也可帮助Apple Intelligence发现内容；识别取决于系统支持。在快捷指令中，查找频道支持名称、分组和编号筛选、排序及结果数量限制。将结果传给选择频道；该操作会返回选定频道供后续操作使用。不会索引流媒体网址或登录信息。";
 "stalker_at" = "Stalker,%1$@";
 "stop_all_recordings" = "全部停止";
 "stop_casting" = "停止发送";

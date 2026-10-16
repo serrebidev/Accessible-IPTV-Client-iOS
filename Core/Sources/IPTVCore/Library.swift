@@ -24,18 +24,21 @@ public final class Library {
 	private let dir: URL
 	private let lock = NSLock()
 	private var lists: [String: [Channel]] = [:]
+	private var liveSources: [Source] = []
 	/// Search form of every name, built once per load (see Lists.lowerName).
 	private var lowerNames: [String: [String]] = [:]
 	/// Match keys of the live list, hashed once per load so [guideStale] stays off the main thread.
 	private var fingerprintCache: Int?
 	/// When the last guide import failed this run: a failing guide is not retried on every load.
 	private var lastGuideFailure: Int64 = 0
-	private var stalkers: [String: Stalker] = [:]
+	private var stalkers: [String: (source: Source, client: Stalker)] = [:]
 
 	/// Reads a picked M3U file; the app resolves its security-scoped bookmark.
 	public var readFile: (String) throws -> String = { _ in throw NetError.badURL("file") }
 	/// Opens one guide URL; tests swap in local data.
 	public var openGuide: (String) async throws -> ByteSource = { try await Net.source($0) }
+	/// Platform integrations refresh only after the live list has been replaced.
+	public var liveChannelsDidLoad: (([Channel], [Source]) -> Void)?
 
 	/// Opens the guide database but does not read its channel index: this runs before the app's
 	/// first frame, and a national guide's index is tens of thousands of rows. [load] reads it on
@@ -49,6 +52,9 @@ public final class Library {
 
 	/// Live channels: what the guide, recordings and catch-up work with.
 	public var channels: [Channel] { list(Library.live) }
+	public var liveSnapshot: (channels: [Channel], sources: [Source]) {
+		lock.withLock { (lists[Library.live] ?? [], liveSources) }
+	}
 
 	public func list(_ section: String) -> [Channel] { lock.lock(); defer { lock.unlock() }; return lists[section] ?? [] }
 	public func isLoaded(_ section: String) -> Bool { lock.lock(); defer { lock.unlock() }; return lists[section] != nil }
@@ -60,7 +66,8 @@ public final class Library {
 	public func load(_ section: String, force: Bool) async -> [String] {
 		var errors: [String] = []
 		var all: [Channel] = []
-		for src in prefs.sources {
+		let sources = prefs.sources
+		for src in sources {
 			let cache = cacheFile(src, section)
 			do {
 				// Providers add and drop channels: a cache older than 12 hours is fetched again.
@@ -76,11 +83,15 @@ public final class Library {
 		// Hashing every live channel is a second of work on a phone: only when the guide could need
 		// it, and here, on the thread doing the load rather than on the main thread at every check.
 		let fp = section == Library.live && guideRecent ? Self.fingerprint(all) : nil
-		lock.withLock {
+		let applied = lock.withLock {
+			guard Source.samePlaylists(sources, prefs.sources) else { return false }
 			lists[section] = all; lowerNames[section] = lower
-			if section == Library.live { fingerprintCache = fp }
+			if section == Library.live { fingerprintCache = fp; liveSources = sources }
+			return true
 		}
+		guard applied else { return await load(section, force: false) }
 		if section == Library.live { epg.forgetChannelIds(); if !epg.hasGuide { epg.loadIndex() } }
+		if section == Library.live { liveChannelsDidLoad?(all, sources) }
 		return errors
 	}
 
@@ -93,12 +104,12 @@ public final class Library {
 			case Library.series: list = try await Xtream.series(src)
 			default: list = try await Xtream.liveChannels(src)
 			}
-			try writeCache(cacheFile(src, section), list)
+			try writeCache(src, section, list)
 			return list
 		}
 		if src.isStalker {
 			let list = section == Library.live ? try await stalker(src).channels() : []
-			try writeCache(cacheFile(src, section), list)
+			try writeCache(src, section, list)
 			return list
 		}
 		let text = try await readSource(src)
@@ -108,25 +119,36 @@ public final class Library {
 			let s = c.kind == Channel.kindLive ? Library.live : c.kind == Channel.kindMovie ? Library.movies : Library.series
 			bySection[s, default: []].append(c)
 		}
-		keepFavorites(cacheFile(src, Library.live), bySection[Library.live] ?? [])
-		for s in Library.sections { try writeCache(cacheFile(src, s), bySection[s] ?? []) }
+		keepFavorites(src, bySection[Library.live] ?? [])
+		for s in Library.sections { try writeCache(src, s, bySection[s] ?? []) }
 		// A playlist that names its own guide (x-tvg-url) needs no guide URL typed in.
 		if src.epgUrl.trimmingCharacters(in: .whitespaces).isEmpty, let g = M3U.headerGuides(text).first {
-			prefs.sources = prefs.sources.map { var s = $0; if s.id == src.id { s.epgUrl = g }; return s }
+			lock.withLock {
+				prefs.sources = prefs.sources.map {
+					var s = $0
+					if s.refersToSamePlaylist(as: src), s.epgUrl.isEmpty { s.epgUrl = g }
+					return s
+				}
+			}
 		}
 		return bySection[section] ?? []
 	}
 
 	/// Channel ids changed (0.2.5 and older Android used list position for M3U). Favourites
 	/// follow their channel by stream URL, so nobody has to mark them again.
-	private func keepFavorites(_ oldCache: URL, _ fresh: [Channel]) {
+	private func keepFavorites(_ source: Source, _ fresh: [Channel]) {
 		let favs = prefs.favorites
-		guard !favs.isEmpty, let old = try? readCache(oldCache) else { return }
+		guard !favs.isEmpty, let old = try? readCache(cacheFile(source, Library.live)) else { return }
 		var byUrl: [String: Channel] = [:]
 		for c in fresh where byUrl[c.url] == nil { byUrl[c.url] = c }
 		var moved: [String: String] = [:]
 		for o in old where favs.contains(o.key) { if let n = byUrl[o.url] { moved[o.key] = n.key } }
-		if moved.contains(where: { $0.key != $0.value }) { prefs.favorites = Set(favs.map { moved[$0] ?? $0 }) }
+		if moved.contains(where: { $0.key != $0.value }) {
+			lock.withLock {
+				guard prefs.sources.contains(where: { $0.refersToSamePlaylist(as: source) }) else { return }
+				prefs.favorites = Set(prefs.favorites.map { moved[$0] ?? $0 })
+			}
+		}
 	}
 
 	/// Playlist text from a URL or from a file the user picked.
@@ -135,13 +157,22 @@ public final class Library {
 	}
 
 	public func forgetCache(_ src: Source) {
-		for s in Library.sections { try? FileManager.default.removeItem(at: cacheFile(src, s)) }
+		lock.withLock {
+			for s in Library.sections { try? FileManager.default.removeItem(at: cacheFile(src, s)) }
+			stalkers.removeValue(forKey: src.id)
+		}
 	}
 
 	private func readCache(_ f: URL) throws -> [Channel] { try JSONDecoder().decode([Channel].self, from: Data(contentsOf: f)) }
 
 	// ponytail: one JSON file per section; 250k movies is ~50 MB. Move to SQLite if memory bites.
-	private func writeCache(_ f: URL, _ list: [Channel]) throws { try JSONEncoder().encode(list).write(to: f, options: .atomic) }
+	private func writeCache(_ source: Source, _ section: String, _ list: [Channel]) throws {
+		let data = try JSONEncoder().encode(list)
+		try lock.withLock {
+			guard prefs.sources.contains(where: { $0.refersToSamePlaylist(as: source) }) else { return }
+			try data.write(to: cacheFile(source, section), options: .atomic)
+		}
+	}
 
 	/// Group names in playlist order, with "Favorites" and "All" on top like the desktop app, each
 	/// with its number of entries. One pass for both, because the main screen shows the count beside
@@ -186,9 +217,9 @@ public final class Library {
 
 	private func stalker(_ src: Source) -> Stalker {
 		lock.lock(); defer { lock.unlock() }
-		if let s = stalkers[src.id] { return s }
+		if let cached = stalkers[src.id], cached.source.refersToSamePlaylist(as: src) { return cached.client }
 		let s = Stalker(src)
-		stalkers[src.id] = s
+		stalkers[src.id] = (src, s)
 		return s
 	}
 

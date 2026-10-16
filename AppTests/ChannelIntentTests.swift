@@ -21,4 +21,21 @@ final class ChannelIntentTests: XCTestCase {
 		XCTAssertTrue(entity.displayRepresentation.synonyms.isEmpty)
 		XCTAssertFalse(entity.name.contains("password"))
 	}
+
+	func testSavedChannelsResolveInRequestedOrderAndIgnoreUnavailableIDs() {
+		let a = Channel(sourceId: "s", itemId: "1", name: "Sky Mix", group: "", url: "https://provider/1")
+		let b = Channel(sourceId: "s", itemId: "2", name: "BBC One", group: "", url: "https://provider/2")
+		let ids = [TVChannelEntity.identifier(b), "removed", TVChannelEntity.identifier(a)]
+		XCTAssertEqual(TVChannelQuery.resolve(ids, in: [a, a, b]).map(\.name), ["BBC One", "Sky Mix"])
+	}
+
+	func testShortcutsFiltersRespectAllAnyAndLimit() {
+		let a = Channel(sourceId: "s", itemId: "1", name: "Sky Mix", group: "Entertainment", url: "u")
+		let b = Channel(sourceId: "s", itemId: "2", name: "BBC One", group: "General", url: "u")
+		let filters: [(Channel) -> Bool] = [{ $0.name == "Sky Mix" }, { $0.group == "General" }]
+		XCTAssertTrue(TVChannelQuery.find([a, b], matching: filters, mode: .and, sortedBy: [], limit: nil).isEmpty)
+		XCTAssertEqual(TVChannelQuery.find([a, b], matching: filters, mode: .or, sortedBy: [], limit: 1).map(\.name), ["Sky Mix"])
+		XCTAssertEqual(TVChannelQuery.find([a, b], matching: [], mode: .and, sortedBy: [], limit: nil).count, 2)
+		XCTAssertTrue(TVChannelQuery.find([a, b], matching: [], mode: .and, sortedBy: [], limit: 0).isEmpty)
+	}
 }

@@ -138,6 +138,7 @@
 "number_not_found" = "Kein Sender %1$@.";
 "ok" = "OK";
 "on_now" = "läuft jetzt";
+"open_channel" = "Sender öffnen";
 "open_player" = "Player öffnen";
 "pause" = "Pause";
 "play" = "Abspielen";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ bis %2$@";
 "search" = "Suchen";
 "search_guide" = "Programmsuche";
+"search_index_failed" = "Spotlight-Suche konnte nicht aktualisiert werden. Öffne die App, um es erneut zu versuchen.";
+"search_index_ready" = "Suche bereit: %1$ld Sender.";
+"search_index_updating" = "Sender werden für die Suche indiziert…";
 "season_episode" = "Staffel %1$@, Folge %2$@";
 "section" = "Bereich";
 "selected" = "ausgewählt";
@@ -218,6 +222,7 @@
 "source_deleted" = "%1$@ gelöscht.";
 "source_saved" = "%1$@ gespeichert.";
 "speak_subtitles" = "Untertitel vorlesen";
+"spotlight_shortcuts_help" = "Nachdem die App eine Live-Liste geladen hat, findet Spotlight Sender nach Name oder Nummer. Wähle ein Ergebnis zum Abspielen. Große Listen brauchen Zeit; lass die App bis zur Ansage Suche bereit geöffnet. Ab iOS 18 unterstützen indizierte Sender auch die Suche durch Apple Intelligence, abhängig vom System. In Kurzbefehle bietet Sender suchen Filter nach Name, Gruppe und Nummer sowie Sortierung und Begrenzung. Übergib Ergebnisse an Sender einschalten; die Aktion gibt den gewählten Sender für weitere Schritte zurück. Stream-URLs und Zugangsdaten werden nicht indiziert.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Alle stoppen";
 "stop_casting" = "Senden beenden";

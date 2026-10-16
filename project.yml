@@ -16,8 +16,8 @@ packages:
     exactVersion: 4.0.0-a22
 settings:
   base:
-    MARKETING_VERSION: 0.3.4
-    CURRENT_PROJECT_VERSION: 16
+    MARKETING_VERSION: 0.4.0
+    CURRENT_PROJECT_VERSION: 17
     SWIFT_VERSION: "5.0"
 targets:
   AccessibleIPTV:
@@ -59,7 +59,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         UILaunchScreen: {}
         UIApplicationSupportsIndirectInputEvents: true
-        NSUserActivityTypes: [dev.serrebi.accessibleiptv.channel]
+        NSUserActivityTypes: [dev.serrebi.accessibleiptv.channel, com.apple.corespotlightitem]
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: true
         # Wheelchair mounts and TV stands: every orientation.

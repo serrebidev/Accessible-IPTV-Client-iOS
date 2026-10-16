@@ -138,6 +138,7 @@
 "number_not_found" = "Brak kanału %1$@.";
 "ok" = "OK";
 "on_now" = "teraz";
+"open_channel" = "Otwórz kanał";
 "open_player" = "Otwórz odtwarzacz";
 "pause" = "Pauza";
 "play" = "Odtwórz";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@–%2$@";
 "search" = "Szukaj";
 "search_guide" = "Szukaj w programie";
+"search_index_failed" = "Nie można zaktualizować Spotlight. Otwórz aplikację, aby spróbować ponownie.";
+"search_index_ready" = "Wyszukiwanie gotowe: %1$ld kanałów.";
+"search_index_updating" = "Indeksowanie kanałów do wyszukiwania…";
 "season_episode" = "Sezon %1$@, odcinek %2$@";
 "section" = "Sekcja";
 "selected" = "wybrane";
@@ -218,6 +222,7 @@
 "source_deleted" = "Usunięto %1$@.";
 "source_saved" = "Zapisano %1$@.";
 "speak_subtitles" = "Czytaj napisy";
+"spotlight_shortcuts_help" = "Po wczytaniu listy na żywo Spotlight znajduje kanały po nazwie lub numerze. Wybierz wynik, aby odtwarzać. Duże listy wymagają czasu; pozostaw aplikację otwartą do komunikatu Wyszukiwanie gotowe. Od iOS 18 indeksowane kanały wspierają też wyszukiwanie Apple Intelligence, zależnie od systemu. W Skrótach czynność Znajdź kanały oferuje filtry nazwy, grupy i numeru, sortowanie i limit wyników. Przekaż wyniki do Włącz kanał; czynność zwraca wybrany kanał do następnych kroków. Adresy strumieni i dane logowania nie są indeksowane.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Zatrzymaj wszystko";
 "stop_casting" = "Zatrzymaj wysyłanie";

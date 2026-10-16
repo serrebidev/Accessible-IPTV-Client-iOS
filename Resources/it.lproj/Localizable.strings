@@ -138,6 +138,7 @@
 "number_not_found" = "Nessun canale %1$@.";
 "ok" = "OK";
 "on_now" = "in onda";
+"open_channel" = "Apri canale";
 "open_player" = "Apri lettore";
 "pause" = "Pausa";
 "play" = "Riproduci";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ - %2$@";
 "search" = "Cerca";
 "search_guide" = "Cerca nella guida";
+"search_index_failed" = "Impossibile aggiornare Spotlight. Apri l’app per riprovare.";
+"search_index_ready" = "Ricerca pronta: %1$ld canali.";
+"search_index_updating" = "Indicizzazione dei canali per la ricerca…";
 "season_episode" = "Stagione %1$@, episodio %2$@";
 "section" = "Sezione";
 "selected" = "selezionato";
@@ -218,6 +222,7 @@
 "source_deleted" = "%1$@ eliminato.";
 "source_saved" = "%1$@ salvato.";
 "speak_subtitles" = "Leggi i sottotitoli";
+"spotlight_shortcuts_help" = "Dopo il caricamento di una lista in diretta, Spotlight trova canali per nome o numero. Scegli un risultato per riprodurlo. Le liste grandi richiedono tempo; tieni l’app aperta fino all’annuncio Ricerca pronta. Da iOS 18 le entità indicizzate consentono anche la scoperta con Apple Intelligence, secondo il supporto del sistema. In Comandi Rapidi, Trova canali offre filtri per nome, gruppo e numero, ordinamento e limiti. Passa i risultati a Sintonizza canale; l’azione restituisce il canale scelto per i passaggi successivi. URL dei flussi e credenziali non vengono indicizzati.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Ferma tutto";
 "stop_casting" = "Interrompi l’invio";

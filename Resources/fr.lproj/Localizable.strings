@@ -138,6 +138,7 @@
 "number_not_found" = "Pas de chaîne %1$@.";
 "ok" = "OK";
 "on_now" = "en cours";
+"open_channel" = "Ouvrir une chaîne";
 "open_player" = "Ouvrir le lecteur";
 "pause" = "Pause";
 "play" = "Lecture";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ à %2$@";
 "search" = "Rechercher";
 "search_guide" = "Recherche dans le guide";
+"search_index_failed" = "Impossible de mettre à jour Spotlight. Ouvrez l’app pour réessayer.";
+"search_index_ready" = "Recherche prête : %1$ld chaînes.";
+"search_index_updating" = "Indexation des chaînes pour la recherche…";
 "season_episode" = "Saison %1$@, épisode %2$@";
 "section" = "Section";
 "selected" = "sélectionné";
@@ -218,6 +222,7 @@
 "source_deleted" = "%1$@ supprimé.";
 "source_saved" = "%1$@ enregistré.";
 "speak_subtitles" = "Lire les sous-titres";
+"spotlight_shortcuts_help" = "Après le chargement d’une liste en direct, Spotlight trouve les chaînes par nom ou numéro. Choisissez un résultat pour le lire. Les grandes listes demandent du temps ; gardez l’app ouverte jusqu’à l’annonce Recherche prête. Dès iOS 18, les entités indexées permettent aussi la découverte par Apple Intelligence, selon le système. Dans Raccourcis, Rechercher des chaînes propose filtres par nom, groupe et numéro, tri et limite. Transmettez les résultats à Choisir une chaîne, qui renvoie la chaîne choisie aux actions suivantes. Aucun lien de flux ni identifiant de connexion n’est indexé.";
 "stalker_at" = "Stalker, %1$@";
 "stop_all_recordings" = "Tout arrêter";
 "stop_casting" = "Arrêter l’envoi";

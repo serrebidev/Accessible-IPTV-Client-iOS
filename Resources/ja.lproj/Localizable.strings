@@ -138,6 +138,7 @@
 "number_not_found" = "チャンネル %1$@ はありません。";
 "ok" = "OK";
 "on_now" = "放送中";
+"open_channel" = "チャンネルを開く";
 "open_player" = "プレーヤーを開く";
 "pause" = "一時停止";
 "play" = "再生";
@@ -188,6 +189,9 @@
 "scheduled_for" = "%1$@ から %2$@";
 "search" = "検索";
 "search_guide" = "番組表を検索";
+"search_index_failed" = "Spotlight検索を更新できませんでした。アプリを開いて再試行してください。";
+"search_index_ready" = "検索の準備ができました。%1$ldチャンネル。";
+"search_index_updating" = "検索用にチャンネルを登録中…";
 "season_episode" = "シーズン %1$@、エピソード %2$@";
 "section" = "セクション";
 "selected" = "選択中";
@@ -218,6 +222,7 @@
 "source_deleted" = "%1$@ を削除しました。";
 "source_saved" = "%1$@ を保存しました。";
 "speak_subtitles" = "字幕を読み上げる";
+"spotlight_shortcuts_help" = "ライブ一覧の読み込み後、Spotlightで名前や番号からチャンネルを検索できます。結果を選ぶと再生します。大きな一覧は時間がかかるため、検索準備完了の通知までアプリを開いてください。iOS 18以降では、登録されたチャンネル情報をApple Intelligenceの検索にも利用できます。認識はシステムの対応に依存します。ショートカットのチャンネルを検索では、名前・グループ・番号での絞り込み、並べ替え、件数制限ができます。結果をチャンネル選択に渡すと、選んだチャンネルが後続の操作に返されます。配信URLやログイン情報は登録しません。";
 "stalker_at" = "Stalker、%1$@";
 "stop_all_recordings" = "すべて停止";
 "stop_casting" = "送信を停止";

@@ -57,4 +57,11 @@ final class ChannelDiscoveryTests: XCTestCase {
 		let result = ChannelDiscovery.suggestions(channels, favorites: favorites, recent: ["s:60", "s:1", "missing"])
 		XCTAssertEqual(result.map(\.itemId), (1...30).map(String.init) + ["60"])
 	}
+
+	func testSpokenPartialNamesSearchAcrossProviderPunctuation() {
+		let channels = [channel("1", "Sky Mix +1"), channel("2", "UK: Sky | Mix HD"), channel("3", "Sky Sports")]
+		XCTAssertEqual(ChannelDiscovery.matching(channels, "sky mi").map(\.itemId), ["2", "1"])
+		XCTAssertEqual(ChannelDiscovery.matching(channels, "skymix").map(\.itemId), ["2", "1"])
+		XCTAssertTrue(ChannelDiscovery.matching(channels, "!!!").isEmpty)
+	}
 }
