@@ -1,7 +1,12 @@
 "Pause playback in ${applicationName}" = "${applicationName} içinde oynatmayı duraklat";
 "Play ${channel} in ${applicationName}" = "${applicationName} ile ${channel} oynat";
+"Play TV in ${applicationName}" = "${applicationName} içinde televizyon oynat";
 "Resume playback in ${applicationName}" = "${applicationName} içinde oynatmaya devam et";
 "Search the guide in ${applicationName}" = "${applicationName} içinde rehberde ara";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} rehberini göster";
 "Stop playback in ${applicationName}" = "${applicationName} içinde oynatmayı durdur";
+"Tune to ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalına geç";
+"Tune to a channel in ${applicationName}" = "${applicationName} içinde bir kanala geç";
+"Watch ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} izle";
+"Watch TV in ${applicationName}" = "${applicationName} içinde televizyon izle";
 "What is on ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalında ne var";

@@ -1,7 +1,12 @@
 "Pause playback in ${applicationName}" = "暂停${applicationName}中的播放";
 "Play ${channel} in ${applicationName}" = "在${applicationName}中播放${channel}";
+"Play TV in ${applicationName}" = "在${applicationName}中播放电视";
 "Resume playback in ${applicationName}" = "继续${applicationName}中的播放";
 "Search the guide in ${applicationName}" = "在${applicationName}中搜索节目指南";
 "Show the guide for ${channel} in ${applicationName}" = "在${applicationName}中显示${channel}节目指南";
 "Stop playback in ${applicationName}" = "停止${applicationName}中的播放";
+"Tune to ${channel} in ${applicationName}" = "在${applicationName}中切换到${channel}";
+"Tune to a channel in ${applicationName}" = "在${applicationName}中切换频道";
+"Watch ${channel} in ${applicationName}" = "在${applicationName}中观看${channel}";
+"Watch TV in ${applicationName}" = "在${applicationName}中看电视";
 "What is on ${channel} in ${applicationName}" = "${applicationName}中${channel}正在播放什么";

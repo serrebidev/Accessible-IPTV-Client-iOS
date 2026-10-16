@@ -213,6 +213,7 @@
 "siri_failed" = "Nie można wczytać kanału lub programu. Otwórz aplikację po szczegóły.";
 "siri_help" = "Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.2 lub nowszego i wsparcia systemu.";
 "siri_shortcuts" = "Siri i Skróty";
+"siri_tuning_help" = "Powiedz Włącz Sky Mix w Accessible IPTV, Przełącz na Sky Mix w Accessible IPTV lub Oglądaj Sky Mix w Accessible IPTV. Dodaj kanał do ulubionych lub odtwórz go raz, aby Siri poznała nazwę. Nie trzeba podawać prefiksu dostawcy ani jakości. Jeśli Siri nie rozpoznaje kanału, powiedz Oglądaj telewizję w Accessible IPTV i podaj nazwę po pytaniu; wyszukiwanie obejmuje całą listę na żywo. Poczekaj na aktualizację Siri. Aby pominąć nazwę aplikacji, utwórz własny skrót z czynnością Włącz kanał ustawioną na Sky Mix i nazwij go Włącz Sky Mix, Przełącz na Sky Mix lub Oglądaj Sky Mix.";
 "sound_on" = "Dźwięk na %1$@";
 "source_deleted" = "Usunięto %1$@.";
 "source_saved" = "Zapisano %1$@.";

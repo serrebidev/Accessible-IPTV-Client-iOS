@@ -213,6 +213,7 @@
 "siri_failed" = "Impossible de charger la chaîne ou le guide. Ouvrez l’app pour les détails.";
 "siri_help" = "Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.2 ou ultérieur et la prise en charge du système.";
 "siri_shortcuts" = "Siri et Raccourcis";
+"siri_tuning_help" = "Dites Regarde Sky Mix dans Accessible IPTV, Passe sur Sky Mix dans Accessible IPTV ou Regarder Sky Mix dans Accessible IPTV. Ajoutez la chaîne aux favoris ou lancez-la une fois pour que Siri apprenne son nom. Les préfixes du fournisseur et la qualité peuvent être omis. Si Siri ne reconnaît pas la chaîne, dites Regarder la télévision dans Accessible IPTV, puis donnez son nom ; toute la liste en direct est recherchée. Laissez à Siri le temps de se mettre à jour. Pour omettre le nom de l’app, créez un raccourci personnel avec Choisir une chaîne réglé sur Sky Mix et nommez-le Regarde Sky Mix, Passe sur Sky Mix ou Regarder Sky Mix.";
 "sound_on" = "Son sur %1$@";
 "source_deleted" = "%1$@ supprimé.";
 "source_saved" = "%1$@ enregistré.";

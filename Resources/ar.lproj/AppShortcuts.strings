@@ -1,7 +1,12 @@
 "Pause playback in ${applicationName}" = "أوقف التشغيل مؤقتًا في ${applicationName}";
 "Play ${channel} in ${applicationName}" = "شغّل ${channel} في ${applicationName}";
+"Play TV in ${applicationName}" = "شغّل التلفزيون في ${applicationName}";
 "Resume playback in ${applicationName}" = "استأنف التشغيل في ${applicationName}";
 "Search the guide in ${applicationName}" = "ابحث في الدليل في ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "اعرض دليل ${channel} في ${applicationName}";
 "Stop playback in ${applicationName}" = "أوقف التشغيل في ${applicationName}";
+"Tune to ${channel} in ${applicationName}" = "انتقل إلى ${channel} في ${applicationName}";
+"Tune to a channel in ${applicationName}" = "انتقل إلى قناة في ${applicationName}";
+"Watch ${channel} in ${applicationName}" = "شاهد ${channel} في ${applicationName}";
+"Watch TV in ${applicationName}" = "شاهد التلفزيون في ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "ماذا يُعرض على ${channel} في ${applicationName}";

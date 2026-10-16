@@ -1,7 +1,12 @@
 "Pause playback in ${applicationName}" = "Pausar reprodução no ${applicationName}";
 "Play ${channel} in ${applicationName}" = "Reproduzir ${channel} no ${applicationName}";
+"Play TV in ${applicationName}" = "Reproduzir TV no ${applicationName}";
 "Resume playback in ${applicationName}" = "Retomar reprodução no ${applicationName}";
 "Search the guide in ${applicationName}" = "Pesquisar no guia do ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Mostrar o guia de ${channel} no ${applicationName}";
 "Stop playback in ${applicationName}" = "Parar reprodução no ${applicationName}";
+"Tune to ${channel} in ${applicationName}" = "Sintonizar ${channel} no ${applicationName}";
+"Tune to a channel in ${applicationName}" = "Sintonizar um canal no ${applicationName}";
+"Watch ${channel} in ${applicationName}" = "Assistir ${channel} no ${applicationName}";
+"Watch TV in ${applicationName}" = "Assistir TV no ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "O que passa em ${channel} no ${applicationName}";

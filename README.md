@@ -31,7 +31,10 @@ This is the iOS port of [Accessible IPTV Client for Android](https://github.com/
 
 Add a source and open the app once to import its guide. Then try:
 
-- “Play BBC One in Accessible IPTV.” Channel numbers work too; Siri offers choices for ambiguous matches.
+- “Play Sky Mix in Accessible IPTV”, “Tune to Sky Mix in Accessible IPTV”, or “Watch Sky Mix in Accessible IPTV”. Channel numbers work too; Siri offers choices for ambiguous matches. Provider labels such as “UK: Sky | Mix HD” have the spoken alias “Sky Mix”.
+- Add a channel to Favourites or play it once to publish its name to Siri. Every favourite and recent channel is included; favourites no longer crowd out recent channels. Allow Siri time to update its vocabulary.
+- For a channel Siri does not recognise in the first request, say “Watch TV in Accessible IPTV” (or “Play TV in Accessible IPTV”, “Tune to a channel in Accessible IPTV”), then answer with its name. This searches the full live playlist.
+- App Shortcut phrases require the app name. To say only “Play Sky Mix”, create a personal shortcut with the Tune channel action set to Sky Mix, then name that shortcut “Play Sky Mix”. Create separate named shortcuts for “Tune to Sky Mix” or “Watch Sky Mix” if wanted.
 - “What is on BBC One in Accessible IPTV?” Reads the current and next programme from the imported guide.
 - “Search the guide in Accessible IPTV.” Siri asks for the search text and reads up to five current or upcoming matches.
 - “Show the guide for BBC One in Accessible IPTV.” Opens that channel’s guide while keeping existing playback in the miniplayer.

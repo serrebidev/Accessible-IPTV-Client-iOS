@@ -35,4 +35,26 @@ final class ChannelDiscoveryTests: XCTestCase {
 		XCTAssertEqual(ChannelDiscovery.publicText("BBC One"), "BBC One")
 		XCTAssertEqual(ChannelDiscovery.publicText("http://USER:PASS@host/category"), "")
 	}
+
+	func testSpokenNamesMatchProviderDecorationWithoutConfusingTimeshiftChannels() {
+		let channels = [channel("1", "Sky Mix +1"), channel("2", "UK: Sky | Mix HD"), channel("3", "Sky Mix")]
+		XCTAssertEqual(ChannelDiscovery.matching(channels, "Sky Mix").map(\.itemId), ["3", "2", "1"])
+		XCTAssertEqual(ChannelDiscovery.matching(channels, "Sky Mix +1").map(\.itemId), ["1"])
+		XCTAssertEqual(ChannelDiscovery.matching(Array(channels.prefix(2)), "Sky Mix").first?.itemId, "2")
+	}
+
+	func testSpokenAliasesKeepWordsNumbersAndTimeshiftAndHideURLs() {
+		XCTAssertEqual(ChannelDiscovery.spokenName("UK: Sky | Mix HD"), "Sky Mix")
+		XCTAssertEqual(ChannelDiscovery.spokenName("Sky Mix +1 FHD"), "Sky Mix +1")
+		XCTAssertEqual(ChannelDiscovery.spokenName("Film4"), "Film4")
+		XCTAssertEqual(ChannelDiscovery.spokenName("http://USER:PASS@host/live"), "")
+		XCTAssertEqual(ChannelDiscovery.spokenName("HD"), "")
+	}
+
+	func testEveryFavoriteAndRecentChannelRemainsInSiriVocabulary() {
+		let channels = (1...60).map { channel(String($0), "Channel \($0)") }
+		let favorites = Set(channels.prefix(30).map(\.key))
+		let result = ChannelDiscovery.suggestions(channels, favorites: favorites, recent: ["s:60", "s:1", "missing"])
+		XCTAssertEqual(result.map(\.itemId), (1...30).map(String.init) + ["60"])
+	}
 }

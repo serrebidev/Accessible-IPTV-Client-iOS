@@ -213,6 +213,7 @@
 "siri_failed" = "Impossibile caricare il canale o la guida. Apri l’app per i dettagli.";
 "siri_help" = "Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.2 o successivo e supporto del sistema.";
 "siri_shortcuts" = "Siri e Comandi Rapidi";
+"siri_tuning_help" = "Di’ Riproduci Sky Mix in Accessible IPTV, Sintonizza Sky Mix in Accessible IPTV o Guarda Sky Mix in Accessible IPTV. Aggiungi il canale ai preferiti o riproducilo una volta perché Siri ne impari il nome. Non servono prefissi del fornitore o indicazioni di qualità. Se Siri non riconosce il canale, di’ Guarda la TV in Accessible IPTV, poi indica il nome quando richiesto; la ricerca usa tutta la lista in diretta. Attendi l’aggiornamento di Siri. Per omettere il nome dell’app, crea un comando rapido personale con Sintonizza canale impostato su Sky Mix e chiamalo Riproduci Sky Mix, Sintonizza Sky Mix o Guarda Sky Mix.";
 "sound_on" = "Audio su %1$@";
 "source_deleted" = "%1$@ eliminato.";
 "source_saved" = "%1$@ salvato.";

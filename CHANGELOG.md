@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.3
+
+- Siri channel tuning now recognises the app-qualified Play, Tune to and Watch phrases. Provider names such as UK: Sky | Mix HD expose the spoken alias Sky Mix, and channel numbers are alternate spoken names.
+- Every favourite and recently watched channel is offered to Siri, with vocabulary refreshed after playback and favourite changes. The former twenty-channel limit could hide recent channels behind favourites. Default suggestions stay small for large playlists.
+- Say Watch TV in Accessible IPTV, Play TV in Accessible IPTV or Tune to a channel in Accessible IPTV to have Siri ask for a channel and search the full live playlist. Matching ignores provider decoration while keeping +1 channels separate.
+- Help in all fourteen languages explains the commands and how to create a personal Shortcut named Play Sky Mix for a command without the app name. Automatic App Shortcut phrases still require the app name. Physical-device Siri recognition remains to be checked.
+
 ## 0.3.2
 
 - Guide audit fixes. What's On Now, guide search and one channel's guide now load in windows of 2,000 programmes with a More row, instead of building every row at once, and filtering no longer re-runs on every redraw.

@@ -12,6 +12,7 @@ struct TVChannelEntity: AppEntity {
 	@Property(title: "channel") var name: String
 	@Property(title: "groups") var category: String
 	@Property(title: "channel_number") var number: String
+	let spokenName: String
 
 	init(_ channel: Channel) {
 		id = Self.identifier(channel)
@@ -19,6 +20,7 @@ struct TVChannelEntity: AppEntity {
 		name = publicName.isEmpty ? L("channel") : publicName
 		category = ChannelDiscovery.publicText(channel.group)
 		number = ChannelDiscovery.publicText(channel.number)
+		spokenName = ChannelDiscovery.spokenName(channel.name)
 	}
 
 	static func identifier(_ channel: Channel) -> String {
@@ -26,7 +28,8 @@ struct TVChannelEntity: AppEntity {
 	}
 
 	var displayRepresentation: DisplayRepresentation {
-		DisplayRepresentation(title: "\(name)", subtitle: "\(Format.sentences([category, number]))")
+		DisplayRepresentation(title: "\(name)", subtitle: "\(Format.sentences([category, number]))",
+			synonyms: [spokenName, number].filter { !$0.isEmpty && $0 != name }.map { LocalizedStringResource(stringLiteral: $0) })
 	}
 }
 
@@ -82,13 +85,14 @@ struct TuneChannelIntent: AppIntent {
 	static var title: LocalizedStringResource = "tune_channel"
 	static var openAppWhenRun = true
 	@Parameter(title: "channel") var channel: TVChannelEntity
+	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
 	@MainActor func perform() async throws -> some IntentResult {
 		let ch = try await SiriLibrary.channel(channel)
 		let model = AppModel.shared
 		guard let url = try? await model.library.resolveUrl(ch) else { throw SiriLibrary.ActionError.message(L("siri_failed")) }
-		model.prefs.addRecent(ch.key)
-		model.play(url, title: channel.name, key: ch.key)
+		model.rememberChannel(ch)
+		model.play(url, title: channel.name, key: ch.key, channel: ch)
 		return .result()
 	}
 }
@@ -169,7 +173,14 @@ struct StopTVIntent: AudioPlaybackIntent {
 
 struct IPTVShortcuts: AppShortcutsProvider {
 	static var appShortcuts: [AppShortcut] {
-		AppShortcut(intent: TuneChannelIntent(), phrases: ["Play \(\.$channel) in \(.applicationName)"], shortTitle: "tune_channel", systemImageName: "tv")
+		AppShortcut(intent: TuneChannelIntent(), phrases: [
+			"Play \(\.$channel) in \(.applicationName)",
+			"Tune to \(\.$channel) in \(.applicationName)",
+			"Watch \(\.$channel) in \(.applicationName)",
+			"Play TV in \(.applicationName)",
+			"Tune to a channel in \(.applicationName)",
+			"Watch TV in \(.applicationName)"
+		], shortTitle: "tune_channel", systemImageName: "tv")
 		AppShortcut(intent: WhatsOnChannelIntent(), phrases: ["What is on \(\.$channel) in \(.applicationName)"], shortTitle: "whats_on_channel", systemImageName: "list.bullet.rectangle")
 		AppShortcut(intent: SearchGuideIntent(), phrases: ["Search the guide in \(.applicationName)"], shortTitle: "search_guide", systemImageName: "magnifyingglass")
 		AppShortcut(intent: OpenChannelGuideIntent(), phrases: ["Show the guide for \(\.$channel) in \(.applicationName)"], shortTitle: "channel_guide", systemImageName: "calendar")

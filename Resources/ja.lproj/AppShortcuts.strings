@@ -1,7 +1,12 @@
 "Pause playback in ${applicationName}" = "${applicationName}で一時停止";
 "Play ${channel} in ${applicationName}" = "${applicationName}で${channel}を再生";
+"Play TV in ${applicationName}" = "${applicationName}でテレビを再生";
 "Resume playback in ${applicationName}" = "${applicationName}で再生を再開";
 "Search the guide in ${applicationName}" = "${applicationName}で番組表を検索";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組表を表示";
 "Stop playback in ${applicationName}" = "${applicationName}で再生を停止";
+"Tune to ${channel} in ${applicationName}" = "${applicationName}で${channel}に切り替え";
+"Tune to a channel in ${applicationName}" = "${applicationName}でチャンネルに切り替え";
+"Watch ${channel} in ${applicationName}" = "${applicationName}で${channel}を見る";
+"Watch TV in ${applicationName}" = "${applicationName}でテレビを見る";
 "What is on ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組を確認";

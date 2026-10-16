@@ -213,6 +213,7 @@
 "siri_failed" = "无法加载频道或节目指南。请打开应用查看详情。";
 "siri_help" = "在 iPhone 上，Siri 和快捷指令可以按名称或编号播放频道、朗读当前及下个节目、搜索节目指南、打开频道节目指南，以及暂停、继续或停止播放。请求中请包含应用名称。Siri 会询问搜索内容。请先添加播放列表并打开应用导入节目指南。回答来自已导入的节目指南。操作无需 Apple Intelligence 也能使用；屏幕上的频道上下文需要 iOS 18.2 或更高版本及系统支持。";
 "siri_shortcuts" = "Siri 与快捷指令";
+"siri_tuning_help" = "请说在Accessible IPTV中播放Sky Mix、在Accessible IPTV中切换到Sky Mix，或在Accessible IPTV中观看Sky Mix。将频道加入收藏或播放一次，Siri即可学习名称。无需说出提供商前缀或画质标签。如果Siri不识别频道，请说在Accessible IPTV中看电视，再回答频道名称；此时会搜索完整直播列表。请等待Siri更新。若要省略应用名称，请创建个人快捷指令，将选择频道操作设为Sky Mix，并命名为播放Sky Mix、切换到Sky Mix或观看Sky Mix。";
 "sound_on" = "声音在%1$@上";
 "source_deleted" = "已删除 %1$@。";
 "source_saved" = "已保存 %1$@。";

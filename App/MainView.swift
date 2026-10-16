@@ -415,6 +415,9 @@ struct MainView: View {
 		if ch.kind != Channel.kindSeries { out.append(RowAction(L("play_external")) { model.open(ch, external: true) }) }
 		out.append(RowAction(L(fav ? "remove_favorite" : "add_favorite")) {
 			let now = prefs.toggleFavorite(ch.key)
+			#if os(iOS)
+			IPTVShortcuts.updateAppShortcutParameters()
+			#endif
 			model.setStatus(L(now ? "added_favorite" : "removed_favorite", ch.name))
 			favs = prefs.favorites
 			listVersion += 1

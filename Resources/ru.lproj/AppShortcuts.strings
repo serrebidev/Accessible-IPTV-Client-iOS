@@ -1,7 +1,12 @@
 "Pause playback in ${applicationName}" = "Приостанови воспроизведение в ${applicationName}";
 "Play ${channel} in ${applicationName}" = "Включи ${channel} в ${applicationName}";
+"Play TV in ${applicationName}" = "Включи телевизор в ${applicationName}";
 "Resume playback in ${applicationName}" = "Продолжи воспроизведение в ${applicationName}";
 "Search the guide in ${applicationName}" = "Найди в программе ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Покажи программу ${channel} в ${applicationName}";
 "Stop playback in ${applicationName}" = "Останови воспроизведение в ${applicationName}";
+"Tune to ${channel} in ${applicationName}" = "Переключи на ${channel} в ${applicationName}";
+"Tune to a channel in ${applicationName}" = "Переключи на канал в ${applicationName}";
+"Watch ${channel} in ${applicationName}" = "Смотри ${channel} в ${applicationName}";
+"Watch TV in ${applicationName}" = "Смотри телевизор в ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "Что идёт на ${channel} в ${applicationName}";

@@ -213,6 +213,7 @@
 "siri_failed" = "Kanal veya rehber yüklenemedi. Ayrıntılar için uygulamayı açın.";
 "siri_help" = "iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.2 veya sonrası ve sistem desteği gerektirir.";
 "siri_shortcuts" = "Siri ve Kestirmeler";
+"siri_tuning_help" = "Accessible IPTV ile Sky Mix oynat, Accessible IPTV içinde Sky Mix kanalına geç veya Accessible IPTV içinde Sky Mix izle deyin. Siri’nin adı öğrenmesi için kanalı favorilere ekleyin veya bir kez oynatın. Sağlayıcı öneki ve kalite etiketlerini söylemeniz gerekmez. Siri kanalı tanımazsa Accessible IPTV içinde televizyon izle deyin ve sorulduğunda kanal adını söyleyin; tüm canlı liste aranır. Siri’nin güncellenmesini bekleyin. Uygulama adını atlamak için Kanal aç eylemi Sky Mix olarak ayarlanmış kişisel bir kestirme oluşturun ve adını Sky Mix oynat, Sky Mix kanalına geç veya Sky Mix izle yapın.";
 "sound_on" = "Ses %1$@ cihazında";
 "source_deleted" = "%1$@ silindi.";
 "source_saved" = "%1$@ kaydedildi.";

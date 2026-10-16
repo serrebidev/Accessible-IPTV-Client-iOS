@@ -148,6 +148,12 @@ final class AppModel: ObservableObject {
 	}
 
 	func refresh() { revision += 1 }
+	func rememberChannel(_ channel: Channel) {
+		prefs.addRecent(channel.key)
+		#if os(iOS)
+		IPTVShortcuts.updateAppShortcutParameters()
+		#endif
+	}
 	func navigate(_ route: Route) {
 		if selectedTab == 1 { guidePath.append(route) } else { path.append(route) }
 	}
@@ -157,7 +163,7 @@ final class AppModel: ObservableObject {
 		opening?.cancel()
 		if ch.kind == Channel.kindSeries { path.append(.episodes(ch.key)); return }
 		// Recently watched / Previous channel: live channels only, as on the desktop.
-		if ch.isLive { prefs.addRecent(ch.key) }
+		if ch.isLive { rememberChannel(ch) }
 		if !ch.needsResolve {
 			external ? ExternalPlayers.offer(ch.url, title: ch.name) : play(ch.url, title: ch.name, key: ch.key, channel: ch)
 			return

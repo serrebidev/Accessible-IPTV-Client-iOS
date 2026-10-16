@@ -62,7 +62,7 @@ final class CarAudio {
 		model.stopPlayback()
 		PlaybackTeardown.stop(player)
 		guard await PlaybackTeardown.ready() else { model.setStatus(L("play_failed", URLError(.timedOut).localizedDescription)); return }
-		model.prefs.addRecent(ch.key)
+		model.rememberChannel(ch)
 		guard let raw = try? await model.library.resolveUrl(ch) else { return }
 		let (plain, headers) = M3U.splitHeaders(raw)
 		guard let url = URL(string: plain), let media = VLCMedia(url: url) else { return }

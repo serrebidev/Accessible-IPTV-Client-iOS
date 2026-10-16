@@ -213,6 +213,7 @@
 "siri_failed" = "Sender oder Programm konnten nicht geladen werden. Öffne die App für Details.";
 "siri_help" = "Auf dem iPhone können Siri und Kurzbefehle Sender nach Name oder Nummer einschalten, das aktuelle und nächste Programm vorlesen, das Programm durchsuchen, den Senderplan öffnen und die Wiedergabe pausieren, fortsetzen oder stoppen. Nenne den App-Namen. Siri fragt nach dem Suchtext. Füge eine Liste hinzu und öffne die App zum Programmimport. Antworten nutzen das importierte Programm. Die Aktionen funktionieren ohne Apple Intelligence; Bildschirmkontext benötigt iOS 18.2 oder neuer und Systemunterstützung.";
 "siri_shortcuts" = "Siri und Kurzbefehle";
+"siri_tuning_help" = "Sage Spiele Sky Mix in Accessible IPTV, Schalte auf Sky Mix in Accessible IPTV oder Schau Sky Mix in Accessible IPTV. Füge einen Sender den Favoriten hinzu oder spiele ihn einmal ab, damit Siri den Namen lernt. Anbieterpräfixe und Qualitätsangaben musst du nicht nennen. Erkennt Siri den Sender nicht, sage Schau Fernsehen in Accessible IPTV und nenne danach den Sender; so wird die gesamte Live-Liste durchsucht. Warte, bis Siri die Namen aktualisiert. Für Befehle ohne App-Namen erstelle einen persönlichen Kurzbefehl mit Sender einschalten für Sky Mix und nenne ihn Spiele Sky Mix, Schalte auf Sky Mix oder Schau Sky Mix.";
 "sound_on" = "Ton auf %1$@";
 "source_deleted" = "%1$@ gelöscht.";
 "source_saved" = "%1$@ gespeichert.";
