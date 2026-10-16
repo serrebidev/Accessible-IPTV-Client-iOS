@@ -6,8 +6,7 @@ import VLCKit
 import IPTVCore
 import GroupActivities
 
-/// libVLC playback for every stream an IPTV provider sends (raw MPEG-TS, HLS, MKV, MP4),
-/// with the desktop client's live cushion and reconnects. AVPlayer cannot play raw TS.
+/// Native playback and AirPlay for compatible media; VLC handles raw TS and other IPTV formats.
 @MainActor
 final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate {
 	@Published var status = ""
@@ -18,12 +17,38 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	@Published var casting: String?
 	@Published var fullscreen = false
 	@Published private(set) var isPaused = false
+	@Published private(set) var usesNative: Bool
+	@Published private(set) var nativeVideoAttached = true
+	let nativePlayer = AVPlayer()
+	private var nativeObservations: [NSKeyValueObservation] = []
+	private var nativeNotifications: [NSObjectProtocol] = []
+	private var nativeTimeout: Task<Void, Never>?
+	private var nativeTracksTask: Task<Void, Never>?
+	private var nativeAudio: [TrackChoice] = []
+	private var nativeText: [TrackChoice] = []
+	private var fallbackTime: Double?
+	private var airPlayRoute: String?
+	private var preparingVideo = false
+	private var relayStartTime = 0.0
+	var isRelayingVideo: Bool {
+		#if os(iOS)
+		return videoRelay != nil || preparingVideo
+		#else
+		return false
+		#endif
+	}
 
 	let player = VLCMediaPlayer()
 	let videoSurface = UIView()
 	let request: PlayRequest
 	private let model = AppModel.shared
 	private var prefs: Prefs { model.prefs }
+	private var playbackURL: String {
+		#if os(iOS)
+		if let url = videoRelay?.url { return url.absoluteString }
+		#endif
+		return request.url
+	}
 	/// A live channel (not catch-up, a file or VOD): drops are reconnected like the desktop.
 	let live: Bool
 	let localFile: Bool
@@ -39,6 +64,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var observers: [NSObjectProtocol] = []
 	private var remoteTargets: [(MPRemoteCommand, Any)] = []
 	private var retryTask: Task<Void, Never>?
+	private var openingTask: Task<Void, Never>?
 	private var timers: [Timer] = []
 	/// Runs until the audio track is chosen (about ten seconds at most), then stops.
 	private var trackTimer: Timer?
@@ -49,6 +75,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var autoTrackDone = false
 	private var cues: [SubtitleCues.Cue] = []
 	private var cueIndex: Int?
+	private var pendingSubtitle: URL?
 	private var videoOff = false
 	private var sharePlayback: SharePlaybackCoordinator?
 	private var sharedPausePending = false
@@ -56,10 +83,13 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var sharedSeekTarget: Double?
 	#if os(iOS)
 	private var discoverers: [VLCRendererDiscoverer] = []
+	private var videoRelay: VideoRelay?
+	private var castPreparation: Task<Void, Never>?
 	#endif
 
 	init(request: PlayRequest) {
 		self.request = request
+		usesNative = PlaybackBackend.preferred(for: request.url) == .native
 		let ch = request.channel
 		channel = ch
 		live = !request.catchup && ch?.isLive == true
@@ -93,7 +123,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 		// Quick start, then build the cushion: a live stream plays 5% slow until it is held.
 		if live { timers.append(Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.pace() } }) }
-		trackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } }
+		restartTrackSelection()
 		nowPlayingInfo()
 		#if os(iOS)
 		// Warm the cast device list so Cast has names to offer straight away.
@@ -115,11 +145,18 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		remoteTargets.forEach { $0.0.removeTarget($0.1) }
 		remoteTargets.removeAll()
 		retryTask?.cancel()
+		openingTask?.cancel()
 		timers.forEach { $0.invalidate() }
 		trackTimer?.invalidate()
 		cueTimer?.invalidate()
 		programmeTimer?.invalidate()
-		player.stop()
+		stopNative()
+		#if os(iOS)
+		castPreparation?.cancel()
+		videoRelay?.stop()
+		videoRelay = nil
+		#endif
+		PlaybackTeardown.stop(player)
 		player.drawable = nil
 		player.delegate = nil
 		#if os(iOS)
@@ -146,8 +183,24 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// Opens the stream. A first start and a reconnect wait for half a second of cache; the
 	/// rest of the cushion is built by pace().
 	private func open() {
+		openingTask?.cancel()
+		openingTask = Task { [weak self] in
+			let ready = await PlaybackTeardown.ready()
+			guard let self, !Task.isCancelled, !self.closing, self.intent.canPlay else { return }
+			self.openingTask = nil
+			guard ready else {
+				self.failed = true
+				self.say(L("play_failed", URLError(.timedOut).localizedDescription), 1)
+				return
+			}
+			self.openNow()
+		}
+	}
+
+	private func openNow() {
 		guard !closing, intent.canPlay else { return }
-		let (plain, headers) = M3U.splitHeaders(request.url)
+		if usesNative { openNative(); return }
+		let (plain, headers) = M3U.splitHeaders(playbackURL)
 		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
 			say(L("play_failed", plain), 1)
 			failed = true
@@ -180,26 +233,189 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		player.play()
 	}
 
+	// MARK: native playback
+
+	private func openNative() {
+		stopNative()
+		let (plain, headers) = M3U.splitHeaders(playbackURL)
+		guard let url = URL(string: plain) else { fallbackToVLC(); return }
+		let agent = headers.first { $0.key.lowercased() == "user-agent" }?.value ?? Net.userAgent
+		let item = AVPlayerItem(asset: AVURLAsset(url: url, options: [AVURLAssetHTTPUserAgentKey: agent]))
+		item.preferredForwardBufferDuration = live ? Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls) : 2
+		hasPlayed = false
+		buffering = false
+		#if !os(visionOS)
+		nativePlayer.allowsExternalPlayback = true
+		#endif
+		nativePlayer.replaceCurrentItem(with: item)
+		nativeObservations.append(item.observe(\.status, options: [.initial, .new]) { [weak self] item, _ in
+			Task { @MainActor in
+				guard let self, self.usesNative, self.nativePlayer.currentItem === item, !self.closing else { return }
+				if item.status == .failed { self.fallbackToVLC(); return }
+				if item.status == .readyToPlay {
+					self.hasPlayed = true
+					if !self.live, let time = self.fallbackTime, !self.isRelayingVideo {
+						self.nativePlayer.seek(to: CMTime(seconds: time, preferredTimescale: 1000))
+						self.fallbackTime = nil
+					}
+					if self.sharedPausePending { self.performSharedPause(temporary: self.sharedPauseTemporary) }
+					self.sharePlayback?.reapply()
+				}
+			}
+		})
+		nativeObservations.append(nativePlayer.observe(\.timeControlStatus, options: [.new]) { [weak self, weak item] _, _ in
+			Task { @MainActor in
+				guard let self, let item, self.usesNative, self.nativePlayer.currentItem === item, !self.closing else { return }
+				switch self.nativePlayer.timeControlStatus {
+				case .playing:
+					self.nativeTimeout?.cancel()
+					self.bufferingChanged(100)
+					self.stateChanged(.playing)
+				case .waitingToPlayAtSpecifiedRate:
+					self.bufferingChanged(0)
+					self.armNativeTimeout()
+				case .paused:
+					self.isPlaying = false
+					self.nowPlayingInfo()
+				@unknown default: break
+				}
+			}
+		})
+		#if !os(visionOS)
+		nativeObservations.append(nativePlayer.observe(\.isExternalPlaybackActive, options: [.new]) { [weak self] _, _ in
+			Task { @MainActor in self?.announceNativeRoute() }
+		})
+		#endif
+		let center = NotificationCenter.default
+		for name in [AVPlayerItem.didPlayToEndTimeNotification, AVPlayerItem.failedToPlayToEndTimeNotification] {
+			nativeNotifications.append(center.addObserver(forName: name, object: item, queue: .main) { [weak self, weak item] note in
+				let failed = note.name == AVPlayerItem.failedToPlayToEndTimeNotification
+				Task { @MainActor in
+					guard let self, let item, self.usesNative, self.nativePlayer.currentItem === item, !self.closing else { return }
+					if failed { self.fallbackToVLC() } else { self.stateChanged(.stopped) }
+				}
+			})
+		}
+		nativeTracksTask = Task { [weak self, weak item] in
+			guard let item else { return }
+			let audio = try? await item.asset.loadMediaSelectionGroup(for: .audible)
+			let text = try? await item.asset.loadMediaSelectionGroup(for: .legible)
+			guard let self, !Task.isCancelled, self.usesNative, self.nativePlayer.currentItem === item else { return }
+			self.nativeAudio = self.nativeChoices(audio)
+			self.nativeText = self.nativeChoices(text)
+			self.restartTrackSelection()
+			self.autoTrack()
+		}
+		if intent.canPlay { nativePlayer.play(); armNativeTimeout() }
+	}
+
+	private func stopNative() {
+		nativeTimeout?.cancel()
+		nativeTracksTask?.cancel()
+		nativeObservations.removeAll()
+		nativeNotifications.forEach { NotificationCenter.default.removeObserver($0) }
+		nativeNotifications.removeAll()
+		nativePlayer.pause()
+		nativePlayer.currentItem?.asset.cancelLoading()
+		nativePlayer.replaceCurrentItem(with: nil)
+		nativeAudio = []
+		nativeText = []
+	}
+
+	private func armNativeTimeout() {
+		nativeTimeout?.cancel()
+		guard intent.canPlay, !sharedPausePending else { return }
+		nativeTimeout = Task { [weak self] in
+			do { try await Task.sleep(nanoseconds: 20_000_000_000) } catch { return }
+			guard let self, !Task.isCancelled, self.intent.canPlay, self.usesNative,
+				self.nativePlayer.timeControlStatus != .playing else { return }
+			self.fallbackToVLC()
+		}
+	}
+
+	private func fallbackToVLC() {
+		guard usesNative, !closing else { return }
+		#if os(iOS)
+		let retryVideo = !isRelayingVideo && nativePlayer.isExternalPlaybackActive
+		#endif
+		let time = sharedPlaybackTime
+		if !live, time.isFinite, time > 0 { fallbackTime = time }
+		stopNative()
+		#if os(iOS)
+		videoRelay?.stop()
+		videoRelay = nil
+		#endif
+		usesNative = false
+		restartTrackSelection()
+		failed = !intent.canPlay
+		say(L("compatibility_playback"), 2)
+		_ = activateAudio()
+		open()
+		#if os(iOS)
+		if retryVideo { prepareAirPlay() }
+		#endif
+	}
+
+	private func nativeChoices(_ group: AVMediaSelectionGroup?) -> [TrackChoice] {
+		guard let group else { return [] }
+		return group.options.map { TrackChoice(name: $0.displayName, option: $0, group: group) }
+	}
+
+	private func selectedNativeTracks(_ choices: [TrackChoice]) -> [TrackChoice] {
+		choices.map { choice in
+			var result = choice
+			if let group = choice.group {
+				result.selected = nativePlayer.currentItem?.currentMediaSelection.selectedMediaOption(in: group) == choice.option
+			}
+			return result
+		}
+	}
+
+	private func chooseTrack(_ choice: TrackChoice) {
+		if usesNative, let group = choice.group { nativePlayer.currentItem?.select(choice.option, in: group) }
+		else { choice.track?.isSelectedExclusively = true }
+	}
+
+	private func announceNativeRoute() {
+		#if !os(visionOS)
+		guard usesNative, !closing else { return }
+		say(nativePlayer.isExternalPlaybackActive ? L("airplay_video") : L("airplay_video_stopped"), 2)
+		#endif
+	}
+
 	// MARK: VLC events
 
 	nonisolated func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
-		Task { @MainActor in self.stateChanged(newState) }
+		Task { @MainActor in
+			if !self.usesNative && !self.preparingVideo && self.openingTask == nil && self.player.state == newState { self.stateChanged(newState) }
+		}
 	}
 
 	nonisolated func mediaPlayerBufferingChanged(_ progress: Float) {
-		Task { @MainActor in self.bufferingChanged(progress) }
+		Task { @MainActor in if !self.usesNative && !self.preparingVideo { self.bufferingChanged(progress) } }
 	}
 
 	private func stateChanged(_ s: VLCMediaPlayerState) {
 		guard !closing else { return }
 		if s == .playing {
+			if !usesNative, let file = pendingSubtitle {
+				_ = player.addPlaybackSlave(file, type: .subtitle, enforce: true)
+				pendingSubtitle = nil
+			}
+			if !usesNative, let time = fallbackTime, player.isSeekable {
+				player.time = VLCTime(int: Int32(min(Double(Int32.max), time * 1000)))
+				fallbackTime = nil
+			}
 			let becameReady = !hasPlayed
 			hasPlayed = true
 			failed = false
 			if sharedPausePending { performSharedPause(temporary: sharedPauseTemporary) }
 			if becameReady { sharePlayback?.reapply() }
 		}
-		if s == .playing && !intent.canPlay { player.pause(); return }
+		if s == .playing && !intent.canPlay {
+			if usesNative { nativePlayer.pause() } else { player.pause() }
+			return
+		}
 		let playing = s == .playing
 		if playing != isPlaying {
 			isPlaying = playing
@@ -243,12 +459,12 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Schedules the next reconnect of a live stream; false when this stream does not get one.
 	private func tryReconnect() -> Bool {
-		guard intent.canPlay, live, casting == nil, let delay = reconnect.next() else { return false }
+		guard intent.canPlay, live, casting == nil, !isRelayingVideo, let delay = reconnect.next() else { return false }
 		say(L("reconnecting"), 2)
 		retryTask?.cancel()
 		retryTask = Task {
 			try? await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000)
-			guard !Task.isCancelled, !closing, intent.canPlay else { return }
+			guard !Task.isCancelled, !closing, intent.canPlay, !preparingVideo, !isRelayingVideo else { return }
 			retryTask = nil
 			// Behind the live window after a drop: start again at the live edge.
 			open()
@@ -278,8 +494,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		isPaused = true
 		UIApplication.shared.isIdleTimerDisabled = false
 		retryTask?.cancel()
+		openingTask?.cancel()
+		openingTask = nil
 		retryTask = nil
 		player.pause()
+		if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
+		#if os(iOS)
+		if !live { videoRelay?.player.pause() }
+		#endif
 		isPlaying = false
 		nowPlayingInfo()
 	}
@@ -302,6 +524,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		guard intent.canPlay, activateAudio() else { return }
 		isPaused = false
 		UIApplication.shared.isIdleTimerDisabled = UIApplication.shared.applicationState == .active
+		#if os(iOS)
+		videoRelay?.player.play()
+		#endif
+		if usesNative {
+			if failed || nativePlayer.currentItem == nil { failed = false; open() }
+			else { nativePlayer.play(); armNativeTimeout() }
+			return
+		}
 		if failed || player.state == .stopped || player.state == .error {
 			// Retry after a failure: a live stream starts again at the live edge.
 			retryTask?.cancel()
@@ -355,10 +585,27 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	// MARK: audio tracks
 
-	struct TrackChoice { let name: String; let track: VLCMediaPlayer.Track }
+	struct TrackChoice {
+		let name: String
+		var track: VLCMediaPlayer.Track?
+		var option: AVMediaSelectionOption?
+		var group: AVMediaSelectionGroup?
+		var selected = false
+		var isSelected: Bool { track?.isSelected ?? selected }
+	}
 
-	func audioTracks() -> [TrackChoice] { named(player.audioTracks) }
-	func textTracks() -> [TrackChoice] { named(player.textTracks) }
+	func audioTracks() -> [TrackChoice] {
+		#if os(iOS)
+		if let relay = videoRelay { return named(relay.player.audioTracks) }
+		#endif
+		return usesNative ? selectedNativeTracks(nativeAudio) : named(player.audioTracks)
+	}
+	func textTracks() -> [TrackChoice] {
+		#if os(iOS)
+		if let relay = videoRelay { return named(relay.player.textTracks) }
+		#endif
+		return usesNative ? selectedNativeTracks(nativeText) : named(player.textTracks)
+	}
 
 	private func named(_ tracks: [VLCMediaPlayer.Track]) -> [TrackChoice] {
 		tracks.enumerated().map { i, t in
@@ -369,6 +616,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			let name = parts.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty && seen.insert($0.lowercased()).inserted }.joined(separator: ", ")
 			return TrackChoice(name: name.isEmpty ? L("track_n", i + 1) : name, track: t)
 		}
+	}
+
+	private func restartTrackSelection() {
+		trackTimer?.invalidate()
+		guard !isRelayingVideo else { autoTrackDone = true; return }
+		autoTrackDone = false
+		autoTrackTries = 0
+		trackTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in Task { @MainActor in self?.autoTrack() } }
 	}
 
 	/// Audio description, a remembered track or a preferred language, picked once the
@@ -382,13 +637,13 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		guard !audio.isEmpty else { return }
 		let idx = AudioTracks.choose(
 			names: audio.map(\.name),
-			describesVideo: audio.map { _ in false },
+			describesVideo: audio.map { $0.option?.hasMediaCharacteristic(.describesVideoForAccessibility) ?? false },
 			remembered: prefs.rememberedTrack(request.channelKey),
 			preferAd: prefs.preferAudioDescription,
 			keywords: prefs.audioKeywords.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
 		)
 		if idx >= 0 {
-			if !audio[idx].track.isSelected { audio[idx].track.isSelectedExclusively = true }
+			if !audio[idx].isSelected { chooseTrack(audio[idx]) }
 			autoTrackDone = true
 		} else if autoTrackTries >= 6 {
 			autoTrackDone = true
@@ -396,7 +651,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	}
 
 	func selectAudio(_ c: TrackChoice) {
-		c.track.isSelectedExclusively = true
+		chooseTrack(c)
 		autoTrackDone = true
 		// Remembered per channel, ahead of every other rule, like the desktop app.
 		if !request.channelKey.isEmpty { prefs.rememberTrack(request.channelKey, c.name) }
@@ -407,10 +662,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func selectSubtitle(_ c: TrackChoice?) {
 		if let c {
-			c.track.isSelectedExclusively = true
+			chooseTrack(c)
 			say(L("subtitles_set", c.name), 2)
 		} else {
+			if usesNative, let group = nativeText.first?.group { nativePlayer.currentItem?.select(nil, in: group) }
 			player.deselectAllTextTracks()
+			#if os(iOS)
+			videoRelay?.player.deselectAllTextTracks()
+			#endif
 			subtitle = ""
 			say(L("subtitles_set", L("subtitles_off")), 2)
 		}
@@ -429,7 +688,15 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			say(L("play_failed", error.localizedDescription), 1)
 			return
 		}
-		_ = player.addPlaybackSlave(copy, type: .subtitle, enforce: true)
+		// External subtitle files use VLC's existing renderer and spoken-cue path.
+		if usesNative && !isRelayingVideo { fallbackToVLC() }
+		#if os(iOS)
+		let subtitlePlayer = videoRelay?.player ?? player
+		#else
+		let subtitlePlayer = player
+		#endif
+		if subtitlePlayer.isPlaying { _ = subtitlePlayer.addPlaybackSlave(copy, type: .subtitle, enforce: true) }
+		else { pendingSubtitle = copy }
 		say(L("subtitles_set", picked.lastPathComponent), 2)
 		cues = []
 		cueIndex = nil
@@ -445,15 +712,15 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func cueTick() {
 		guard !cues.isEmpty else { return }
-		let off = !player.textTracks.contains { $0.isSelected }
+		let off = !textTracks().contains { $0.isSelected }
 		// The subtitle delay is in microseconds; a positive delay shows cues later.
-		let ms = Int64(player.time.intValue) - Int64(player.currentVideoSubTitleDelay / 1000)
+		let ms = Int64(sharedPlaybackTime * 1000) - Int64(player.currentVideoSubTitleDelay / 1000)
 		let index = off || ms < 0 ? nil : SubtitleCues.active(cues, ms)
 		guard index != cueIndex else { return }
 		cueIndex = index
 		let text = index.map { cues[$0].text } ?? ""
 		subtitle = text
-		if !text.isEmpty && prefs.speakSubtitles && player.isPlaying { announce(text) }
+		if !text.isEmpty && prefs.speakSubtitles && isPlaying { announce(text) }
 	}
 
 	// MARK: cast
@@ -468,14 +735,119 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	/// Moves playback to a Chromecast (libVLC's renderer), or back to this device.
 	func cast(to r: Renderer?) {
+		guard !closing else { return }
+		if let r { prepareVideoRelay(renderer: r); return }
 		if sharePlayback != nil { SharePlayCenter.shared.leave() }
-		let position = player.position
-		player.stop()
-		_ = player.setRendererItem(r?.item)
-		casting = r?.name
+		let time = sharedPlaybackTime
+		castPreparation?.cancel()
+		preparingVideo = true
+		stopNative()
+		PlaybackTeardown.stop(player)
+		_ = player.setRendererItem(nil)
+		videoRelay?.stop()
+		videoRelay = nil
+		casting = nil
+		usesNative = PlaybackBackend.preferred(for: request.url) == .native
+		if !live && time > 0 { fallbackTime = time }
+		preparingVideo = false
 		open()
-		if !live && position > 0 { player.position = position }
-		say(r.map { L("casting_to", $0.name) } ?? L("cast_stopped"), 2)
+		say(L("cast_stopped"), 2)
+	}
+
+	/// The route picker keeps the same AVPlayer while an incompatible source is converted.
+	func prepareAirPlay() {
+		guard !usesNative || casting != nil else { return }
+		prepareVideoRelay(renderer: nil)
+	}
+
+	private func prepareVideoRelay(renderer: Renderer?) {
+		guard !closing, !preparingVideo else { return }
+		if sharePlayback != nil { SharePlayCenter.shared.leave() }
+		retryTask?.cancel()
+		retryTask = nil
+		intent.play()
+		isPaused = false
+		guard activateAudio() else { return }
+		if videoRelay?.url != nil { playRelay(renderer: renderer); return }
+		let position = live ? 0 : sharedPlaybackTime
+		preparingVideo = true
+		casting = renderer?.name
+		say(L("preparing_video_cast"), 2)
+		castPreparation?.cancel()
+		castPreparation = Task { [weak self] in
+			guard let self else { return }
+			if self.usesNative || self.player.videoTracks.isEmpty {
+				self.stopNative()
+				self.usesNative = false
+				PlaybackTeardown.stop(self.player)
+				_ = self.player.setRendererItem(nil)
+				self.open()
+			}
+			let deadline = ProcessInfo.processInfo.systemUptime + 15
+			while self.player.videoTracks.isEmpty || self.player.audioTracks.isEmpty {
+				guard !Task.isCancelled, !self.closing else { return }
+				if ProcessInfo.processInfo.systemUptime >= deadline { break }
+				do { try await Task.sleep(nanoseconds: 200_000_000) } catch { return }
+			}
+			guard !Task.isCancelled, !self.closing else { return }
+			guard let video = self.player.videoTracks.first(where: { $0.isSelected }) ?? self.player.videoTracks.first else {
+				self.relayFailed(); return
+			}
+			self.hasPlayed = true
+			self.autoTrackDone = false
+			self.autoTrackTries = 0
+			self.autoTrack()
+			let audio = self.player.audioTracks.first(where: { $0.isSelected }) ?? self.player.audioTracks.first
+			let tracks = [video.trackId] + (audio.map { [$0.trackId] } ?? [])
+			PlaybackTeardown.stop(self.player)
+			guard await PlaybackTeardown.ready(), !Task.isCancelled, !self.closing else {
+				if !Task.isCancelled, !self.closing { self.relayFailed() }
+				return
+			}
+			let relay = VideoRelay()
+			self.videoRelay = relay
+			self.relayStartTime = position
+			relay.onFailure = { [weak self] in self?.relayFailed() }
+			relay.start(source: self.request.url, tracks: tracks, seconds: position, live: self.live) { [weak self, weak relay] result in
+				guard let self, let relay, self.videoRelay === relay, !self.closing else { return }
+				self.preparingVideo = false
+				switch result {
+				case .success:
+					self.playRelay(renderer: renderer)
+					if !self.intent.canPlay, !self.live { relay.player.pause() }
+				case .failure: self.relayFailed()
+				}
+			}
+		}
+	}
+
+	private func playRelay(renderer: Renderer?) {
+		preparingVideo = true
+		stopNative()
+		PlaybackTeardown.stop(player)
+		_ = player.setRendererItem(renderer?.item)
+		casting = renderer?.name
+		usesNative = renderer == nil
+		preparingVideo = false
+		restartTrackSelection()
+		guard activateAudio() else { return }
+		open()
+		say(renderer.map { L("casting_to", $0.name) } ?? L("video_cast_ready"), 2)
+	}
+
+	private func relayFailed() {
+		guard !closing else { return }
+		preparingVideo = true
+		stopNative()
+		PlaybackTeardown.stop(player)
+		_ = player.setRendererItem(nil)
+		videoRelay?.stop()
+		videoRelay = nil
+		usesNative = false
+		casting = nil
+		preparingVideo = false
+		open()
+		say(L("video_cast_failed"), 1)
 	}
 	#endif
 
@@ -485,6 +857,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// app, the picture returns.
 	func scene(_ phase: ScenePhase) {
 		UIApplication.shared.isIdleTimerDisabled = phase == .active && !isPaused
+		nativeVideoAttached = phase != .background
+		if usesNative { return }
 		if phase == .background && casting == nil && !videoOff {
 			videoOff = true
 			player.deselectAllVideoTracks()
@@ -499,7 +873,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private func activateAudio() -> Bool {
 		do {
 			let session = AVAudioSession.sharedInstance()
-			try session.setCategory(.playback, mode: .moviePlayback)
+			#if os(iOS)
+			try session.setCategory(.playback, mode: .moviePlayback, policy: usesNative ? .longFormVideo : .longFormAudio)
+			#else
+			try session.setCategory(.playback, mode: .moviePlayback, policy: .longFormAudio)
+			#endif
 			try session.setActive(true)
 			return true
 		} catch {
@@ -516,13 +894,24 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		})
 		observers.append(center.addObserver(forName: AVAudioSession.routeChangeNotification, object: nil, queue: .main) { [weak self] note in
 			guard let raw = note.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
-				AVAudioSession.RouteChangeReason(rawValue: raw) == .oldDeviceUnavailable else { return }
+				let reason = AVAudioSession.RouteChangeReason(rawValue: raw) else { return }
 			Task { @MainActor in
 				guard let self else { return }
+				self.announceAirPlayRoute(reason)
+				guard reason == .oldDeviceUnavailable else { return }
 				self.sharePlayback?.suspend()
 				self.pauseLocally()
 			}
 		})
+	}
+
+	/// Announce audio routing independently of native external-video playback.
+	private func announceAirPlayRoute(_ reason: AVAudioSession.RouteChangeReason) {
+		guard reason == .newDeviceAvailable || reason == .routeConfigurationChange || reason == .oldDeviceUnavailable else { return }
+		let route = AVAudioSession.sharedInstance().currentRoute.outputs.first { $0.portType == .airPlay }?.portName
+		guard route != airPlayRoute else { return }
+		airPlayRoute = route
+		say(route.map { L("sound_on", $0) } ?? L("airplay_audio_stopped"), 2)
 	}
 
 	private func interruption(_ note: Notification) {
@@ -535,6 +924,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			retryTask?.cancel()
 			retryTask = nil
 			player.pause()
+			if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
 			isPlaying = false
 			nowPlayingInfo()
 		} else {
@@ -552,23 +942,29 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	// MARK: SharePlay's native custom-player adapter
 
 	var isSharingPlayback: Bool { sharePlayback != nil }
-	var sharedPlaybackTime: Double { max(0, Double(player.time.intValue) / 1000) }
+	var sharedPlaybackTime: Double {
+		let time = usesNative ? nativePlayer.currentTime().seconds : Double(player.time.intValue) / 1000
+		return time.isFinite ? max(0, time) + (isRelayingVideo && !live ? relayStartTime : 0) : 0
+	}
 	var sharedPlaybackRate: Float { isPaused ? 0 : 1 }
 	var sharedPlaybackReady: Bool {
-		guard hasPlayed, !buffering, !failed, !closing, retryTask == nil,
-			player.state == .playing || player.state == .paused else { return false }
+		guard hasPlayed, !buffering, !failed, !closing, retryTask == nil else { return false }
+		if usesNative {
+			guard nativePlayer.currentItem?.status == .readyToPlay else { return false }
+		} else if player.state != .playing && player.state != .paused { return false }
 		if let target = sharedSeekTarget {
 			guard abs(sharedPlaybackTime - target) < 0.5 else { return false }
 			sharedSeekTarget = nil
 		}
 		return true
 	}
-	var sharedPlaybackSeekable: Bool { !live && player.isSeekable }
+	var sharedPlaybackSeekable: Bool { !live && !isRelayingVideo && (usesNative ? nativePlayer.currentItem?.seekableTimeRanges.isEmpty == false : player.isSeekable) }
 	var sharedPlaybackFailed: Bool { failed || closing }
 
 	func joinSharePlay(_ session: GroupSession<WatchTVActivity>, identifier: String) {
 		leaveSharePlay()
 		player.rate = 1
+		if usesNative, isPlaying { nativePlayer.rate = 1 }
 		paced = 1
 		let adapter = SharePlaybackCoordinator(controller: self, identifier: identifier)
 		sharePlayback = adapter
@@ -589,10 +985,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		sharedPausePending = true
 		sharedPauseTemporary = temporary
 		if !temporary { intent.pause(); isPaused = true }
-		// Let VLC finish opening before pausing, so it can report readiness to SharePlay.
+		// Let the engine finish opening before pausing, so it can report readiness to SharePlay.
 		if hasPlayed {
 			if temporary {
 				player.pause()
+				if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
 				isPlaying = false
 				nowPlayingInfo()
 			} else { pauseLocally() }
@@ -604,6 +1001,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		sharedPausePending = false
 		resumeLocally()
 		player.rate = rate
+		if usesNative { nativePlayer.rate = rate }
 	}
 
 	func performSharedSeek(seconds: Double) {
@@ -611,7 +1009,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		let target = min(Double(Int32.max) / 1000, max(0, seconds))
 		guard abs(sharedPlaybackTime - target) > 0.2 else { return }
 		sharedSeekTarget = target
-		player.time = VLCTime(int: Int32(target * 1000))
+		if usesNative { nativePlayer.seek(to: CMTime(seconds: target, preferredTimescale: 1000), toleranceBefore: .zero, toleranceAfter: .zero) }
+		else { player.time = VLCTime(int: Int32(target * 1000)) }
 	}
 
 	func recoverSharedPlayback() {
@@ -652,7 +1051,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = [
 			MPMediaItemPropertyTitle: nowPlaying.isEmpty ? request.title : nowPlaying,
 			MPNowPlayingInfoPropertyIsLiveStream: live,
-			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(player.rate) : 0.0,
+			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(usesNative ? nativePlayer.rate : player.rate) : 0.0,
 		]
 	}
 }

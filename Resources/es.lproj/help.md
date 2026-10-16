@@ -1,12 +1,12 @@
 # Inicio
 
-Abre Listas. Añade un acceso Xtream, una URL M3U, un archivo M3U o un portal Stalker (dirección y MAC). Xtream y Stalker traen su propia guía. Una M3U que indica su guía también la trae; si no, añade la URL de su guía. Un enlace completo de un panel Xtream pegado como servidor rellena el usuario y la contraseña.
+Abre Ajustes y luego Fuentes. Añade un acceso Xtream, una URL M3U, un archivo M3U o un portal Stalker (dirección y MAC). Xtream y Stalker traen su propia guía. Una M3U que nombra su guía también la trae; si no, añade su URL de guía. Un enlace completo de panel Xtream pegado como servidor rellena el acceso.
 
 # Pantalla principal
 
 Buscar está arriba. Busca en todos los grupos de la sección; los nombres exactos van primero. Voz, al lado, lo rellena hablando. Borrar lo vacía.
 
-Debajo: TV en directo, Películas, Series. Luego Listas, Ahora, Buscar en la guía, Grabaciones, Más.
+Debajo: TV en directo, Películas, Series. Luego Ahora, Buscar en la guía, Grabaciones, Más.
 
 Primero aparecen las categorías. Elige una para ver sus canales; Todos debe seleccionarse expresamente. En iPhone y iPad hay pestañas Explorar, Guía, Grabaciones y Ajustes. En iPad, Apple TV y Vision Pro, las categorías aparecen a la izquierda. Ambas listas tienen encabezados. Elegir una categoría lleva a sus canales.
 
@@ -14,7 +14,7 @@ Las teclas numéricas de un teclado saltan a ese número de canal.
 
 # Más
 
-Canal anterior, Vistos recientemente, Ir al número de canal, Actualizar listas, Actualizar guía, Cuenta, Ajustes, Buscar actualizaciones, Ayuda.
+Canal anterior, Vistos recientemente, Ir al número de canal, Actualizar fuentes, Actualizar guía, Cuenta, Ajustes, Buscar actualizaciones, Ayuda.
 
 # Elementos
 
@@ -28,7 +28,7 @@ Ahora muestra todo lo que se emite. La guía de un canal reproduce los programas
 
 # Reproductor
 
-En iPhone y iPad, Minimizar mantiene la reproducción en un minirreproductor sobre las pestañas. Toca su título o vídeo para ampliarlo. Pausa y Detener reproducción son controles separados. El reproductor ampliado ofrece Audio, Subtítulos, Grabar, Enviar y Pantalla completa. Teclas: A para audio, S para subtítulos, F para pantalla completa, Escape para minimizar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.
+En iPhone y iPad, Minimizar mantiene la reproducción en un minirreproductor sobre las pestañas. Toca su título o vídeo para ampliarlo. Pausa y Detener reproducción son controles separados. El reproductor ampliado ofrece Audio, Subtítulos, Grabar, Destino de reproducción, AirPlay y Pantalla completa. Teclas: A para audio, S para subtítulos, F para pantalla completa, Escape para minimizar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.
 
 La pantalla completa oculta los botones. Un toque, Escape o el botón Atrás del mando los vuelve a mostrar.
 
@@ -40,7 +40,7 @@ Cuando cambia el programa, el reproductor dice lo que se emite ahora. Ajustes, A
 
 Un directo que se corta se reconecta solo. El sonido sigue con la pantalla bloqueada.
 
-Enviar manda la emisión a un Chromecast de la misma red.
+En iPhone y iPad, AirPlay envía vídeo compatible mediante el reproductor de Apple. Los demás vídeos IPTV se convierten a H.264 y AAC en este dispositivo, sin otro servidor. Destino de reproducción usa la misma conversión para Chromecast. Mantén la aplicación abierta y en la misma red Wi-Fi que el receptor durante la conversión. Consume batería y puede fallar con emisiones protegidas o si el dispositivo no tiene suficiente rendimiento. Los receptores de audio solo reproducen sonido. Apple TV y Vision Pro permiten reproducción local; no se garantiza el envío de vídeo. Si aparece Preparar vídeo AirPlay, elígelo primero. Cuando esté listo, elige el receptor con AirPlay. Elige el audio y los subtítulos antes de enviar el vídeo.
 
 # Grabaciones
 
@@ -52,7 +52,7 @@ Una descarga en diferido que termina antes de tiempo se vuelve a descargar.
 
 # Ajustes
 
-Exportar ajustes guarda listas, accesos, favoritos y opciones en un archivo. Importar ajustes carga uno desde este dispositivo, otro o la app de Android. Idioma abre la página de esta app en la app Ajustes.
+Exportar ajustes guarda fuentes, accesos, favoritos y opciones en un archivo. Importar ajustes carga uno desde este dispositivo, otro o la app de Android. Idioma abre la página de esta app en la app Ajustes.
 
 # Actualizaciones
 

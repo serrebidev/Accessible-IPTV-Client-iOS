@@ -1,5 +1,19 @@
 import Foundation
 
+/// Prefer Apple's player without probing the provider or rewriting a raw transport-stream URL.
+public enum PlaybackBackend {
+	case native, vlc
+
+	public static func preferred(for raw: String) -> PlaybackBackend {
+		let (plain, headers) = M3U.splitHeaders(raw)
+		// AVURLAsset has a public user-agent option, but no general HTTP-header option.
+		guard headers.keys.allSatisfy({ $0.lowercased() == "user-agent" }),
+			let url = URL(string: plain), ["http", "https", "file"].contains(url.scheme?.lowercased() ?? "") else { return .vlc }
+		let compatibility = ["ts", "m2ts", "mts", "mkv", "avi", "flv", "wmv", "asf", "vob", "ogg", "ogv"]
+		return compatibility.contains(url.pathExtension.lowercased()) ? .vlc : .native
+	}
+}
+
 /// User intent survives buffering and system interruptions; a pause must also cancel reconnects.
 public struct PlaybackIntent {
 	private var wanted = true

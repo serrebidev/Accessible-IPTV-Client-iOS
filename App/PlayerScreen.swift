@@ -2,9 +2,33 @@ import SwiftUI
 import UIKit
 import VLCKit
 import IPTVCore
+import AVKit
+
+#if os(iOS)
+/// Apple's own AirPlay and Bluetooth route picker. The system draws the button and the list of
+/// receivers, so VoiceOver reads it in the user's language; the app only places it.
+private struct RoutePicker: UIViewRepresentable {
+	let controller: PlayerController
+	func makeCoordinator() -> Coordinator { Coordinator(controller) }
+	@MainActor final class Coordinator: NSObject, AVRoutePickerViewDelegate {
+		let controller: PlayerController
+		init(_ controller: PlayerController) { self.controller = controller }
+		func routePickerViewWillBeginPresentingRoutes(_ routePickerView: AVRoutePickerView) { controller.prepareAirPlay() }
+	}
+	func makeUIView(context: Context) -> AVRoutePickerView {
+		let v = AVRoutePickerView()
+		v.delegate = context.coordinator
+		v.prioritizesVideoDevices = true
+		v.tintColor = .white
+		v.activeTintColor = .white
+		return v
+	}
+	func updateUIView(_ v: AVRoutePickerView, context: Context) {}
+}
+#endif
 
 /// libVLC draws into a plain UIView.
-private struct VideoView: UIViewRepresentable {
+private struct VLCVideoView: UIViewRepresentable {
 	let controller: PlayerController
 	private final class Host: UIView {
 		var surface: UIView?
@@ -25,6 +49,29 @@ private struct VideoView: UIViewRepresentable {
 		return v
 	}
 	func updateUIView(_ v: UIView, context: Context) {}
+}
+
+private struct NativeVideoView: UIViewControllerRepresentable {
+	@ObservedObject var controller: PlayerController
+	func makeUIViewController(context: Context) -> AVPlayerViewController {
+		let view = AVPlayerViewController()
+		// Keep the app's labelled, always-visible controls and single Now Playing owner.
+		view.showsPlaybackControls = false
+		view.updatesNowPlayingInfoCenter = false
+		return view
+	}
+	func updateUIViewController(_ view: AVPlayerViewController, context: Context) {
+		view.player = controller.nativeVideoAttached ? controller.nativePlayer : nil
+	}
+	static func dismantleUIViewController(_ view: AVPlayerViewController, coordinator: ()) { view.player = nil }
+}
+
+private struct VideoView: View {
+	@ObservedObject var controller: PlayerController
+	var body: some View {
+		if controller.usesNative { NativeVideoView(controller: controller) }
+		else { VLCVideoView(controller: controller) }
+	}
 }
 
 /// The same playback session and video surface, reachable while browsing any screen.
@@ -174,11 +221,11 @@ struct PlayerScreen: View {
 		.sheet(item: $choosing) { choice in
 			switch choice {
 			case .audio(let list):
-				ChoiceSheet(title: L("audio_track"), options: list.map(\.name), selected: list.firstIndex { $0.track.isSelected }) { c.selectAudio(list[$0]) }
+				ChoiceSheet(title: L("audio_track"), options: list.map(\.name), selected: list.firstIndex { $0.isSelected }) { c.selectAudio(list[$0]) }
 			case .subtitles(let list):
 				let file = canPickFiles ? [L("subtitle_file")] : []
 				ChoiceSheet(title: L("subtitles"), options: [L("subtitles_off")] + list.map(\.name) + file,
-					selected: list.firstIndex { $0.track.isSelected }.map { $0 + 1 } ?? 0) { i in
+					selected: list.firstIndex { $0.isSelected }.map { $0 + 1 } ?? 0) { i in
 					if i == 0 { c.selectSubtitle(nil) } else if i <= list.count { c.selectSubtitle(list[i - 1]) } else { pickingSubtitle = true }
 				}
 			#if os(iOS)
@@ -203,10 +250,20 @@ struct PlayerScreen: View {
 			Button(L("subtitles")) { chooseSubtitles() }.key("s")
 			Button(L("record")) { record() }
 			Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
+			airPlayControl
 			Button(L("full_screen")) { setFullscreen(true) }.key("f")
 				.focused($focus, equals: .full).accessibilityFocused($voFocus, equals: .full)
 		}
 		.buttonStyle(.bordered).controlSize(.large).padding(.horizontal)
+	}
+
+	@ViewBuilder private var airPlayControl: some View {
+		if c.usesNative {
+			RoutePicker(controller: c).frame(maxWidth: .infinity, minHeight: 44)
+		} else {
+			Button(L("prepare_airplay_video")) { c.prepareAirPlay() }
+				.disabled(c.isRelayingVideo && c.casting == nil)
+		}
 	}
 	#endif
 
@@ -252,6 +309,7 @@ struct PlayerScreen: View {
 				Button(L("record")) { record() }
 				#if os(iOS)
 				Button(L(c.casting == nil ? "cast" : "stop_casting")) { cast() }
+				airPlayControl
 				#endif
 				Button(L("full_screen")) { setFullscreen(true) }
 					.key("f")
@@ -277,11 +335,13 @@ struct PlayerScreen: View {
 	}
 
 	private func chooseAudio() {
+		guard !c.isRelayingVideo else { c.say(L("video_cast_tracks"), 1); return }
 		let list = c.audioTracks()
 		if list.isEmpty { c.say(L("no_audio_tracks"), 1) } else { choosing = .audio(list) }
 	}
 
 	private func chooseSubtitles() {
+		guard !c.isRelayingVideo else { c.say(L("video_cast_tracks"), 1); return }
 		let list = c.textTracks()
 		if list.isEmpty && !canPickFiles { c.say(L("no_subtitles"), 1) } else { choosing = .subtitles(list) }
 	}

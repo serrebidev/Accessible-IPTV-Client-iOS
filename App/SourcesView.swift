@@ -54,6 +54,9 @@ struct SourcesView: View {
 				model.prefs.sources = model.prefs.sources.filter { $0.id != s.id }
 				model.library.forgetCache(s)
 				model.sourcesChanged = true
+				// The main screen shows an Add sources button when there are none: tell it now, so the
+				// button appears or goes as soon as this screen closes.
+				model.refresh()
 				refresh()
 				say(L("source_deleted", s.name))
 				headingFocus = true
@@ -86,6 +89,7 @@ struct SourcesView: View {
 		model.library.forgetCache(src)
 		model.prefs.lastEpgImport = 0 // new source, new guide
 		model.sourcesChanged = true
+		model.refresh()
 		refresh()
 		say(L("source_saved", src.name))
 	}

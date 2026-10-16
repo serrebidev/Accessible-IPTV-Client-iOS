@@ -1,4 +1,4 @@
 "CFBundleDisplayName" = "Accessible IPTV";
-"NSLocalNetworkUsageDescription" = "Sucht Chromecast-Geräte zum Streamen.";
+"NSLocalNetworkUsageDescription" = "Sucht Wiedergabegeräte und teilt umgewandeltes Video mit ihnen.";
 "NSMicrophoneUsageDescription" = "Die Sprachsuche hört auf einen Sendernamen.";
 "NSSpeechRecognitionUsageDescription" = "Die Sprachsuche macht aus dem Gesagten eine Suche.";

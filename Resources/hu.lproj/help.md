@@ -1,12 +1,12 @@
 # Kezdés
 
-Nyissa meg a Lejátszási listákat. Adjon hozzá Xtream-fiókot, M3U URL-t, M3U fájlt vagy Stalker portált (cím és MAC). Az Xtream és a Stalker saját műsorújságot hoz. Az az M3U, amely megnevezi a műsorújságát, szintén hozza; különben adja meg a műsorújság URL-jét. Ha kiszolgálóként egy teljes Xtream panelhivatkozást illeszt be, a felhasználónév és a jelszó kitöltődik.
+Nyissa meg a Beállításokat, majd a Forrásokat. Adjon hozzá Xtream belépést, M3U URL-t, M3U fájlt vagy Stalker portált (cím és MAC). Az Xtream és a Stalker saját műsorújságot hoz. Az M3U, amely megnevezi a műsorújságját, szintén hozza; egyébként adja meg a műsorújság URL-jét. A kiszolgáló mezőbe illesztett teljes Xtream panelhivatkozás kitölti a belépést.
 
 # Főképernyő
 
 A Keresés felül van. A szakasz összes csoportjában keres; a pontos nevek elöl vannak. A mellette lévő Hang beszéddel tölti ki. A Törlés kiüríti.
 
-Alatta: Élő TV, Filmek, Sorozatok. Utána Lejátszási listák, Most műsoron, Keresés a műsorújságban, Rögzítések, Továbbiak.
+Alatta: Élő TV, Filmek, Sorozatok. Majd Most műsoron, Keresés a műsorújságban, Rögzítések, Továbbiak.
 
 Először a kategóriák jelennek meg. Válasszon kategóriát a csatornáihoz; az Összes külön választás. iPhone-on és iPaden a lapfülek: Böngészés, Műsorújság, Rögzítések és Beállítások. iPaden, Apple TV-n és Vision Prón a kategóriák bal oldalon vannak. Mindkét listának van címsora. A kategória kiválasztása a csatornáihoz vezet.
 
@@ -14,7 +14,7 @@ A billentyűzet számgombjai az adott csatornaszámra ugranak.
 
 # Továbbiak
 
-Előző csatorna, Legutóbb nézett, Ugrás csatornaszámra, Listák frissítése, Műsorújság frissítése, Fiók, Beállítások, Frissítések keresése, Súgó.
+Előző csatorna, Legutóbb nézett, Ugrás csatornaszámra, Források frissítése, Műsorújság frissítése, Fiók, Beállítások, Frissítések keresése, Súgó.
 
 # Elemek
 
@@ -28,7 +28,7 @@ A Most műsoron mindent felsorol, ami éppen megy. Egy csatorna műsorújsága l
 
 # Lejátszó
 
-iPhone-on és iPaden a Kis méret gomb után a lejátszás a lapfülek feletti minilejátszóban folytatódik. A címre vagy videóra koppintva újra megnyitható. A szüneteltetés és a lejátszás leállítása külön vezérlő. A nagy lejátszóban hangsáv, felirat, rögzítés, átküldés és teljes képernyő érhető el. Billentyűk: A hangsáv, S felirat, F teljes képernyő, Escape kis méret. VoiceOverrel a kétujjas dupla koppintás indít és szüneteltet.
+iPhone-on és iPaden a Kis méret gomb után a lejátszás a lapfülek feletti minilejátszóban folytatódik. A címre vagy videóra koppintva újra megnyitható. A szüneteltetés és a lejátszás leállítása külön vezérlő. A nagy lejátszóban hang, felirat, rögzítés, lejátszási cél, AirPlay és teljes képernyő érhető el. Billentyűk: A hangsáv, S felirat, F teljes képernyő, Escape kis méret. VoiceOverrel a kétujjas dupla koppintás indít és szüneteltet.
 
 A teljes képernyő elrejti a gombokat. Koppintás, Escape vagy a távirányító Vissza gombja visszahozza őket.
 
@@ -40,7 +40,7 @@ Ha változik a műsor, a lejátszó bemondja, mi megy most. A Beállítások, Be
 
 A megszakadt élő adás magától újrakapcsolódik. Lezárt képernyőnél a hang tovább szól.
 
-Az Átküldés az adást egy ugyanazon a hálózaton lévő Chromecastra küldi.
+iPhone-on és iPaden az AirPlay az Apple lejátszójával küldi a kompatibilis videót. A többi IPTV-videót az eszköz H.264 és AAC formátumba alakítja; külön kiszolgáló nem kell. A lejátszási cél ugyanezt használja a Chromecasthoz. Átalakítás közben tartsa nyitva az alkalmazást, a vevővel azonos Wi-Fi-hálózaton. Az átalakítás fogyasztja az akkumulátort, védett adásnál vagy lassú eszközön sikertelen lehet. A csak hangot fogadó eszközökön nincs kép. Apple TV-n és Vision Prón helyi lejátszás érhető el; videóküldést nem ígérünk. Ha megjelenik, először válassza az AirPlay-videó előkészítése gombot. Ezután az AirPlayjel válassza ki a vevőt. A videó küldése előtt válassza ki a hangot és a feliratot.
 
 # Rögzítések
 
@@ -52,7 +52,7 @@ Az idő előtt véget ért visszajátszás-letöltést újra letölti.
 
 # Beállítások
 
-A Beállítások exportálása fájlba menti a listákat, fiókokat, kedvenceket és beállításokat. A Beállítások importálása betölt egy ilyen fájlt erről az eszközről, egy másikról vagy az Android-alkalmazásból. A Nyelv megnyitja ennek az alkalmazásnak az oldalát a Beállítások alkalmazásban.
+A Beállítások exportálása fájlba menti a forrásokat, fiókokat, kedvenceket és beállításokat. A Beállítások importálása betölt egy ilyen fájlt erről az eszközről, egy másikról vagy az Android-alkalmazásból. A Nyelv megnyitja ennek az alkalmazásnak az oldalát a Beállítások alkalmazásban.
 
 # Frissítések
 

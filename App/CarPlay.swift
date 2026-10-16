@@ -60,6 +60,8 @@ final class CarAudio {
 	func play(_ ch: Channel) async {
 		let model = AppModel.shared
 		model.stopPlayback()
+		PlaybackTeardown.stop(player)
+		guard await PlaybackTeardown.ready() else { model.setStatus(L("play_failed", URLError(.timedOut).localizedDescription)); return }
 		model.prefs.addRecent(ch.key)
 		guard let raw = try? await model.library.resolveUrl(ch) else { return }
 		let (plain, headers) = M3U.splitHeaders(raw)
@@ -67,7 +69,7 @@ final class CarAudio {
 		media.addOption(":no-video")
 		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
 		media.addOption(":network-caching=3000")
-		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
+		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
 		try? AVAudioSession.sharedInstance().setActive(true)
 		player.media = media
 		player.play()
@@ -84,7 +86,7 @@ final class CarAudio {
 	}
 
 	func stop() {
-		player.stop()
+		PlaybackTeardown.stop(player)
 		// CarAudio is the owner of the lock screen while it plays: it clears what it set, so the
 		// card does not outlive the sound (the player screen knows to leave it alone, see close).
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = nil

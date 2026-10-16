@@ -1,12 +1,12 @@
 # Start
 
-Listen öffnen. Einen Xtream-Zugang, eine M3U-URL, eine M3U-Datei oder ein Stalker-Portal (Adresse und MAC) hinzufügen. Xtream und Stalker bringen ihr eigenes Programm mit. Eine M3U, die ihr Programm nennt, bringt es ebenfalls mit; sonst die Programm-URL eintragen. Ein ganzer Xtream-Panel-Link, als Server eingefügt, füllt die Zugangsdaten aus.
+Öffne Einstellungen, dann Quellen. Füge einen Xtream-Zugang, eine M3U-URL, eine M3U-Datei oder ein Stalker-Portal (Adresse und MAC) hinzu. Xtream und Stalker bringen ihr Programm mit. Eine M3U, die ihr Programm nennt, bringt es ebenfalls mit; sonst füge ihre Programm-URL hinzu. Ein kompletter Xtream-Panel-Link im Feld Server füllt den Zugang aus.
 
 # Hauptbildschirm
 
 Suchen ist oben. Es durchsucht alle Gruppen des Bereichs; exakte Namen zuerst. Sprache daneben füllt es per Spracheingabe. Löschen leert es.
 
-Darunter: Live-TV, Filme, Serien. Dann Listen, Jetzt, Programmsuche, Aufnahmen, Mehr.
+Darunter: Live-TV, Filme, Serien. Dann Jetzt, Programmsuche, Aufnahmen, Mehr.
 
 Zuerst erscheinen Kategorien. Wähle eine Kategorie für ihre Sender; Alle muss ausdrücklich gewählt werden. Auf iPhone und iPad gibt es die Tabs Durchsuchen, Programm, Aufnahmen und Einstellungen. Auf iPad, Apple TV und Vision Pro stehen Kategorien links. Beide Listen haben Überschriften. Eine Kategorie wählen führt zu ihren Sendern.
 
@@ -14,7 +14,7 @@ Zifferntasten einer Tastatur springen zu dieser Sendernummer.
 
 # Mehr
 
-Vorheriger Sender, Zuletzt gesehen, Zu Sendernummer, Listen aktualisieren, Programm aktualisieren, Konto, Einstellungen, Nach Updates suchen, Hilfe.
+Vorheriger Sender, Zuletzt gesehen, Zu Sendernummer, Quellen aktualisieren, Programm aktualisieren, Konto, Einstellungen, Nach Updates suchen, Hilfe.
 
 # Einträge
 
@@ -28,7 +28,7 @@ Jetzt listet alles, was gerade läuft. Das Programm eines Senders spielt vergang
 
 # Player
 
-Auf iPhone und iPad läuft die Wiedergabe nach Minimieren im Miniplayer über den Tabs weiter. Titel oder Video antippen öffnet den Player. Pause und Wiedergabe stoppen sind getrennt. Der große Player bietet Ton, Untertitel, Aufnehmen, Streamen und Vollbild. Tasten: A für Ton, S für Untertitel, F für Vollbild, Escape zum Minimieren. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.
+Auf iPhone und iPad läuft die Wiedergabe nach Minimieren im Miniplayer über den Tabs weiter. Titel oder Video antippen öffnet den Player. Pause und Wiedergabe stoppen sind getrennt. Der große Player bietet Ton, Untertitel, Aufnehmen, Wiedergabeziel, AirPlay und Vollbild. Tasten: A für Ton, S für Untertitel, F für Vollbild, Escape zum Minimieren. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.
 
 Vollbild blendet die Tasten aus. Tippen, Escape oder die Zurück-Taste der Fernbedienung holt sie zurück.
 
@@ -40,7 +40,7 @@ Wechselt die Sendung, sagt der Player, was jetzt läuft. Einstellungen, Ansagen 
 
 Ein abgebrochener Livestream verbindet sich selbst neu. Der Ton läuft bei gesperrtem Bildschirm weiter.
 
-Streamen schickt den Stream an ein Chromecast im selben Netzwerk.
+Auf iPhone und iPad sendet AirPlay kompatibles Video über Apples Player. Andere IPTV-Videos werden auf diesem Gerät in H.264 und AAC umgewandelt; ein separater Server ist nicht nötig. Wiedergabeziel nutzt dieselbe Umwandlung für Chromecast. Lass die App dabei geöffnet und bleibe im selben WLAN wie der Empfänger. Die Umwandlung benötigt Akku und kann bei geschützten Streams oder zu geringer Geräteleistung scheitern. Reine Audioempfänger geben nur Ton aus. Apple TV und Vision Pro unterstützen lokale Wiedergabe; Videosenden wird dort nicht zugesichert. Wähle zuerst AirPlay-Video vorbereiten, falls angezeigt. Wähle danach den Empfänger über AirPlay. Wähle Ton und Untertitel vor dem Senden des Videos.
 
 # Aufnahmen
 
@@ -52,7 +52,7 @@ Ein Mediathek-Download, der zu früh endet, wird neu geladen.
 
 # Einstellungen
 
-Einstellungen exportieren speichert Listen, Zugangsdaten, Favoriten und Optionen in einer Datei. Einstellungen importieren lädt eine solche Datei von diesem Gerät, einem anderen oder der Android-App. Sprache öffnet die Seite dieser App in der Einstellungen-App.
+Einstellungen exportieren speichert Quellen, Zugangsdaten, Favoriten und Optionen in einer Datei. Einstellungen importieren lädt eine solche Datei von diesem Gerät, einem anderen oder der Android-App. Sprache öffnet die Seite dieser App in der Einstellungen-App.
 
 # Updates
 

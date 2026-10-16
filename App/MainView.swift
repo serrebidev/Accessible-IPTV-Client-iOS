@@ -138,16 +138,13 @@ struct MainView: View {
 			buttonBar
 			#endif
 			StatusLine(text: model.status).padding(.horizontal)
-			lists
+			if prefs.sources.isEmpty { addSources } else { lists }
 		}
 		#if os(iOS)
 		.searchable(text: $query, prompt: L("search"))
 		.textInputAutocapitalization(.never)
 		.autocorrectionDisabled()
 		.toolbar {
-			ToolbarItem(placement: .topBarLeading) {
-				Button { model.path.append(.sources) } label: { Label(L("playlists_and_guides"), systemImage: "plus") }
-			}
 			ToolbarItemGroup(placement: .topBarTrailing) {
 				#if canImport(Speech)
 				Button { voice.toggle { query = $0 } status: { model.setStatus($0) } } label: {
@@ -261,7 +258,6 @@ struct MainView: View {
 		// Real buttons, not an overflow menu: reachable by swipe, keyboard and remote alike.
 		ScrollView(.horizontal) {
 			HStack {
-				Button(L("playlists_and_guides")) { model.path.append(.sources) }
 				Button(L("whats_on_now")) { model.path.append(.onNow) }
 				Button(L("search_guide")) { model.path.append(.guideSearch) }
 				Button(L("recordings")) { model.path.append(.recordings) }
@@ -292,6 +288,19 @@ struct MainView: View {
 	}
 
 	// MARK: lists
+
+	/// No sources yet: adding the first one is the only thing the screen can usefully offer.
+	/// Sources also live in Settings, so this is a shortcut, not the only way there.
+	private var addSources: some View {
+		Button { model.path.append(.sources) } label: {
+			Label(L("add_sources"), systemImage: "plus")
+		}
+		.buttonStyle(.bordered)
+		#if !os(tvOS)
+		.controlSize(.large)
+		#endif
+		.padding(.horizontal)
+	}
 
 	private var wide: Bool {
 		#if os(tvOS) || os(visionOS)
@@ -329,9 +338,6 @@ struct MainView: View {
 							.accessibilityLabel("\(groupLabel(g.name)), \(countText(g.count))")
 						}
 					} header: { Text(L("groups")).accessibilityAddTraits(.isHeader) }
-					if prefs.sources.isEmpty {
-						Button(L("playlists_and_guides")) { model.path.append(.sources) }
-					}
 				}
 				.listStyle(.insetGrouped)
 				.accessibilityLabel(L("groups"))

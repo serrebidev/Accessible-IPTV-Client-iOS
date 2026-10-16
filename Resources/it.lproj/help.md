@@ -1,12 +1,12 @@
 # Inizio
 
-Apri Liste. Aggiungi un accesso Xtream, un URL M3U, un file M3U o un portale Stalker (indirizzo e MAC). Xtream e Stalker portano la propria guida. Anche una M3U che indica la sua guida la porta; altrimenti aggiungi l’URL della guida. Un link completo di un pannello Xtream incollato come server compila nome utente e password.
+Apri Impostazioni, poi Sorgenti. Aggiungi un accesso Xtream, un URL M3U, un file M3U o un portale Stalker (indirizzo e MAC). Xtream e Stalker portano la loro guida. Una M3U che indica la sua guida la porta con sé; altrimenti aggiungi il suo URL della guida. Un link completo del pannello Xtream incollato come server compila l’accesso.
 
 # Schermata principale
 
 Cerca è in alto. Cerca in tutti i gruppi della sezione; i nomi esatti vengono prima. Voce, accanto, la compila parlando. Cancella la svuota.
 
-Sotto: TV in diretta, Film, Serie. Poi Liste, In onda, Cerca nella guida, Registrazioni, Altro.
+Sotto: TV in diretta, Film, Serie. Poi In onda, Cerca nella guida, Registrazioni, Altro.
 
 Si aprono prima le categorie. Scegline una per vedere i canali; Tutti va scelto esplicitamente. Su iPhone e iPad ci sono le schede Sfoglia, Guida, Registrazioni e Impostazioni. Su iPad, Apple TV e Vision Pro le categorie sono a sinistra. Entrambi gli elenchi hanno intestazioni. Scegliere una categoria porta ai suoi canali.
 
@@ -14,7 +14,7 @@ I tasti numerici di una tastiera saltano a quel numero di canale.
 
 # Altro
 
-Canale precedente, Visti di recente, Vai al numero di canale, Aggiorna liste, Aggiorna guida, Account, Impostazioni, Cerca aggiornamenti, Aiuto.
+Canale precedente, Visti di recente, Vai al numero di canale, Aggiorna sorgenti, Aggiorna guida, Account, Impostazioni, Cerca aggiornamenti, Aiuto.
 
 # Elementi
 
@@ -28,7 +28,7 @@ In onda elenca tutto ciò che va in onda. La guida di un canale riproduce i prog
 
 # Lettore
 
-Su iPhone e iPad, Riduci mantiene la riproduzione nel mini lettore sopra le schede. Tocca titolo o video per espanderlo. Pausa e Interrompi riproduzione sono separati. Il lettore espanso offre Audio, Sottotitoli, Registra, Trasmetti e Schermo intero. Tasti: A per audio, S per sottotitoli, F per schermo intero, Escape per ridurre. Con VoiceOver, un doppio tocco con due dita riproduce e mette in pausa.
+Su iPhone e iPad, Riduci mantiene la riproduzione nel mini lettore sopra le schede. Tocca titolo o video per espanderlo. Pausa e Interrompi riproduzione sono separati. Il lettore espanso offre Audio, Sottotitoli, Registra, Destinazione di riproduzione, AirPlay e Schermo intero. Tasti: A per audio, S per sottotitoli, F per schermo intero, Escape per ridurre. Con VoiceOver, un doppio tocco con due dita riproduce e mette in pausa.
 
 Lo schermo intero nasconde i pulsanti. Un tocco, Esc o il tasto Indietro del telecomando li riporta.
 
@@ -40,7 +40,7 @@ Quando cambia il programma, il lettore dice cosa va in onda. Impostazioni, Annun
 
 Una diretta interrotta si ricollega da sola. L’audio continua a schermo bloccato.
 
-Trasmetti invia il flusso a un Chromecast nella stessa rete.
+Su iPhone e iPad, AirPlay invia i video compatibili tramite il lettore Apple. Gli altri video IPTV vengono convertiti in H.264 e AAC su questo dispositivo, senza server separati. Destinazione di riproduzione usa la stessa conversione per Chromecast. Mantieni l’app aperta sulla stessa rete Wi-Fi del ricevitore durante la conversione. Consuma batteria e può fallire con flussi protetti o dispositivi troppo lenti. I ricevitori audio riproducono solo il suono. Apple TV e Vision Pro supportano la riproduzione locale; l’invio video non è garantito. Se appare Prepara video AirPlay, selezionalo prima. Poi scegli il ricevitore con AirPlay. Scegli audio e sottotitoli prima di inviare il video.
 
 # Registrazioni
 
@@ -52,7 +52,7 @@ Un download replay che finisce in anticipo viene riscaricato.
 
 # Impostazioni
 
-Esporta impostazioni salva liste, accessi, preferiti e opzioni in un file. Importa impostazioni ne carica uno da questo dispositivo, da un altro o dall’app Android. Lingua apre la pagina di questa app nell’app Impostazioni.
+Esporta impostazioni salva sorgenti, accessi, preferiti e opzioni in un file. Importa impostazioni ne carica uno da questo dispositivo, da un altro o dall’app Android. Lingua apre la pagina di questa app nell’app Impostazioni.
 
 # Aggiornamenti
 

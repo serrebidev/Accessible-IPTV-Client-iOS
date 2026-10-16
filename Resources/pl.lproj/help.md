@@ -1,12 +1,12 @@
 # Start
 
-Otwórz Listy. Dodaj login Xtream, URL M3U, plik M3U lub portal Stalker (adres i MAC). Xtream i Stalker mają własny program. Lista M3U, która podaje swój program, też go przynosi; w innym wypadku dodaj URL programu. Pełny link z panelu Xtream wklejony jako serwer wypełnia login i hasło.
+Otwórz Ustawienia, potem Źródła. Dodaj login Xtream, adres M3U, plik M3U lub portal Stalker (adres i MAC). Xtream i Stalker mają własny program. M3U, które podaje swój program, też go ma; w innym wypadku dodaj adres programu. Cały link panelu Xtream wklejony jako serwer uzupełnia login.
 
 # Ekran główny
 
 Szukaj jest na górze. Przeszukuje wszystkie grupy w sekcji; dokładne nazwy są pierwsze. Głos obok wypełnia je mową. Wyczyść je opróżnia.
 
-Poniżej: TV na żywo, Filmy, Seriale. Potem Listy, Teraz, Szukaj w programie, Nagrania, Więcej.
+Poniżej: TV na żywo, Filmy, Seriale. Potem Teraz, Szukaj w programie, Nagrania, Więcej.
 
 Najpierw otwierają się kategorie. Wybierz kategorię, aby zobaczyć jej kanały; Wszystkie wymaga osobnego wyboru. Na iPhonie i iPadzie są karty Przeglądaj, Program, Nagrania i Ustawienia. Na iPadzie, Apple TV i Vision Pro kategorie są po lewej. Obie listy mają nagłówki. Wybór kategorii przenosi do jej kanałów.
 
@@ -14,7 +14,7 @@ Klawisze cyfr na klawiaturze przechodzą do kanału o tym numerze.
 
 # Więcej
 
-Poprzedni kanał, Ostatnio oglądane, Przejdź do numeru kanału, Odśwież listy, Odśwież program, Konto, Ustawienia, Sprawdź aktualizacje, Pomoc.
+Poprzedni kanał, Ostatnio oglądane, Przejdź do numeru kanału, Odśwież źródła, Odśwież program, Konto, Ustawienia, Sprawdź aktualizacje, Pomoc.
 
 # Pozycje
 
@@ -28,7 +28,7 @@ Teraz pokazuje wszystko, co jest nadawane. Program kanału odtwarza minione audy
 
 # Odtwarzacz
 
-Na iPhonie i iPadzie Minimalizuj utrzymuje odtwarzanie w miniodtwarzaczu nad kartami. Stuknij tytuł lub wideo, aby go rozwinąć. Pauza i Zatrzymaj odtwarzanie to osobne przyciski. Rozwinięty odtwarzacz oferuje Dźwięk, Napisy, Nagraj, Przesyłaj i Pełny ekran. Klawisze: A dźwięk, S napisy, F pełny ekran, Escape minimalizuje. Z VoiceOver dwukrotne stuknięcie dwoma palcami odtwarza i wstrzymuje.
+Na iPhonie i iPadzie Minimalizuj utrzymuje odtwarzanie w miniodtwarzaczu nad kartami. Stuknij tytuł lub wideo, aby go rozwinąć. Pauza i Zatrzymaj odtwarzanie to osobne przyciski. Rozwinięty odtwarzacz oferuje Dźwięk, Napisy, Nagraj, Miejsce odtwarzania, AirPlay i Pełny ekran. Klawisze: A dźwięk, S napisy, F pełny ekran, Escape minimalizuje. Z VoiceOver dwukrotne stuknięcie dwoma palcami odtwarza i wstrzymuje.
 
 Pełny ekran ukrywa przyciski. Stuknięcie, Escape lub przycisk Wstecz pilota przywraca je.
 
@@ -40,7 +40,7 @@ Gdy zmienia się audycja, odtwarzacz mówi, co jest teraz. Ustawienia, Komunikat
 
 Przerwany kanał na żywo sam łączy się ponownie. Dźwięk gra dalej przy zablokowanym ekranie.
 
-Przesyłaj wysyła strumień do Chromecasta w tej samej sieci.
+Na iPhonie i iPadzie AirPlay wysyła zgodne wideo przez odtwarzacz Apple. Pozostałe wideo IPTV jest konwertowane do H.264 i AAC na tym urządzeniu, bez osobnego serwera. Miejsce odtwarzania używa tej samej konwersji dla Chromecasta. Podczas konwersji pozostaw aplikację otwartą w tej samej sieci Wi-Fi co odbiornik. Konwersja zużywa baterię i może nie działać ze strumieniami chronionymi lub na zbyt wolnym urządzeniu. Odbiorniki audio odtwarzają tylko dźwięk. Apple TV i Vision Pro obsługują odtwarzanie lokalne; wysyłanie wideo nie jest gwarantowane. Jeśli pojawi się Przygotuj wideo AirPlay, wybierz je najpierw. Po przygotowaniu wybierz odbiornik przez AirPlay. Wybierz dźwięk i napisy przed wysłaniem wideo.
 
 # Nagrania
 
@@ -52,7 +52,7 @@ Pobieranie z archiwum, które skończy się za wcześnie, jest ponawiane.
 
 # Ustawienia
 
-Eksportuj ustawienia zapisuje listy, loginy, ulubione i opcje do pliku. Importuj ustawienia wczytuje taki plik z tego urządzenia, innego lub z aplikacji na Androida. Język otwiera stronę tej aplikacji w Ustawieniach.
+Eksportuj ustawienia zapisuje źródła, loginy, ulubione i opcje do pliku. Importuj ustawienia wczytuje taki plik z tego urządzenia, innego lub z aplikacji na Androida. Język otwiera stronę tej aplikacji w Ustawieniach.
 
 # Aktualizacje
 

@@ -30,6 +30,11 @@ struct SettingsView: View {
 	var body: some View {
 		Form {
 			Section {
+				// Playlists used to be a button on the main screen; the providers live here now.
+				NavigationLink { SourcesView() } label: { Label(L("playlists_and_guides"), systemImage: "list.bullet") }
+			}
+
+			Section {
 				Toggle(L("prefer_ad"), isOn: $preferAd).accessibilityLabel(L("prefer_ad"))
 				LabeledField(label: L("preferred_tracks"), text: $keywords, prompt: L("preferred_tracks_hint"))
 			} header: { Text(L("audio_heading")).accessibilityAddTraits(.isHeader) }

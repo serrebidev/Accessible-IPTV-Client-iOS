@@ -1,12 +1,12 @@
 # Démarrer
 
-Ouvrez Listes. Ajoutez un compte Xtream, une URL M3U, un fichier M3U ou un portail Stalker (adresse et MAC). Xtream et Stalker fournissent leur propre guide. Une M3U qui indique son guide le fournit aussi ; sinon, ajoutez l’URL de son guide. Un lien complet de panneau Xtream collé comme serveur remplit l’identifiant et le mot de passe.
+Ouvrez Réglages, puis Sources. Ajoutez un identifiant Xtream, une URL M3U, un fichier M3U ou un portail Stalker (adresse et MAC). Xtream et Stalker apportent leur propre guide. Une M3U qui nomme son guide l’apporte aussi ; sinon, ajoutez son URL de guide. Un lien de panneau Xtream complet collé comme serveur remplit l’identifiant.
 
 # Écran principal
 
 Rechercher est en haut. La recherche couvre tous les groupes de la section ; les noms exacts viennent en premier. Voix, à côté, la remplit par la parole. Effacer la vide.
 
-En dessous : TV en direct, Films, Séries. Puis Listes, En ce moment, Recherche dans le guide, Enregistrements, Plus.
+En dessous : TV en direct, Films, Séries. Puis En ce moment, Recherche dans le guide, Enregistrements, Plus.
 
 Les catégories s’ouvrent en premier. Choisissez une catégorie pour voir ses chaînes ; Toutes reste un choix explicite. Sur iPhone et iPad, les onglets sont Parcourir, Guide, Enregistrements et Réglages. Sur iPad, Apple TV et Vision Pro, les catégories sont à gauche. Les deux listes ont des titres. Choisir une catégorie mène à ses chaînes.
 
@@ -14,7 +14,7 @@ Les touches numériques d’un clavier sautent à ce numéro de chaîne.
 
 # Plus
 
-Chaîne précédente, Vus récemment, Aller au numéro de chaîne, Actualiser les listes, Actualiser le guide, Compte, Réglages, Rechercher des mises à jour, Aide.
+Chaîne précédente, Vus récemment, Aller au numéro de chaîne, Actualiser les sources, Actualiser le guide, Compte, Réglages, Rechercher des mises à jour, Aide.
 
 # Éléments
 
@@ -28,7 +28,7 @@ En ce moment liste tout ce qui est diffusé. Le guide d’une chaîne lit les pr
 
 # Lecteur
 
-Sur iPhone et iPad, Réduire maintient la lecture dans un mini-lecteur au-dessus des onglets. Touchez son titre ou sa vidéo pour l’agrandir. Pause et Arrêter la lecture sont distincts. Le grand lecteur propose Audio, Sous-titres, Enregistrer, Caster et Plein écran. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour réduire. Avec VoiceOver, un double toucher à deux doigts lance ou met en pause.
+Sur iPhone et iPad, Réduire maintient la lecture dans un mini-lecteur au-dessus des onglets. Touchez son titre ou sa vidéo pour l’agrandir. Pause et Arrêter la lecture sont distincts. Le grand lecteur propose Audio, Sous-titres, Enregistrer, Destination de lecture, AirPlay et Plein écran. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour réduire. Avec VoiceOver, un double toucher à deux doigts lance ou met en pause.
 
 Le plein écran masque les boutons. Un toucher, Échap ou le bouton Retour de la télécommande les ramène.
 
@@ -40,7 +40,7 @@ Quand le programme change, le lecteur annonce ce qui passe. Réglages, Annonces 
 
 Un direct coupé se reconnecte tout seul. Le son continue écran verrouillé.
 
-Caster envoie le flux vers un Chromecast du même réseau.
+Sur iPhone et iPad, AirPlay envoie les vidéos compatibles avec le lecteur Apple. Les autres vidéos IPTV sont converties en H.264 et AAC sur cet appareil, sans serveur séparé. Destination de lecture utilise la même conversion pour Chromecast. Gardez l’app ouverte sur le même Wi-Fi que le récepteur pendant la conversion. Elle consomme de la batterie et peut échouer avec un flux protégé ou un appareil trop lent. Les récepteurs audio ne lisent que le son. Apple TV et Vision Pro permettent la lecture locale ; l’envoi vidéo n’y est pas garanti. Si Préparer la vidéo AirPlay apparaît, choisissez-le d’abord. Ensuite, choisissez le récepteur avec AirPlay. Choisissez l’audio et les sous-titres avant d’envoyer la vidéo.
 
 # Enregistrements
 
@@ -52,7 +52,7 @@ Un téléchargement de replay qui s’arrête trop tôt est relancé.
 
 # Réglages
 
-Exporter les réglages enregistre listes, identifiants, favoris et options dans un fichier. Importer les réglages en charge un depuis cet appareil, un autre ou l’app Android. Langue ouvre la page de cette app dans l’app Réglages.
+Exporter les réglages enregistre sources, identifiants, favoris et options dans un fichier. Importer les réglages en charge un depuis cet appareil, un autre ou l’app Android. Langue ouvre la page de cette app dans l’app Réglages.
 
 # Mises à jour
 

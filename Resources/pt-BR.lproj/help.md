@@ -1,12 +1,12 @@
 # Início
 
-Abra Listas. Adicione um acesso Xtream, uma URL M3U, um arquivo M3U ou um portal Stalker (endereço e MAC). Xtream e Stalker trazem o próprio guia. Uma M3U que indica seu guia também o traz; se não, adicione a URL do guia. Um link completo de painel Xtream colado como servidor preenche usuário e senha.
+Abra Ajustes e depois Fontes. Adicione um login Xtream, uma URL M3U, um arquivo M3U ou um portal Stalker (endereço e MAC). Xtream e Stalker trazem o próprio guia. Uma M3U que informa o guia dele também o traz; caso contrário, adicione a URL do guia. Um link de painel Xtream inteiro colado como servidor preenche o login.
 
 # Tela principal
 
 A Busca fica no topo. Busca em todos os grupos da seção; nomes exatos vêm primeiro. Voz, ao lado, preenche falando. Limpar apaga.
 
-Abaixo: TV ao vivo, Filmes, Séries. Depois Listas, No ar, Pesquisar no guia, Gravações, Mais.
+Abaixo: TV ao vivo, Filmes, Séries. Depois No ar, Pesquisar no guia, Gravações, Mais.
 
 As categorias aparecem primeiro. Escolha uma para ver os canais; Todos precisa ser escolhido explicitamente. No iPhone e iPad há abas Explorar, Guia, Gravações e Ajustes. No iPad, Apple TV e Vision Pro, as categorias ficam à esquerda. As duas listas têm títulos. Escolher uma categoria leva aos seus canais.
 
@@ -14,7 +14,7 @@ As teclas numéricas de um teclado pulam para esse número de canal.
 
 # Mais
 
-Canal anterior, Vistos recentemente, Ir para número do canal, Atualizar listas, Atualizar guia, Conta, Configurações, Procurar atualizações, Ajuda.
+Canal anterior, Vistos recentemente, Ir para número do canal, Atualizar fontes, Atualizar guia, Conta, Ajustes, Procurar atualizações, Ajuda.
 
 # Itens
 
@@ -28,7 +28,7 @@ No ar lista tudo o que está passando. O guia de um canal reproduz programas pas
 
 # Player
 
-No iPhone e iPad, Minimizar mantém a reprodução em um miniplayer acima das abas. Toque no título ou vídeo para expandir. Pausar e Parar reprodução são controles separados. O player expandido oferece Áudio, Legendas, Gravar, Transmitir e Tela cheia. Teclas: A para áudio, S para legendas, F para tela cheia, Escape para minimizar. Com VoiceOver, um toque duplo com dois dedos reproduz e pausa.
+No iPhone e iPad, Minimizar mantém a reprodução em um miniplayer acima das abas. Toque no título ou vídeo para expandir. Pausar e Parar reprodução são controles separados. O player expandido oferece Áudio, Legendas, Gravar, Destino de reprodução, AirPlay e Tela cheia. Teclas: A para áudio, S para legendas, F para tela cheia, Escape para minimizar. Com VoiceOver, um toque duplo com dois dedos reproduz e pausa.
 
 A tela cheia esconde os botões. Um toque, Esc ou o botão Voltar do controle traz de volta.
 
@@ -40,7 +40,7 @@ Quando o programa muda, o player diz o que está no ar. Configurações, Anúnci
 
 Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada.
 
-Transmitir envia o canal para um Chromecast na mesma rede.
+No iPhone e iPad, o AirPlay envia vídeos compatíveis pelo player da Apple. Os demais vídeos IPTV são convertidos para H.264 e AAC neste aparelho, sem servidor separado. Destino de reprodução usa a mesma conversão para Chromecast. Mantenha o app aberto na mesma rede Wi-Fi do receptor durante a conversão. Ela consome bateria e pode falhar com transmissões protegidas ou aparelhos sem desempenho suficiente. Receptores de áudio reproduzem apenas som. Apple TV e Vision Pro oferecem reprodução local; o envio de vídeo não é garantido. Se aparecer Preparar vídeo AirPlay, escolha essa opção primeiro. Depois escolha o receptor pelo AirPlay. Escolha o áudio e as legendas antes de enviar o vídeo.
 
 # Gravações
 
@@ -52,7 +52,7 @@ Um download de reprise que termina antes da hora é baixado de novo.
 
 # Configurações
 
-Exportar configurações salva listas, logins, favoritos e opções em um arquivo. Importar configurações carrega um deste aparelho, de outro ou do app Android. Idioma abre a página deste app no app Ajustes.
+Exportar configurações salva fontes, logins, favoritos e opções em um arquivo. Importar configurações carrega um deste aparelho, de outro ou do app Android. Idioma abre a página deste app no app Ajustes.
 
 # Atualizações
 

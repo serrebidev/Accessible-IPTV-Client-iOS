@@ -1,12 +1,12 @@
 # Başlangıç
 
-Listeler’i açın. Bir Xtream girişi, M3U URL’si, M3U dosyası veya Stalker portalı (adres ve MAC) ekleyin. Xtream ve Stalker kendi rehberini getirir. Rehberini belirten bir M3U da getirir; yoksa rehber URL’sini ekleyin. Sunucu olarak yapıştırılan tam bir Xtream panel bağlantısı kullanıcı adını ve parolayı doldurur.
+Ayarlar’ı, sonra Kaynaklar’ı açın. Bir Xtream girişi, M3U adresi, M3U dosyası veya Stalker portalı (adres ve MAC) ekleyin. Xtream ve Stalker kendi rehberini getirir. Rehberini belirten bir M3U da onu getirir; yoksa rehber adresini ekleyin. Sunucu olarak yapıştırılan tam Xtream panel bağlantısı girişi doldurur.
 
 # Ana ekran
 
 Arama en üstte. Bölümdeki tüm gruplarda arar; tam eşleşen adlar önce gelir. Yanındaki Ses, konuşarak doldurur. Temizle boşaltır.
 
-Altında: Canlı TV, Filmler, Diziler. Sonra Listeler, Şimdi yayında, Rehberde ara, Kayıtlar, Diğer.
+Altında: Canlı TV, Filmler, Diziler. Sonra Şimdi yayında, Rehberde ara, Kayıtlar, Diğer.
 
 Önce kategoriler açılır. Kanalları görmek için kategori seçin; Tümü ayrıca seçilmelidir. iPhone ve iPad’de Göz at, Rehber, Kayıtlar ve Ayarlar sekmeleri vardır. iPad, Apple TV ve Vision Pro’da kategoriler soldadır. Her iki listenin başlığı vardır. Kategori seçmek kanallarına götürür.
 
@@ -14,7 +14,7 @@ Klavyedeki rakam tuşları o kanal numarasına atlar.
 
 # Diğer
 
-Önceki kanal, Son izlenenler, Kanal numarasına git, Listeleri yenile, Rehberi yenile, Hesap, Ayarlar, Güncellemeleri denetle, Yardım.
+Önceki kanal, Son izlenenler, Kanal numarasına git, Kaynakları yenile, Rehberi yenile, Hesap, Ayarlar, Güncellemeleri denetle, Yardım.
 
 # Öğeler
 
@@ -28,7 +28,7 @@ Eylemler rotoru: başka uygulamada oynat, favori, ayrıntılar, rehber, kaydet v
 
 # Oynatıcı
 
-iPhone ve iPad’de Küçült, oynatmayı sekmelerin üzerindeki mini oynatıcıda sürdürür. Genişletmek için başlığa veya videoya dokunun. Duraklat ve Oynatmayı durdur ayrı denetimlerdir. Büyük oynatıcıda Ses, Altyazılar, Kaydet, Yayınla ve Tam ekran bulunur. Tuşlar: ses için A, altyazı için S, tam ekran için F, küçültmek için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.
+iPhone ve iPad’de Küçült, oynatmayı sekmelerin üzerindeki mini oynatıcıda sürdürür. Genişletmek için başlığa veya videoya dokunun. Duraklat ve Oynatmayı durdur ayrı denetimlerdir. Büyük oynatıcıda Ses, Altyazılar, Kaydet, Oynatma hedefi, AirPlay ve Tam ekran bulunur. Tuşlar: ses için A, altyazı için S, tam ekran için F, küçültmek için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.
 
 Tam ekran düğmeleri gizler. Dokunma, Escape veya kumandanın Geri düğmesi onları geri getirir.
 
@@ -40,7 +40,7 @@ Program değişince oynatıcı şimdi neyin yayında olduğunu söyler. Ayarlar,
 
 Kopan canlı yayın kendiliğinden yeniden bağlanır. Ekran kilitliyken ses çalmaya devam eder.
 
-Yayınla, akışı aynı ağdaki bir Chromecast’e gönderir.
+iPhone ve iPad’de AirPlay, uyumlu videoyu Apple oynatıcısıyla gönderir. Diğer IPTV videoları bu cihazda H.264 ve AAC’ye dönüştürülür; ayrı sunucu gerekmez. Oynatma hedefi, Chromecast için aynı dönüşümü kullanır. Dönüştürürken uygulamayı açık tutun ve alıcıyla aynı Wi-Fi ağına bağlanın. Dönüşüm pil tüketir; korumalı akışlarda veya yavaş cihazlarda başarısız olabilir. Yalnızca ses alıcıları sadece ses çalar. Apple TV ve Vision Pro yerel oynatmayı destekler; video gönderimi garanti edilmez. AirPlay videosunu hazırla görünürse önce onu seçin. Hazır olduğunda AirPlay ile alıcıyı seçin. Videoyu göndermeden önce sesi ve altyazıları seçin.
 
 # Kayıtlar
 
@@ -52,7 +52,7 @@ Erken biten bir geri izleme indirmesi yeniden indirilir.
 
 # Ayarlar
 
-Ayarları dışa aktar; listeleri, girişleri, favorileri ve seçenekleri bir dosyaya kaydeder. Ayarları içe aktar, böyle bir dosyayı bu cihazdan, başka bir cihazdan veya Android uygulamasından yükler. Dil, Ayarlar uygulamasında bu uygulamanın sayfasını açar.
+Ayarları dışa aktar; kaynakları, girişleri, favorileri ve seçenekleri bir dosyaya kaydeder. Ayarları içe aktar, böyle bir dosyayı bu cihazdan, başka bir cihazdan veya Android uygulamasından yükler. Dil, Ayarlar uygulamasında bu uygulamanın sayfasını açar.
 
 # Güncellemeler
 

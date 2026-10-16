@@ -1,12 +1,12 @@
 # Start
 
-Open Playlists. Add an Xtream login, an M3U URL, an M3U file, or a Stalker portal (address and MAC). Xtream and Stalker bring their own guide. An M3U that names its guide brings it too; otherwise add its guide URL. A whole Xtream panel link pasted as the server fills in the login.
+Open Settings, then Sources. Add an Xtream login, an M3U URL, an M3U file, or a Stalker portal (address and MAC). Xtream and Stalker bring their own guide. An M3U that names its guide brings it too; otherwise add its guide URL. A whole Xtream panel link pasted as the server fills in the login.
 
 # Main screen
 
 Search is at the top. It searches every group in the section; exact names come first. Voice, next to it, fills it by speech. Clear empties it.
 
-Below: Live TV, Movies, Series. Then Playlists, On now, Guide search, Recordings, More.
+Below: Live TV, Movies, Series. Then On now, Guide search, Recordings, More.
 
 Categories open first. Choose a category to see its channels; All is an explicit choice. On iPhone and iPad, the tabs are Browse, Guide, Recordings and Settings. On iPad, Apple TV and Vision Pro, categories appear on the left. Both lists have headings. Picking a category moves you to its channels.
 
@@ -14,7 +14,7 @@ Number keys on a keyboard jump to that channel number.
 
 # More
 
-Previous channel, Recently watched, Go to channel number, Refresh playlists, Refresh guide, Account, Settings, Check for updates, Help.
+Previous channel, Recently watched, Go to channel number, Refresh sources, Refresh guide, Account, Settings, Check for updates, Help.
 
 # Items
 
@@ -28,7 +28,7 @@ On now lists everything airing. A channel's guide plays past programmes marked c
 
 # Player
 
-On iPhone and iPad, Minimize keeps playback running in a miniplayer above the tabs. Tap its title or video to expand it. Pause and Stop playback are separate controls. The expanded player has Audio, Subtitles, Record, Cast and Full screen. Keys: A for audio, S for subtitles, F for full screen, Escape to minimize. With VoiceOver, a two-finger double tap plays and pauses.
+On iPhone and iPad, Minimize keeps playback running in a miniplayer above the tabs. Tap its title or video to expand it. Pause and Stop playback are separate controls. The expanded player has Audio, Subtitles, Record, Playback destination, AirPlay and Full screen. Keys: A for audio, S for subtitles, F for full screen, Escape to minimize. With VoiceOver, a two-finger double tap plays and pauses.
 
 Full screen hides the buttons. A tap, Escape or the remote’s Back button brings them back.
 
@@ -40,7 +40,7 @@ When the programme changes, the player says what is on now. Settings, Announceme
 
 A live stream that drops reconnects by itself. Sound keeps playing with the screen locked.
 
-Cast sends the stream to a Chromecast on the same network.
+On iPhone and iPad, AirPlay sends compatible video through Apple’s player. Other IPTV video is converted to H.264 and AAC on this device; no separate server is needed. Playback destination uses the same conversion for Chromecast. Keep the app open on the same Wi-Fi as the receiver while converting. Conversion uses battery and may fail for protected streams or when the device cannot keep up. Audio-only receivers play sound only. Apple TV and Vision Pro use local playback; video sending is not promised there. If shown, choose Prepare AirPlay video first. When ready, use AirPlay to choose a receiver. Choose audio and subtitles before sending video.
 
 # Recordings
 
@@ -52,7 +52,7 @@ A catch-up download that ends early is fetched again.
 
 # Settings
 
-Export settings saves playlists, logins, favourites and options to a file. Import settings loads one from this device, another one, or the Android app. Language opens this app’s page in the Settings app.
+Export settings saves sources, logins, favourites and options to a file. Import settings loads one from this device, another one, or the Android app. Language opens this app’s page in the Settings app.
 
 # Updates
 

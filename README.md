@@ -11,7 +11,7 @@ This is the iOS port of [Accessible IPTV Client for Android](https://github.com/
 
 - Xtream Codes logins, Stalker portals (address and MAC), M3U / M3U Plus playlist URLs, and M3U files picked in the Files app.
 - Categories open first, with Favourites and All as explicit choices. Live TV, Movies and Series each have their own categories. A series opens to its episodes, in season order.
-- Native iPhone and iPad tabs for Browse, Guide, Recordings and Settings, with search and playlist controls in the navigation bar.
+- Native iPhone and iPad tabs for Browse, Guide, Recordings and Settings, with search in the navigation bar. Playlists live in Settings, as **Sources**; with none added yet, Browse shows an **Add sources** button.
 - Search at the top covers every group in the section, with a Voice button that fills it by speech.
 - XMLTV guide (`.xml` and `.xml.gz`), including large guides, read as it downloads. Each channel says what is on and until when; On Now lists everything airing; Guide search finds upcoming programmes.
 - Catch-up playback for channels with an archive (Xtream timeshift and M3U catch-up templates, the desktop rules).
@@ -19,17 +19,17 @@ This is the iOS port of [Accessible IPTV Client for Android](https://github.com/
 - Minimize the player to keep watching while browsing. The miniplayer expands back to the same stream, with separate pause and stop controls.
 - Native iOS background audio with lock-screen and headset controls. Calls interrupt playback; it resumes when iOS permits, unless you paused it. Disconnecting headphones pauses playback.
 - Live playback starts with half a second buffered, then builds a 25-second cushion during playback, like the desktop app. A dropped live stream reconnects by itself. Sound keeps playing with the screen locked.
-- Casts to Chromecast, or hands a stream to VLC, Infuse, nPlayer or Outplayer.
+- **AirPlay** uses AVPlayer for compatible video. On iPhone and iPad, other IPTV video can be converted locally to H.264/AAC HLS. **Playback destination** uses the same on-device conversion for Chromecast. No separate server is required. Keep the app open on the receiver’s Wi-Fi while converting; choose audio and subtitles before sending. Protected content and device performance can limit conversion. Audio-only receivers play sound only. A stream can also be handed to VLC, Infuse, nPlayer or Outplayer.
 - Record now, schedule recordings from the guide, and download movies, episodes and catch-up programmes. Recordings appear in the Files app.
 - Previous channel, Recently watched, Go to channel number; number keys on a keyboard jump straight to a channel.
-- Export and import every setting, playlist and favourite as one file, including a file exported from the Android app.
+- Export and import every setting, source and favourite as one file, including a file exported from the Android app.
 - 14 languages: English, Spanish, Arabic, Portuguese (Brazilian), French, German, Russian, Turkish, Italian, Polish, Hindi, Chinese (Simplified), Japanese and Hungarian.
 - CarPlay lists favourite and recently watched channels and plays their sound (needs a build signed with Apple's CarPlay audio permission).
 - On iPhone, App Intents expose channel tuning, now/next guide answers, guide search, channel-guide navigation, and pause/resume/stop to Siri and Shortcuts. Focused channel rows and the player provide onscreen entity context on iOS 18.2 or later.
 
 ## Siri and Apple Intelligence
 
-Add a playlist and open the app once to import its guide. Then try:
+Add a source and open the app once to import its guide. Then try:
 
 - “Play BBC One in Accessible IPTV.” Channel numbers work too; Siri offers choices for ambiguous matches.
 - “What is on BBC One in Accessible IPTV?” Reads the current and next programme from the imported guide.
@@ -70,7 +70,7 @@ then install Accessible IPTV from it. AltStore keeps it updated. The `.ipa` file
 
 ## Getting started
 
-1. Open **Playlists** and add an Xtream login, an M3U URL, an M3U file, or a Stalker portal.
+1. Open **Settings**, then **Sources**, and add an Xtream login, an M3U URL, an M3U file, or a Stalker portal.
 2. Go back. Channels load, then the guide imports in the background.
 3. Pick a group, or just search.
 

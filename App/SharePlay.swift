@@ -51,7 +51,7 @@ final class SharePlayCenter: ObservableObject {
 	}
 
 	func content(for player: PlayerController) -> ShareContent? {
-		guard !player.localFile, player.casting == nil, let channel = player.channel,
+		guard !player.localFile, player.casting == nil, !player.isRelayingVideo, let channel = player.channel,
 			!player.request.catchup || player.request.archiveStart != nil else { return nil }
 		return ShareContent(channel: channel, archiveStart: player.request.archiveStart, archiveStop: player.request.archiveStop)
 	}

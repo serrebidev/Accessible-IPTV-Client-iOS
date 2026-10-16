@@ -27,7 +27,8 @@ targets:
     sources:
       - path: App
       - path: Resources
-    scheme: {}
+    scheme:
+      testTargets: [PlaybackTests]
     dependencies:
       - package: IPTVCore
       - package: VLCKit
@@ -66,10 +67,11 @@ targets:
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         # Sound keeps playing with the screen locked; recordings keep running in the background.
         UIBackgroundModes: [audio]
+        AVInitialRouteSharingPolicy: LongFormVideo
         # IPTV providers serve plain http.
         NSAppTransportSecurity:
           NSAllowsArbitraryLoads: true
-        NSLocalNetworkUsageDescription: Finds Chromecast devices to cast to.
+        NSLocalNetworkUsageDescription: Finds playback devices and shares converted video with them.
         NSBonjourServices: [_googlecast._tcp]
         NSMicrophoneUsageDescription: Voice search listens for a channel name.
         NSSpeechRecognitionUsageDescription: Voice search turns what you say into a search.
@@ -77,3 +79,18 @@ targets:
         UIFileSharingEnabled: true
         LSSupportsOpeningDocumentsInPlace: true
         LSApplicationQueriesSchemes: [vlc-x-callback, infuse, nplayer-http, nplayer-https, outplayer, altstore, sidestore]
+  PlaybackTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: AppTests
+        excludes: ["*.ts"]
+      - path: AppTests/mpeg2-mp2.ts
+        buildPhase: resources
+    dependencies:
+      - target: AccessibleIPTV
+      - package: VLCKit
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES

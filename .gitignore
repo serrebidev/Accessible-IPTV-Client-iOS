@@ -8,4 +8,6 @@ Core/.build/
 Payload/
 .swiftpm/
 DerivedData/
+TestBuild/
+*.xcresult/
 __pycache__/

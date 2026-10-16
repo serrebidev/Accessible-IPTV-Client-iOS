@@ -1,4 +1,4 @@
 "CFBundleDisplayName" = "Accessible IPTV";
-"NSLocalNetworkUsageDescription" = "Chromecast-eszközöket keres az átküldéshez.";
+"NSLocalNetworkUsageDescription" = "Lejátszóeszközöket keres, és megosztja velük az átalakított videót.";
 "NSMicrophoneUsageDescription" = "A hangalapú keresés egy csatornanevet hallgat.";
 "NSSpeechRecognitionUsageDescription" = "A hangalapú keresés a kimondott szöveget keresésre alakítja.";
