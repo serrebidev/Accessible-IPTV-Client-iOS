@@ -147,6 +147,8 @@
 "play" = "Play";
 "play_external" = "Play in another app";
 "play_failed" = "Failed: %1$@";
+"play_last" = "Play last";
+"play_next" = "Play next";
 "playback_heading" = "Playback";
 "playback_unavailable" = "Nothing is playing. Choose a channel first.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Refreshing…";
 "remove_favorite" = "Remove favourite";
 "removed_favorite" = "Removed %1$@.";
+"repeat" = "Repeat";
 "results_limited" = "Showing the first 500 results. Type more to narrow them down.";
 "retry" = "Retry";
 "row_actions_hint" = "More actions available.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "Start SharePlay";
 "shareplay_unavailable" = "SharePlay needs a named live channel, movie, numbered series episode or catch-up programme. Local recordings, files and sending to another device are unavailable.";
 "show_stream_url" = "Show stream URL";
+"shuffle" = "Shuffle";
 "siri_failed" = "Couldn’t load this channel or guide. Open the app for details.";
 "siri_help" = "On iPhone, Siri and Shortcuts can tune channels by name or number, read what’s on now and next, search the guide, open a channel guide, and pause, resume or stop playback. Include the app name in your request. Siri asks for the search text. Add a playlist and open the app once to import its guide. Answers use the imported guide. These actions also work without Apple Intelligence; onscreen channel context needs iOS 18.2 or later and system support.";
 "siri_shortcuts" = "Siri and Shortcuts";

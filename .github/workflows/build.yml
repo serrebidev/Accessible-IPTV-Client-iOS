@@ -19,7 +19,9 @@ concurrency:
 
 jobs:
   build:
-    runs-on: macos-26
+    # Xcode 27: the audio-domain App Intents schemas that let Siri AI play a channel are iOS 27
+    # APIs, so the SDK has to ship them. The image is a GitHub preview (Xcode 27.0 beta 3).
+    runs-on: xcode-27
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
@@ -44,7 +46,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ${{ runner.temp }}/cvs/a11y-check/.build
-          key: a11ycheck-${{ runner.os }}-v1
+          key: a11ycheck-${{ runner.os }}-v2
 
       - name: Accessibility check (a11y-check, CVS Health)
         run: |

@@ -147,6 +147,8 @@
 "play" = "Reproduzir";
 "play_external" = "Reproduzir em outro app";
 "play_failed" = "Falha: %1$@";
+"play_last" = "Reproduzir por último";
+"play_next" = "Reproduzir em seguida";
 "playback_heading" = "Reprodução";
 "playback_unavailable" = "Nada está sendo reproduzido. Escolha um canal primeiro.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Atualizando…";
 "remove_favorite" = "Remover dos favoritos";
 "removed_favorite" = "%1$@ removido.";
+"repeat" = "Repetir";
 "results_limited" = "Mostrando os primeiros 500 resultados. Digite mais para reduzi-los.";
 "retry" = "Tentar de novo";
 "row_actions_hint" = "Mais ações disponíveis.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "Iniciar SharePlay";
 "shareplay_unavailable" = "O SharePlay precisa de um canal ao vivo com nome, filme, episódio numerado de série ou programa para rever. Gravações locais, arquivos e transmissão para outros dispositivos estão indisponíveis.";
 "show_stream_url" = "Mostrar URL do fluxo";
+"shuffle" = "Aleatório";
 "siri_failed" = "Não foi possível carregar o canal ou guia. Abra o app para detalhes.";
 "siri_help" = "No iPhone, Siri e Atalhos podem sintonizar canais por nome ou número, ler o programa atual e seguinte, pesquisar no guia, abrir o guia de um canal e controlar a reprodução. Inclua o nome do app. A Siri pede o texto da pesquisa. Adicione uma lista e abra o app para importar o guia. As respostas usam o guia importado. As ações funcionam sem Apple Intelligence; o contexto na tela exige iOS 18.2 ou posterior e suporte do sistema.";
 "siri_shortcuts" = "Siri e Atalhos";

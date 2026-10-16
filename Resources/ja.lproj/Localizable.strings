@@ -147,6 +147,8 @@
 "play" = "再生";
 "play_external" = "他のアプリで再生";
 "play_failed" = "失敗: %1$@";
+"play_last" = "最後に再生";
+"play_next" = "次に再生";
 "playback_heading" = "再生";
 "playback_unavailable" = "何も再生していません。先にチャンネルを選んでください。";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "更新中…";
 "remove_favorite" = "お気に入りから削除";
 "removed_favorite" = "%1$@ を削除しました。";
+"repeat" = "リピート";
 "results_limited" = "最初の500件を表示しています。追加で入力すると絞り込めます。";
 "retry" = "再試行";
 "row_actions_hint" = "ほかの操作を利用できます。";
@@ -219,6 +222,7 @@
 "shareplay_start" = "SharePlayを開始";
 "shareplay_unavailable" = "SharePlayには名前付きのライブチャンネル、映画、番号付きのシリーズエピソード、または見逃し番組が必要です。ローカル録画、ファイル、他のデバイスへの送信は利用できません。";
 "show_stream_url" = "ストリーム URL を表示";
+"shuffle" = "シャッフル";
 "siri_failed" = "チャンネルまたは番組表を読み込めませんでした。詳細はアプリを開いてください。";
 "siri_help" = "iPhoneではSiriとショートカットで名前や番号によるチャンネル選択、現在と次の番組の読み上げ、番組表の検索と表示、再生の一時停止・再開・停止ができます。アプリ名を含めて話してください。Siriが検索語を尋ねます。プレイリストを追加してアプリを開き、番組表を取り込んでください。回答は取り込んだ番組表を使います。操作はApple Intelligenceなしでも使えます。画面上のチャンネル情報の連携にはiOS 18.2以降とシステムの対応が必要です。";
 "siri_shortcuts" = "Siriとショートカット";

@@ -147,6 +147,8 @@
 "play" = "Lejátszás";
 "play_external" = "Lejátszás másik alkalmazásban";
 "play_failed" = "Hiba: %1$@";
+"play_last" = "Lejátszás utolsóként";
+"play_next" = "Lejátszás következőként";
 "playback_heading" = "Lejátszás";
 "playback_unavailable" = "Nincs lejátszás. Előbb válasszon csatornát.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Frissítés…";
 "remove_favorite" = "Eltávolítás a kedvencekből";
 "removed_favorite" = "%1$@ eltávolítva.";
+"repeat" = "Ismétlés";
 "results_limited" = "Az első 500 találat látható. Írjon be többet a szűkítéshez.";
 "retry" = "Újra";
 "row_actions_hint" = "További műveletek érhetők el.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "SharePlay indítása";
 "shareplay_unavailable" = "A SharePlayhez névvel rendelkező élő csatorna, film, számozott sorozatepizód vagy visszanézhető műsor szükséges. Helyi rögzítések, fájlok és a másik eszközre küldés nem használhatók.";
 "show_stream_url" = "Adatfolyam URL megjelenítése";
+"shuffle" = "Véletlen";
 "siri_failed" = "A csatorna vagy műsorújság nem tölthető be. A részletekhez nyissa meg az alkalmazást.";
 "siri_help" = "iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.2-et vagy újabbat és rendszertámogatást igényel.";
 "siri_shortcuts" = "Siri és Parancsok";

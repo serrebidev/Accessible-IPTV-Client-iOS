@@ -147,6 +147,8 @@
 "play" = "Odtwórz";
 "play_external" = "Odtwórz w innej aplikacji";
 "play_failed" = "Błąd: %1$@";
+"play_last" = "Odtwórz jako ostatni";
+"play_next" = "Odtwórz jako następny";
 "playback_heading" = "Odtwarzanie";
 "playback_unavailable" = "Nic nie jest odtwarzane. Najpierw wybierz kanał.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Odświeżanie…";
 "remove_favorite" = "Usuń z ulubionych";
 "removed_favorite" = "Usunięto %1$@.";
+"repeat" = "Powtórz";
 "results_limited" = "Wyświetlono pierwszych 500 wyników. Wpisz więcej, aby je zawęzić.";
 "retry" = "Ponów";
 "row_actions_hint" = "Dostępne są dodatkowe czynności.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "Rozpocznij SharePlay";
 "shareplay_unavailable" = "SharePlay wymaga nazwanego kanału na żywo, filmu, numerowanego odcinka serialu lub programu z archiwum. Lokalne nagrania, pliki i przesyłanie na inne urządzenia są niedostępne.";
 "show_stream_url" = "Pokaż URL strumienia";
+"shuffle" = "Losowo";
 "siri_failed" = "Nie można wczytać kanału lub programu. Otwórz aplikację po szczegóły.";
 "siri_help" = "Na iPhonie Siri i Skróty mogą włączać kanały po nazwie lub numerze, czytać bieżący i następny program, szukać w programie, otwierać program kanału i sterować odtwarzaniem. Podaj nazwę aplikacji. Siri zapyta o tekst wyszukiwania. Dodaj listę i otwórz aplikację, aby zaimportować program. Odpowiedzi używają zaimportowanych danych. Akcje działają bez Apple Intelligence; kontekst kanału na ekranie wymaga iOS 18.2 lub nowszego i wsparcia systemu.";
 "siri_shortcuts" = "Siri i Skróty";

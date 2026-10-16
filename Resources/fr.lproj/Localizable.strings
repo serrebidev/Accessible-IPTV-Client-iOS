@@ -147,6 +147,8 @@
 "play" = "Lecture";
 "play_external" = "Lire dans une autre app";
 "play_failed" = "Échec : %1$@";
+"play_last" = "Lire en dernier";
+"play_next" = "Lire ensuite";
 "playback_heading" = "Lecture";
 "playback_unavailable" = "Aucune lecture en cours. Choisissez d’abord une chaîne.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Actualisation…";
 "remove_favorite" = "Retirer des favoris";
 "removed_favorite" = "%1$@ retiré.";
+"repeat" = "Répéter";
 "results_limited" = "Affichage des 500 premiers résultats. Tapez plus de texte pour les réduire.";
 "retry" = "Réessayer";
 "row_actions_hint" = "D’autres actions sont disponibles.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "Démarrer SharePlay";
 "shareplay_unavailable" = "SharePlay nécessite une chaîne en direct nommée, un film, un épisode numéroté ou une émission en rattrapage. Les enregistrements locaux, fichiers et la diffusion vers un autre appareil sont indisponibles.";
 "show_stream_url" = "Afficher l’URL du flux";
+"shuffle" = "Aléatoire";
 "siri_failed" = "Impossible de charger la chaîne ou le guide. Ouvrez l’app pour les détails.";
 "siri_help" = "Sur iPhone, Siri et Raccourcis peuvent choisir une chaîne par nom ou numéro, lire le programme actuel et suivant, rechercher dans le guide, ouvrir le guide d’une chaîne et contrôler la lecture. Indiquez le nom de l’app. Siri demande le texte à chercher. Ajoutez une liste et ouvrez l’app pour importer son guide. Les réponses utilisent le guide importé. Ces actions fonctionnent sans Apple Intelligence ; le contexte à l’écran nécessite iOS 18.2 ou ultérieur et la prise en charge du système.";
 "siri_shortcuts" = "Siri et Raccourcis";

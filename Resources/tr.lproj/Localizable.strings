@@ -147,6 +147,8 @@
 "play" = "Oynat";
 "play_external" = "Başka uygulamada oynat";
 "play_failed" = "Başarısız: %1$@";
+"play_last" = "En son oynat";
+"play_next" = "Sıradaki olarak oynat";
 "playback_heading" = "Oynatma";
 "playback_unavailable" = "Hiçbir şey oynatılmıyor. Önce bir kanal seçin.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Yenileniyor…";
 "remove_favorite" = "Favorilerden çıkar";
 "removed_favorite" = "%1$@ çıkarıldı.";
+"repeat" = "Tekrarla";
 "results_limited" = "İlk 500 sonuç gösteriliyor. Daraltmak için yazmaya devam edin.";
 "retry" = "Yeniden dene";
 "row_actions_hint" = "Başka eylemler kullanılabilir.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "SharePlay’i başlat";
 "shareplay_unavailable" = "SharePlay için adı olan bir canlı kanal, film, numaralı dizi bölümü veya arşiv programı gerekir. Yerel kayıtlar, dosyalar ve başka cihaza yayınlama kullanılamaz.";
 "show_stream_url" = "Yayın URL’sini göster";
+"shuffle" = "Karışık";
 "siri_failed" = "Kanal veya rehber yüklenemedi. Ayrıntılar için uygulamayı açın.";
 "siri_help" = "iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.2 veya sonrası ve sistem desteği gerektirir.";
 "siri_shortcuts" = "Siri ve Kestirmeler";

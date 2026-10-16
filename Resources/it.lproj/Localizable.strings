@@ -147,6 +147,8 @@
 "play" = "Riproduci";
 "play_external" = "Riproduci in un’altra app";
 "play_failed" = "Errore: %1$@";
+"play_last" = "Riproduci per ultimo";
+"play_next" = "Riproduci dopo";
 "playback_heading" = "Riproduzione";
 "playback_unavailable" = "Nessuna riproduzione. Scegli prima un canale.";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "Aggiornamento…";
 "remove_favorite" = "Rimuovi dai preferiti";
 "removed_favorite" = "%1$@ rimosso.";
+"repeat" = "Ripeti";
 "results_limited" = "Primi 500 risultati mostrati. Digita altro testo per restringerli.";
 "retry" = "Riprova";
 "row_actions_hint" = "Altre azioni disponibili.";
@@ -219,6 +222,7 @@
 "shareplay_start" = "Avvia SharePlay";
 "shareplay_unavailable" = "SharePlay richiede un canale in diretta con nome, un film, un episodio numerato o un programma in replica. Registrazioni locali, file e trasmissione ad altri dispositivi non sono disponibili.";
 "show_stream_url" = "Mostra URL del flusso";
+"shuffle" = "Casuale";
 "siri_failed" = "Impossibile caricare il canale o la guida. Apri l’app per i dettagli.";
 "siri_help" = "Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.2 o successivo e supporto del sistema.";
 "siri_shortcuts" = "Siri e Comandi Rapidi";

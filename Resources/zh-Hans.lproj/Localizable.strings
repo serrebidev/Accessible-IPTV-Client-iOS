@@ -147,6 +147,8 @@
 "play" = "播放";
 "play_external" = "用其他应用播放";
 "play_failed" = "失败: %1$@";
+"play_last" = "最后播放";
+"play_next" = "下一个播放";
 "playback_heading" = "播放";
 "playback_unavailable" = "当前没有播放内容。请先选择频道。";
 "player_title" = "%1$@";
@@ -183,6 +185,7 @@
 "refreshing" = "正在刷新…";
 "remove_favorite" = "取消收藏";
 "removed_favorite" = "已移除 %1$@。";
+"repeat" = "重复播放";
 "results_limited" = "显示前 500 条结果。继续输入可缩小范围。";
 "retry" = "重试";
 "row_actions_hint" = "有更多可用操作。";
@@ -219,6 +222,7 @@
 "shareplay_start" = "开始 SharePlay";
 "shareplay_unavailable" = "SharePlay 需要有名称的直播频道、电影、带集数的剧集或回看节目。不支持本地录像、文件和发送到其他设备。";
 "show_stream_url" = "显示流 URL";
+"shuffle" = "随机播放";
 "siri_failed" = "无法加载频道或节目指南。请打开应用查看详情。";
 "siri_help" = "在 iPhone 上，Siri 和快捷指令可以按名称或编号播放频道、朗读当前及下个节目、搜索节目指南、打开频道节目指南，以及暂停、继续或停止播放。请求中请包含应用名称。Siri 会询问搜索内容。请先添加播放列表并打开应用导入节目指南。回答来自已导入的节目指南。操作无需 Apple Intelligence 也能使用；屏幕上的频道上下文需要 iOS 18.2 或更高版本及系统支持。";
 "siri_shortcuts" = "Siri 与快捷指令";

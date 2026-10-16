@@ -52,8 +52,8 @@ struct PlayChannelIntent: AudioStartingIntent {
 @UnionValue enum AudioItem { case liveRadioStation(LiveChannelEntity) }   // keep supported cases
 ```
 
-`TVChannelEntity` already satisfies most of `liveRadioStation` (`id`, `displayRepresentation`,
-a query with `entities(for:)` and `entities(matching:)`); it needs `title` and `providerName`.
+`TVChannelEntity` satisfies most of `liveRadioStation` (`id`, `displayRepresentation`, a query with
+`entities(for:)` and `entities(matching:)`) but cannot carry the macro itself: see constraint 1 below.
 
 ## The gate: SDK, not code
 
@@ -67,14 +67,36 @@ The Build workflow's runner (macos-26) tops out at **Xcode 26.6 / iOS 26.5 SDK**
 code cannot compile there — the macros and types do not exist in that SDK, and availability
 guards do not help. The runner-images repo also publishes a macOS 27 image with Xcode 27
 (`images/macos/xcode-27-arm64-Readme.md`, iOS 27.0 simulator runtime) and Xcode 27 as a public
-preview on macos-26. Adopt the schemas with the deployment target still 17.0, guarded by
-`@available(iOS 27, *)`, once a runner image provides Xcode 27. Switch the runner first and
-verify on `main` (that runs tests and builds without publishing) before tagging.
+preview on macos-26. The workflow now uses `runs-on: xcode-27` (Xcode 27.0 beta 3, 27A5218g).
 
-## Also done in 0.4.1
+## Resolution in 0.4.2
 
-Every Siri intent now carries `IntentDescription` and parameter descriptions; Apple lists those
-alongside phrases as the signals the model matches requests against.
+A live report settled it: saying "watch Sky Mix in Accessible IPTV" made Siri AI answer that the
+app "doesn't support playing content directly through Siri" — the app was resolved, the action
+was not, exactly the schema gap. `App/ChannelAudioSchema.swift` implements the contract:
+
+- `LiveChannelSchemaEntity` — `@AppEntity(schema: .audio.liveRadioStation)`, with `title`,
+  `providerName`, `displayRepresentation` and an `EntityStringQuery` that reuses
+  `ChannelDiscovery.matching`, so names, groups and numbers resolve as everywhere else.
+- `ChannelAudioItem` — a `@UnionValue` with the one supported case, `liveRadioStation`.
+- `ChannelPlaybackAttributes` (`shuffle`, `repeat`) and `ChannelQueueInsertionLocation`
+  (`next`, `tail`) — `@AppEnum` schemas the parameter list requires; a live channel accepts and
+  ignores both.
+- `ChannelWarmupResult` — `@AppEntity(schema: .audio.warmupAudioQueueResult)`, required by the
+  play intent's property list.
+- `PlayChannelAudioIntent` — `@AppIntent(schema: .audio.playAudio)`, `openAppWhenRun` (VLCKit
+  renders in app), tuning the channel by its stable identifier hash.
+
+Two constraints learned from a working adoption (holgerkrupp/PodcastClient, `PlayerIntentsExtension`):
+
+1. The schema macro makes the annotated type iOS 27-only, so it cannot go on `TVChannelEntity` —
+   every existing intent and shortcut depends on that type. The schema entity mirrors it instead.
+2. All of it sits behind `@available(iOS 27.0, *)` and a `#if canImport(MediaIntents)` gate so an
+   older SDK still builds the app.
+
+`IntentValueQuery` (the other half of Apple's playback use-case group) is not adopted yet: it
+needs the MediaIntents request types, and the entity query already resolves a spoken channel
+name. Xcode may warn about the missing half; adopt it if Siri fails to find channels.
 
 ## Known gaps
 

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2
+
+- Siri AI can play a channel now. Saying "watch Sky Mix in Accessible IPTV" answered that the app does not support playing content directly through Siri, because Apple requires an action schema for that, and the app had none. It now adopts the audio domain's playback schemas: a live radio station entity for channels and the Play audio intent, both iOS 27 or later, with iOS 17 to 26 unchanged.
+- Channel names, groups and numbers resolve through the same matching as everywhere else, so provider punctuation, quality labels and channel numbers still work.
+- Shuffle, repeat and a queue position are accepted and ignored: a live channel plays or does not, and there is one stream at a time.
+- The build now uses the Xcode 27 runner image, which is what ships the iOS 27 SDK these schemas need.
+
 ## 0.4.1
 
 - Siri and Apple Intelligence now receive a written description of every channel, guide and search action, and of their channel and search parameters, alongside the spoken phrases. These descriptions are the signals the system matches a request against.
