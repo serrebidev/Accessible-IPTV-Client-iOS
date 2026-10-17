@@ -137,7 +137,7 @@ struct ChannelWarmupResultQuery: EntityStringQuery {
 
 @available(iOS 27.0, *)
 @AppIntent(schema: .audio.playAudio)
-struct PlayChannelAudioIntent: AudioStartingIntent {
+struct PlayChannelAudioIntent: AudioPlaybackIntent {
 	static var openAppWhenRun = true
 
 	var audioEntity: ChannelAudioItem

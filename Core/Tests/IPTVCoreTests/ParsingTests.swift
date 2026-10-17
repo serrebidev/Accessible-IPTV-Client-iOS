@@ -537,6 +537,14 @@ final class ParsingTests: XCTestCase {
 		XCTAssertFalse(open, "Stopping early must close the transport too")
 	}
 
+	func testRecordingTransportClosesFromCancelledTask() async throws {
+		let reader = try Recording.Reader("http://127.0.0.1:9/live.ts", headers: [:])
+		let closed = expectation(description: "URLSession invalidation completed")
+		let task = Task { await reader.close(); closed.fulfill() }
+		task.cancel()
+		await fulfillment(of: [closed], timeout: 5)
+	}
+
 	// ---- Text, updates, subtitles ----
 
 	func testSentences() {

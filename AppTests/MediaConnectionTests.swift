@@ -32,16 +32,19 @@ final class ProviderConnectionTests: XCTestCase {
 		defer { server.stop() }
 		let url = try await server.url()
 		let reader = try Recording.Reader(url, headers: [:])
+		let cancelled = expectation(description: "Recording iteration cancelled")
 		let recording = Task {
+			defer { cancelled.fulfill() }
 			for try await _ in reader.chunks { }
 		}
 		try await wait { server.requests == 1 }
 		recording.cancel()
-		_ = await recording.result
+		await fulfillment(of: [cancelled], timeout: 10)
 		// close() must finish even when the recording task has already been cancelled.
-		let closing = Task { await reader.close() }
+		let closed = expectation(description: "Recording HTTP transport invalidated")
+		let closing = Task { await reader.close(); closed.fulfill() }
 		closing.cancel()
-		await closing.value
+		await fulfillment(of: [closed], timeout: 10)
 		try await wait { server.connections.isEmpty }
 		XCTAssertEqual(server.requests, 1)
 	}
@@ -85,6 +88,7 @@ final class ProviderConnectionTests: XCTestCase {
 private final class StreamServer {
 	private let listener: NWListener
 	private let body: Data
+	private var port: UInt16?
 	private(set) var requests = 0
 	private(set) var connections: [ObjectIdentifier: NWConnection] = [:]
 
@@ -94,16 +98,22 @@ private final class StreamServer {
 		listener.newConnectionHandler = { [weak self] connection in
 			Task { @MainActor in self?.accept(connection) }
 		}
+		listener.stateUpdateHandler = { [weak self] state in
+			Task { @MainActor in
+				guard let self, case .ready = state, let port = self.listener.port, port.rawValue != 0 else { return }
+				self.port = port.rawValue
+			}
+		}
 		listener.start(queue: .main)
 	}
 
 	func url() async throws -> String {
 		let deadline = Date().addingTimeInterval(10)
-		while listener.port == nil {
+		while port == nil {
 			guard Date() < deadline else { throw URLError(.timedOut) }
 			try await Task.sleep(nanoseconds: 50_000_000)
 		}
-		return "http://127.0.0.1:\(listener.port!.rawValue)/live.ts"
+		return "http://127.0.0.1:\(port!)/live.ts"
 	}
 
 	func stop() {
