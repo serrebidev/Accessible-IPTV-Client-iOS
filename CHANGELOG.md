@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5
+
+- Stopping a stream could be reported as finished while VLC was still stopping, so the next channel, recording or conversion could start over the tail of the previous one. Playback teardown now waits until the stopped state has held briefly before anything else may use the connection.
+
 ## 0.4.4
 
 - Playback, CarPlay, casting, recordings and downloads now share one IPTV media connection. Starting a conflicting operation leaves the current stream running and announces that it must be stopped first.

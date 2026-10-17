@@ -16,8 +16,8 @@ packages:
     exactVersion: 4.0.0-a22
 settings:
   base:
-    MARKETING_VERSION: 0.4.4
-    CURRENT_PROJECT_VERSION: 21
+    MARKETING_VERSION: 0.4.5
+    CURRENT_PROJECT_VERSION: 22
     SWIFT_VERSION: "5.0"
 targets:
   AccessibleIPTV:
