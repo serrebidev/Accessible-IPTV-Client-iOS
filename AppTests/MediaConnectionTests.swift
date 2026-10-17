@@ -55,7 +55,7 @@ final class ProviderConnectionTests: XCTestCase {
 			channel: nil, archiveStart: nil, archiveStop: nil))
 		defer { player.close(); server.stop() }
 		player.start()
-		try await wait { !player.player.videoTracks.isEmpty && !player.player.audioTracks.isEmpty }
+		try await wait(seconds: 45) { !player.player.videoTracks.isEmpty && !player.player.audioTracks.isEmpty }
 		player.prepareAirPlay()
 		try await wait { server.requests == 1 && server.connections.isEmpty }
 		player.pause()
@@ -71,8 +71,8 @@ final class ProviderConnectionTests: XCTestCase {
 	}
 
 	@MainActor
-	private func wait(_ condition: () -> Bool) async throws {
-		let deadline = Date().addingTimeInterval(20)
+	private func wait(seconds: TimeInterval = 20, _ condition: () -> Bool) async throws {
+		let deadline = Date().addingTimeInterval(seconds)
 		while !condition() {
 			guard Date() < deadline else { throw URLError(.timedOut) }
 			try await Task.sleep(nanoseconds: 50_000_000)

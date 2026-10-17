@@ -17,7 +17,7 @@ enum PlaybackTeardown {
 		// shortcut: AVPlayer exposes no transport-close callback; allow provider sessions to expire after cancellation.
 		pending[id] = Task { @MainActor in
 			try? await Task.sleep(nanoseconds: 2_500_000_000)
-			pending.removeValue(forKey: id)
+			withExtendedLifetime(player) { _ = pending.removeValue(forKey: id) }
 		}
 	}
 
