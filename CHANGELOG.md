@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.4
+
+- Playback, CarPlay, casting, recordings and downloads now share one IPTV media connection. Starting a conflicting operation leaves the current stream running and announces that it must be stopped first.
+- Channel changes and playback handoffs wait for the previous reader to stop before opening another. Recordings and downloads also wait for their HTTP session to close before reconnecting or releasing the connection.
+- Pausing or resuming while video conversion prepares no longer restarts the provider reader. Opening an external player first stops the app's own stream; playback in other apps remains outside this app's control.
+- Playlist, guide and account requests remain separate from the media connection limit.
+
 ## 0.4.3
 
 - Siri can play channels it previously could not find. The channel entity offered to Siri used the provider's raw label as its name, so decorated entries such as "UK: Sky | Mix HD" were far harder to match than clean ones, and every unnamed entry (whose label is its credential-bearing URL) was presented to Siri as plain "Channel".
