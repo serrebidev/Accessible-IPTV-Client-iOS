@@ -38,11 +38,22 @@ enum PlaybackTeardown {
 		player.stop()
 		player.media = nil
 		let task = Task { @MainActor in
-			// Polling starts only after stop() is queued behind any pending play(), so a
-			// `.stopped` left over from a previous natural end cannot finish this wait:
-			// stop() has already acted on the new play command. `isPlaying` queries VLC
+			// `state` is VLCKit's cached copy of the core state, updated asynchronously.
+			// A stop that races a just-started play can poll `.stopped` before the core
+			// has even processed that play; the state then bounces back to `.stopping`
+			// while VLC works through the queued stop, so one terminal read does not
+			// prove the stop landed. The terminal state must hold across a settle
+			// window; any non-terminal read restarts it. `isPlaying` queries VLC
 			// synchronously, even before its cached state catches up with Start.
-			while player.isPlaying || (player.state != .stopped && player.state != .error) {
+			var settledSince: TimeInterval?
+			while true {
+				if !player.isPlaying, player.state == .stopped || player.state == .error {
+					let since = settledSince ?? ProcessInfo.processInfo.systemUptime
+					settledSince = since
+					if ProcessInfo.processInfo.systemUptime - since >= 0.5 { break }
+				} else {
+					settledSince = nil
+				}
 				try? await Task.sleep(nanoseconds: 100_000_000)
 			}
 			pending.removeValue(forKey: id)
