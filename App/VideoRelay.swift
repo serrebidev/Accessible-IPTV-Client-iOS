@@ -20,6 +20,9 @@ final class VideoRelay: NSObject, VLCMediaPlayerDelegate {
 	private var live = false
 	private(set) var url: URL?
 	var onFailure: (() -> Void)?
+	/// How long the conversion may take to publish its first manifest before it is given up on.
+	/// The integration tests raise it: transcoding the fixture on a loaded CI runner is slower.
+	var firstManifestDeadline: TimeInterval = 40
 
 	func start(source: String, tracks: [String], seconds: Double, subtitleID: String? = nil, subtitleFile: URL? = nil,
 		live: Bool, completion: @escaping (Result<URL, Error>) -> Void) {
@@ -69,7 +72,7 @@ final class VideoRelay: NSObject, VLCMediaPlayerDelegate {
 			player.media = media
 			PlaybackTeardown.play(player)
 			monitor = Task { [weak self] in
-				let deadline = ProcessInfo.processInfo.systemUptime + 40
+				let deadline = ProcessInfo.processInfo.systemUptime + (self?.firstManifestDeadline ?? 40)
 				while !Task.isCancelled {
 					guard let self, !self.stopped else { return }
 					do {

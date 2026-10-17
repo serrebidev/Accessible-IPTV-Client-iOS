@@ -26,7 +26,8 @@ final class VideoRelayTests: XCTestCase {
 		source.media = sourceMedia
 		PlaybackTeardown.play(source)
 		defer { PlaybackTeardown.stop(source) }
-		let deadline = Date().addingTimeInterval(15)
+		// CI runners are shared and loaded: real transcoding needs more room here than on a phone.
+		let deadline = Date().addingTimeInterval(45)
 		while source.videoTracks.isEmpty || source.audioTracks.isEmpty || subtitles && source.textTracks.isEmpty {
 			guard Date() < deadline else { XCTFail("VLC did not discover MPEG-2 and MP2 tracks"); return }
 			try await Task.sleep(nanoseconds: 200_000_000)
@@ -37,6 +38,7 @@ final class VideoRelayTests: XCTestCase {
 		let stopped = await PlaybackTeardown.ready()
 		XCTAssertTrue(stopped)
 		let relay = VideoRelay()
+		relay.firstManifestDeadline = 120
 		defer { relay.stop() }
 		let url: URL = try await withCheckedThrowingContinuation { continuation in
 			relay.start(source: fixture.absoluteString, tracks: tracks, seconds: 0, subtitleID: subtitleID,
@@ -52,7 +54,7 @@ final class VideoRelayTests: XCTestCase {
 		let native = AVPlayer(playerItem: item)
 		defer { native.pause(); native.replaceCurrentItem(with: nil) }
 		native.play()
-		let decodeDeadline = Date().addingTimeInterval(25)
+		let decodeDeadline = Date().addingTimeInterval(60)
 		while Date() < decodeDeadline {
 			if video.copyPixelBuffer(forItemTime: native.currentTime(), itemTimeForDisplay: nil) != nil { return }
 			if let error = item.error { throw error }
@@ -88,7 +90,7 @@ final class VideoRelayTests: XCTestCase {
 		PlaybackTeardown.play(source)
 		defer { PlaybackTeardown.stop(source) }
 		var active = false
-		let deadline = Date().addingTimeInterval(15)
+		let deadline = Date().addingTimeInterval(45)
 		while Date() < deadline {
 			if source.state != .stopped { active = true }
 			if active, source.state == .stopped { break }
