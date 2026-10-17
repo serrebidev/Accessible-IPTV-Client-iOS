@@ -223,6 +223,7 @@
 "shareplay_unavailable" = "SharePlay için adı olan bir canlı kanal, film, numaralı dizi bölümü veya arşiv programı gerekir. Yerel kayıtlar, dosyalar ve başka cihaza yayınlama kullanılamaz.";
 "show_stream_url" = "Yayın URL’sini göster";
 "shuffle" = "Karışık";
+"single_connection_busy" = "Aynı anda yalnızca bir IPTV akışı kullanılabilir. Önce oynatmayı, kaydı veya indirmeyi durdurun.";
 "siri_failed" = "Kanal veya rehber yüklenemedi. Ayrıntılar için uygulamayı açın.";
 "siri_help" = "iPhone’da Siri ve Kestirmeler ad veya numarayla kanal açabilir, şimdiki ve sonraki programı okuyabilir, rehberde arayabilir, kanal rehberini açabilir ve oynatmayı denetleyebilir. İsteğinize uygulama adını ekleyin. Siri arama metnini sorar. Liste ekleyip rehberi içe aktarmak için uygulamayı açın. Yanıtlar içe aktarılan rehberden gelir. Eylemler Apple Intelligence olmadan da çalışır; ekrandaki kanal bağlamı iOS 18.2 veya sonrası ve sistem desteği gerektirir.";
 "siri_shortcuts" = "Siri ve Kestirmeler";

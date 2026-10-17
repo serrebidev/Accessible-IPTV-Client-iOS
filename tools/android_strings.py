@@ -24,6 +24,22 @@ LANGS = {"": "en", "ar": "ar", "de": "de", "es": "es", "fr": "fr", "hi": "hi", "
 # Android app leaves in English, and iOS-only features. Order: en ar de es fr hi hu it ja pl pt-BR ru tr zh-Hans.
 ORDER = ["en", "ar", "de", "es", "fr", "hi", "hu", "it", "ja", "pl", "pt-BR", "ru", "tr", "zh-Hans"]
 EXTRA = {
+    "single_connection_busy": [
+        "One IPTV stream at a time. Stop playback, recording or downloading first.",
+        "بث IPTV واحد في كل مرة. أوقف التشغيل أو التسجيل أو التنزيل أولًا.",
+        "Nur ein IPTV-Stream gleichzeitig. Zuerst Wiedergabe, Aufnahme oder Download stoppen.",
+        "Solo una emisión IPTV a la vez. Detén primero la reproducción, grabación o descarga.",
+        "Un seul flux IPTV à la fois. Arrêtez d’abord la lecture, l’enregistrement ou le téléchargement.",
+        "एक बार में एक IPTV स्ट्रीम। पहले प्लेबैक, रिकॉर्डिंग या डाउनलोड रोकें।",
+        "Egyszerre egy IPTV-adatfolyam használható. Előbb állítsa le a lejátszást, a rögzítést vagy a letöltést.",
+        "Un solo flusso IPTV alla volta. Interrompi prima la riproduzione, la registrazione o il download.",
+        "IPTVストリームは同時に1つだけです。先に再生、録画またはダウンロードを停止してください。",
+        "Tylko jeden strumień IPTV naraz. Najpierw zatrzymaj odtwarzanie, nagrywanie lub pobieranie.",
+        "Um fluxo IPTV por vez. Pare primeiro a reprodução, gravação ou download.",
+        "Только один поток IPTV одновременно. Сначала остановите воспроизведение, запись или загрузку.",
+        "Aynı anda yalnızca bir IPTV akışı kullanılabilir. Önce oynatmayı, kaydı veya indirmeyi durdurun.",
+        "同时只能使用一个 IPTV 流。请先停止播放、录制或下载。",
+    ],
     "open_channel": ["Open channel", "افتح القناة", "Sender öffnen", "Abrir canal", "Ouvrir une chaîne", "चैनल खोलें", "Csatorna megnyitása", "Apri canale", "チャンネルを開く", "Otwórz kanał", "Abrir canal", "Открыть канал", "Kanalı aç", "打开频道"],
     "search_index_updating": ["Indexing channels for search…", "جارٍ فهرسة القنوات للبحث…", "Sender werden für die Suche indiziert…", "Indexando canales para la búsqueda…", "Indexation des chaînes pour la recherche…", "खोज के लिए चैनलों की सूची बन रही है…", "Csatornák indexelése a kereséshez…", "Indicizzazione dei canali per la ricerca…", "検索用にチャンネルを登録中…", "Indeksowanie kanałów do wyszukiwania…", "Indexando canais para pesquisa…", "Индексация каналов для поиска…", "Kanallar arama için dizine ekleniyor…", "正在为搜索建立频道索引…"],
     "search_index_ready": ["Search ready: %1$ld channels.", "البحث جاهز: %1$ld قناة.", "Suche bereit: %1$ld Sender.", "Búsqueda lista: %1$ld canales.", "Recherche prête : %1$ld chaînes.", "खोज तैयार: %1$ld चैनल।", "A keresés kész: %1$ld csatorna.", "Ricerca pronta: %1$ld canali.", "検索の準備ができました。%1$ldチャンネル。", "Wyszukiwanie gotowe: %1$ld kanałów.", "Pesquisa pronta: %1$ld canais.", "Поиск готов: %1$ld каналов.", "Arama hazır: %1$ld kanal.", "搜索已就绪：%1$ld 个频道。"],

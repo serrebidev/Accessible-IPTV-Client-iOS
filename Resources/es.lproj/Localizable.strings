@@ -223,6 +223,7 @@
 "shareplay_unavailable" = "SharePlay necesita un canal en directo con nombre, una película, un episodio numerado o un programa en diferido. No admite grabaciones locales, archivos ni transmisión a otros dispositivos.";
 "show_stream_url" = "Mostrar URL del canal";
 "shuffle" = "Aleatorio";
+"single_connection_busy" = "Solo una emisión IPTV a la vez. Detén primero la reproducción, grabación o descarga.";
 "siri_failed" = "No se pudo cargar el canal o la guía. Abre la app para ver detalles.";
 "siri_help" = "En iPhone, Siri y Atajos pueden sintonizar canales por nombre o número, leer el programa actual y siguiente, buscar en la guía, abrir la guía de un canal y pausar, reanudar o detener la reproducción. Incluye el nombre de la app. Siri pide el texto de búsqueda. Añade una lista y abre la app para importar su guía. Las respuestas usan la guía importada. Las acciones funcionan sin Apple Intelligence; el contexto en pantalla requiere iOS 18.2 o posterior y soporte del sistema.";
 "siri_shortcuts" = "Siri y Atajos";

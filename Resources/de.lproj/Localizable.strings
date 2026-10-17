@@ -223,6 +223,7 @@
 "shareplay_unavailable" = "SharePlay benötigt einen benannten Live-Sender, Film, eine nummerierte Serienfolge oder eine nachträglich abrufbare Sendung. Lokale Aufnahmen, Dateien und das Senden an ein anderes Gerät sind nicht verfügbar.";
 "show_stream_url" = "Stream-URL anzeigen";
 "shuffle" = "Zufällig";
+"single_connection_busy" = "Nur ein IPTV-Stream gleichzeitig. Zuerst Wiedergabe, Aufnahme oder Download stoppen.";
 "siri_failed" = "Sender oder Programm konnten nicht geladen werden. Öffne die App für Details.";
 "siri_help" = "Auf dem iPhone können Siri und Kurzbefehle Sender nach Name oder Nummer einschalten, das aktuelle und nächste Programm vorlesen, das Programm durchsuchen, den Senderplan öffnen und die Wiedergabe pausieren, fortsetzen oder stoppen. Nenne den App-Namen. Siri fragt nach dem Suchtext. Füge eine Liste hinzu und öffne die App zum Programmimport. Antworten nutzen das importierte Programm. Die Aktionen funktionieren ohne Apple Intelligence; Bildschirmkontext benötigt iOS 18.2 oder neuer und Systemunterstützung.";
 "siri_shortcuts" = "Siri und Kurzbefehle";

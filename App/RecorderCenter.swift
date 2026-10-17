@@ -134,10 +134,25 @@ final class RecorderCenter: ObservableObject {
 		guard tasks[key] == nil else { return }
 		let label = [name, title].filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: " - ")
 		active[key] = Active(key: key, label: label, channelKey: channel == nil ? "" : key, started: nowMs(), end: end)
-		updateKeepAlive()
 		let lib = library
 		tasks[key] = Task {
+			let connectionID = UUID()
+			let ready = await PlaybackTeardown.ready()
+			let acquired = ready && !Task.isCancelled ? await MediaConnection.shared.acquire(connectionID) : false
+			guard acquired else {
+				active[key] = nil
+				tasks[key] = nil
+				updateKeepAlive()
+				if !Task.isCancelled {
+					let message = ready ? L("single_connection_busy") : L("play_failed", URLError(.timedOut).localizedDescription)
+					AppModel.shared.setStatus(message)
+					Notify.now(message)
+				}
+				return
+			}
+			updateKeepAlive()
 			let msg = await Self.record(lib: lib, channel: channel, url: url, label: label, end: end, expect: expect, live: channel != nil)
+			MediaConnection.shared.release(connectionID)
 			active[key] = nil
 			tasks[key] = nil
 			updateKeepAlive()
@@ -161,6 +176,7 @@ final class RecorderCenter: ObservableObject {
 		let file = folder.appendingPathComponent(Recording.freeFileName(name, taken: taken))
 		var ok = false
 		var early = false
+		var reader: Recording.Reader?
 		let done = { Task.isCancelled || (end != 0 && nowMs() >= end) }
 		// A catch-up download that ends early is fetched again from the start, up to three times.
 		for _ in 1...3 {
@@ -168,9 +184,16 @@ final class RecorderCenter: ObservableObject {
 			fm.createFile(atPath: file.path, contents: nil)
 			guard let h = try? FileHandle(forWritingTo: file) else { break }
 			// Live recordings ride out drops until their end time; a download ends at its end.
-			ok = await Recording.copy(open: { try Recording.stream(plain, headers: headers) }, write: { d in
+			ok = await Recording.copy(open: {
+				let next = try Recording.Reader(plain, headers: headers)
+				reader = next
+				return next.chunks
+			}, write: { d in
 				try h.write(contentsOf: d)
 				clock.feed(d)
+			}, close: {
+				await reader?.close()
+				reader = nil
 			}, reconnect: live, done: done)
 			try? h.close()
 			early = Recording.endedEarly(writtenMs: clock.durationMs, expectMs: expect)

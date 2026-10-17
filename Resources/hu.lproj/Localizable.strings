@@ -223,6 +223,7 @@
 "shareplay_unavailable" = "A SharePlayhez névvel rendelkező élő csatorna, film, számozott sorozatepizód vagy visszanézhető műsor szükséges. Helyi rögzítések, fájlok és a másik eszközre küldés nem használhatók.";
 "show_stream_url" = "Adatfolyam URL megjelenítése";
 "shuffle" = "Véletlen";
+"single_connection_busy" = "Egyszerre egy IPTV-adatfolyam használható. Előbb állítsa le a lejátszást, a rögzítést vagy a letöltést.";
 "siri_failed" = "A csatorna vagy műsorújság nem tölthető be. A részletekhez nyissa meg az alkalmazást.";
 "siri_help" = "iPhone-on Siri és a Parancsok név vagy szám alapján csatornát indíthat, felolvashatja a jelenlegi és következő műsort, kereshet a műsorújságban, megnyithatja azt, és vezérelheti a lejátszást. Mondja ki az alkalmazás nevét is. Siri rákérdez a keresett szövegre. Adjon hozzá listát, majd nyissa meg az alkalmazást a műsorújság importálásához. A válaszok az importált adatokból származnak. A parancsok Apple Intelligence nélkül is működnek; a képernyő csatornakörnyezete iOS 18.2-et vagy újabbat és rendszertámogatást igényel.";
 "siri_shortcuts" = "Siri és Parancsok";

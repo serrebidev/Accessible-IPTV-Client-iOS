@@ -56,16 +56,32 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 final class CarAudio {
 	static let shared = CarAudio()
 	private let player = VLCMediaPlayer()
+	private var connectionID: UUID?
 
 	func play(_ ch: Channel) async {
 		let model = AppModel.shared
+		stop()
+		let id = UUID()
+		connectionID = id
 		model.stopPlayback()
-		PlaybackTeardown.stop(player)
-		guard await PlaybackTeardown.ready() else { model.setStatus(L("play_failed", URLError(.timedOut).localizedDescription)); return }
+		let ready = await PlaybackTeardown.ready()
+		guard connectionID == id else { return }
+		guard ready else { stop(); model.setStatus(L("play_failed", URLError(.timedOut).localizedDescription)); return }
+		let acquired = await MediaConnection.shared.acquire(id)
+		guard connectionID == id else {
+			if acquired { MediaConnection.shared.release(id) { await PlaybackTeardown.finished() } }
+			return
+		}
+		guard acquired else { stop(); model.setStatus(L("single_connection_busy")); return }
 		model.rememberChannel(ch)
-		guard let raw = try? await model.library.resolveUrl(ch) else { return }
+		let raw = try? await model.library.resolveUrl(ch)
+		guard connectionID == id, !Task.isCancelled else {
+			if connectionID == id { stop() }
+			return
+		}
+		guard let raw else { stop(); model.setStatus(L("play_failed", ch.name)); return }
 		let (plain, headers) = M3U.splitHeaders(raw)
-		guard let url = URL(string: plain), let media = VLCMedia(url: url) else { return }
+		guard let url = URL(string: plain), let media = VLCMedia(url: url) else { stop(); model.setStatus(L("play_failed", ch.name)); return }
 		media.addOption(":no-video")
 		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
 		media.addOption(":network-caching=3000")
@@ -89,6 +105,8 @@ final class CarAudio {
 
 	func stop() {
 		PlaybackTeardown.stop(player)
+		if let id = connectionID { MediaConnection.shared.release(id) { await PlaybackTeardown.finished() } }
+		connectionID = nil
 		// CarAudio is the owner of the lock screen while it plays: it clears what it set, so the
 		// card does not outlive the sound (the player screen knows to leave it alone, see close).
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = nil

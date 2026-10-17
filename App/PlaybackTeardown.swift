@@ -1,4 +1,5 @@
 import Foundation
+import AVFoundation
 import VLCKit
 
 /// VLCKit 4 stops asynchronously. Never open another provider connection until teardown finishes.
@@ -6,6 +7,23 @@ import VLCKit
 @MainActor
 enum PlaybackTeardown {
 	private static var pending: [ObjectIdentifier: Task<Void, Never>] = [:]
+
+	static func stop(_ player: AVPlayer) {
+		guard let item = player.currentItem else { return }
+		player.pause()
+		item.asset.cancelLoading()
+		player.replaceCurrentItem(with: nil)
+		let id = ObjectIdentifier(player)
+		// shortcut: AVPlayer exposes no transport-close callback; allow provider sessions to expire after cancellation.
+		pending[id] = Task { @MainActor in
+			try? await Task.sleep(nanoseconds: 2_500_000_000)
+			pending.removeValue(forKey: id)
+		}
+	}
+
+	static func finished() async {
+		while let task = pending.values.first { await task.value }
+	}
 
 	static func play(_ player: VLCMediaPlayer) {
 		guard pending[ObjectIdentifier(player)] == nil, player.media != nil else { return }

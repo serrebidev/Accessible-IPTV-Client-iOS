@@ -59,6 +59,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var cacheSeconds = Cushion.quickStartSeconds
 	private var paced: Float = 1
 	private var closing = false
+	private let connectionID = UUID()
 	private var started = false
 	private var intent = PlaybackIntent()
 	private var observers: [NSObjectProtocol] = []
@@ -161,6 +162,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		PlaybackTeardown.stop(player)
 		player.drawable = nil
 		player.delegate = nil
+		MediaConnection.shared.release(connectionID) { await PlaybackTeardown.finished() }
 		#if os(iOS)
 		discoverers.forEach { $0.stop() }
 		#endif
@@ -186,15 +188,30 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// rest of the cushion is built by pace().
 	private func open() {
 		openingTask?.cancel()
+		stopNative()
+		PlaybackTeardown.stop(player)
 		openingTask = Task { [weak self] in
 			let ready = await PlaybackTeardown.ready()
 			guard let self, !Task.isCancelled, !self.closing, self.intent.canPlay else { return }
-			self.openingTask = nil
 			guard ready else {
+				self.openingTask = nil
 				self.failed = true
 				self.say(L("play_failed", URLError(.timedOut).localizedDescription), 1)
 				return
 			}
+			if !self.localFile {
+				guard await MediaConnection.shared.acquire(self.connectionID) else {
+					self.openingTask = nil
+					self.failed = true
+					self.say(L("single_connection_busy"), 1)
+					return
+				}
+				guard !Task.isCancelled, !self.closing else {
+					if self.closing { MediaConnection.shared.release(self.connectionID) { await PlaybackTeardown.finished() } }
+					return
+				}
+			}
+			self.openingTask = nil
 			self.openNow()
 		}
 	}
@@ -238,7 +255,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	// MARK: native playback
 
 	private func openNative() {
-		stopNative()
 		let (plain, headers) = M3U.splitHeaders(playbackURL)
 		guard let url = URL(string: plain) else { fallbackToVLC(); return }
 		let agent = headers.first { $0.key.lowercased() == "user-agent" }?.value ?? Net.userAgent
@@ -317,9 +333,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		nativeObservations.removeAll()
 		nativeNotifications.forEach { NotificationCenter.default.removeObserver($0) }
 		nativeNotifications.removeAll()
-		nativePlayer.pause()
-		nativePlayer.currentItem?.asset.cancelLoading()
-		nativePlayer.replaceCurrentItem(with: nil)
+		PlaybackTeardown.stop(nativePlayer)
 		nativeAudio = []
 		nativeText = []
 	}
@@ -527,7 +541,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		isPaused = false
 		UIApplication.shared.isIdleTimerDisabled = UIApplication.shared.applicationState == .active
 		#if os(iOS)
-		videoRelay?.player.play()
+		if let relay = videoRelay {
+			PlaybackTeardown.play(relay.player)
+			// Conversion already owns the provider while its first manifest is being written.
+			if relay.url == nil { return }
+		}
 		#endif
 		if usesNative {
 			if failed || nativePlayer.currentItem == nil { failed = false; open() }
@@ -818,6 +836,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			}
 			let subtitleID = self.player.textTracks.first(where: { $0.isSelected })?.trackId
 			let tracks = [video.trackId] + (audio.map { [$0.trackId] } ?? [])
+			// Reserve the relay before teardown so Resume cannot reopen the direct source during handoff.
+			let relay = VideoRelay()
+			self.videoRelay = relay
 			PlaybackTeardown.stop(self.player)
 			guard await PlaybackTeardown.ready(), !Task.isCancelled, !self.closing else {
 				if !Task.isCancelled, !self.closing { self.relayFailed() }
@@ -828,8 +849,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 				do { try await Task.sleep(nanoseconds: 2_500_000_000) } catch { return }
 			}
 			guard !Task.isCancelled, !self.closing else { return }
-			let relay = VideoRelay()
-			self.videoRelay = relay
 			self.relayStartTime = position
 			relay.onFailure = { [weak self] in self?.relayFailed() }
 			relay.start(source: self.request.url, tracks: tracks, seconds: position, subtitleID: subtitleID,

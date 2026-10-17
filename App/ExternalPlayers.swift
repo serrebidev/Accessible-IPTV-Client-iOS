@@ -30,9 +30,27 @@ enum ExternalPlayers {
 		switch installed.count {
 		case 0: model.showInfo(L("play_external"), L("no_external_player"))
 		case 1:
-			model.stopPlayback()
-			UIApplication.shared.open(installed[0].1)
+			open(installed[0].1)
 		default: model.externalChoice = installed
+		}
+	}
+
+	@MainActor static func open(_ url: URL) {
+		let model = AppModel.shared
+		model.stopPlayback()
+		#if os(iOS)
+		CarAudio.shared.stop()
+		#endif
+		Task { @MainActor in
+			guard await PlaybackTeardown.ready() else {
+				model.setStatus(L("play_failed", URLError(.timedOut).localizedDescription)); return
+			}
+			let id = UUID()
+			guard await MediaConnection.shared.acquire(id) else { model.setStatus(L("single_connection_busy")); return }
+			let opened = await UIApplication.shared.open(url)
+			// External apps own their transport after handoff; iOS cannot monitor or stop it.
+			MediaConnection.shared.release(id)
+			if !opened { model.setStatus(L("no_external_player")) }
 		}
 	}
 

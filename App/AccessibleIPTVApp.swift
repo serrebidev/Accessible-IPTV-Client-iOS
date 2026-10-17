@@ -31,8 +31,7 @@ struct AccessibleIPTVApp: App {
 				.sheet(isPresented: Binding(get: { model.externalChoice != nil }, set: { if !$0 { model.externalChoice = nil } })) {
 					let list = model.externalChoice ?? []
 					ChoiceSheet(title: L("play_external"), options: list.map(\.0)) {
-						model.stopPlayback()
-						UIApplication.shared.open(list[$0].1)
+						ExternalPlayers.open(list[$0].1)
 					}
 				}
 		}

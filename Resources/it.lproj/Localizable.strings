@@ -223,6 +223,7 @@
 "shareplay_unavailable" = "SharePlay richiede un canale in diretta con nome, un film, un episodio numerato o un programma in replica. Registrazioni locali, file e trasmissione ad altri dispositivi non sono disponibili.";
 "show_stream_url" = "Mostra URL del flusso";
 "shuffle" = "Casuale";
+"single_connection_busy" = "Un solo flusso IPTV alla volta. Interrompi prima la riproduzione, la registrazione o il download.";
 "siri_failed" = "Impossibile caricare il canale o la guida. Apri l’app per i dettagli.";
 "siri_help" = "Su iPhone, Siri e Comandi Rapidi possono scegliere canali per nome o numero, leggere il programma attuale e successivo, cercare nella guida, aprire la guida di un canale e controllare la riproduzione. Includi il nome dell’app. Siri chiede il testo da cercare. Aggiungi una lista e apri l’app per importare la guida. Le risposte usano la guida importata. Le azioni funzionano senza Apple Intelligence; il contesto sullo schermo richiede iOS 18.2 o successivo e supporto del sistema.";
 "siri_shortcuts" = "Siri e Comandi Rapidi";

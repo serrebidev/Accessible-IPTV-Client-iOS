@@ -71,6 +71,7 @@ public enum Recording {
 	public static func copy(
 		open: () throws -> AsyncThrowingStream<Data, Error>,
 		write: (Data) throws -> Void,
+		close: () async -> Void = {},
 		reconnect: Bool,
 		pauseMs: UInt64 = 2_000,
 		maxMisses: Int = 10,
@@ -90,6 +91,7 @@ public enum Recording {
 			} catch {
 				// A dropped connection: below, the same as the server ending the stream.
 			}
+			await close()
 			if !reconnect || done() || Task.isCancelled { break }
 			misses = got ? 0 : misses + 1
 			if misses >= maxMisses { break }
@@ -98,22 +100,54 @@ public enum Recording {
 		return wrote
 	}
 
-	/// A live HTTP body as chunks, for recording. Ending the stream cancels the request.
-	public static func stream(_ url: String, headers: [String: String]) throws -> AsyncThrowingStream<Data, Error> {
-		var r = try Net.request(url, headers: headers)
-		r.timeoutInterval = 30
-		return AsyncThrowingStream { cont in
-			let d = ChunkDelegate(cont)
-			let session = URLSession(configuration: .ephemeral, delegate: d, delegateQueue: nil)
+	/// A recording transport. Always await close(), even after cancellation or an early exit.
+	public final class Reader {
+		public let chunks: AsyncThrowingStream<Data, Error>
+		private let session: URLSession
+		private let delegate: ChunkDelegate
+
+		public init(_ url: String, headers: [String: String]) throws {
+			var r = try Net.request(url, headers: headers)
+			r.timeoutInterval = 30
+			let (stream, cont) = AsyncThrowingStream<Data, Error>.makeStream()
+			chunks = stream
+			delegate = ChunkDelegate(cont)
+			session = URLSession(configuration: .ephemeral, delegate: delegate, delegateQueue: nil)
+			let session = session
 			let task = session.dataTask(with: r)
 			cont.onTermination = { _ in task.cancel(); session.invalidateAndCancel() }
 			task.resume()
 		}
+
+		public func close() async {
+			session.invalidateAndCancel()
+			await delegate.waitForClose()
+		}
 	}
 
-	private final class ChunkDelegate: NSObject, URLSessionDataDelegate {
+	private final class ChunkDelegate: NSObject, URLSessionDataDelegate, @unchecked Sendable {
 		let cont: AsyncThrowingStream<Data, Error>.Continuation
+		private let lock = NSLock()
+		private var invalidated = false
+		private var waiters: [CheckedContinuation<Void, Never>] = []
 		init(_ c: AsyncThrowingStream<Data, Error>.Continuation) { cont = c }
+
+		func waitForClose() async {
+			await withCheckedContinuation { continuation in
+				lock.lock()
+				if invalidated { lock.unlock(); continuation.resume() }
+				else { waiters.append(continuation); lock.unlock() }
+			}
+		}
+
+		func urlSession(_ session: URLSession, didBecomeInvalidWithError error: Error?) {
+			lock.lock()
+			invalidated = true
+			let pending = waiters
+			waiters.removeAll()
+			lock.unlock()
+			pending.forEach { $0.resume() }
+		}
 
 		func urlSession(_ s: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void) {
 			if let h = response as? HTTPURLResponse, !(200...299).contains(h.statusCode) {

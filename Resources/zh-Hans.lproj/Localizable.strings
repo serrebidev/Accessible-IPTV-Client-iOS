@@ -223,6 +223,7 @@
 "shareplay_unavailable" = "SharePlay 需要有名称的直播频道、电影、带集数的剧集或回看节目。不支持本地录像、文件和发送到其他设备。";
 "show_stream_url" = "显示流 URL";
 "shuffle" = "随机播放";
+"single_connection_busy" = "同时只能使用一个 IPTV 流。请先停止播放、录制或下载。";
 "siri_failed" = "无法加载频道或节目指南。请打开应用查看详情。";
 "siri_help" = "在 iPhone 上，Siri 和快捷指令可以按名称或编号播放频道、朗读当前及下个节目、搜索节目指南、打开频道节目指南，以及暂停、继续或停止播放。请求中请包含应用名称。Siri 会询问搜索内容。请先添加播放列表并打开应用导入节目指南。回答来自已导入的节目指南。操作无需 Apple Intelligence 也能使用；屏幕上的频道上下文需要 iOS 18.2 或更高版本及系统支持。";
 "siri_shortcuts" = "Siri 与快捷指令";

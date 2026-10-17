@@ -519,6 +519,24 @@ final class ParsingTests: XCTestCase {
 		XCTAssertEqual(wrote, 0)
 	}
 
+	func testRecordingClosesReaderBeforeReconnectAndEarlyExit() async {
+		var open = false, opens = 0, closes = 0
+		let ok = await Recording.copy(open: {
+			XCTAssertFalse(open, "Reconnecting must not overlap the previous reader")
+			open = true
+			opens += 1
+			return stream(["x", "y"])
+		}, write: { _ in }, close: {
+			await Task.yield()
+			open = false
+			closes += 1
+		}, reconnect: true, pauseMs: 0) { opens == 2 }
+		XCTAssertTrue(ok)
+		XCTAssertEqual(opens, 2)
+		XCTAssertEqual(closes, 2)
+		XCTAssertFalse(open, "Stopping early must close the transport too")
+	}
+
 	// ---- Text, updates, subtitles ----
 
 	func testSentences() {
