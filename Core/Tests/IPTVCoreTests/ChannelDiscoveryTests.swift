@@ -64,4 +64,24 @@ final class ChannelDiscoveryTests: XCTestCase {
 		XCTAssertEqual(ChannelDiscovery.matching(channels, "skymix").map(\.itemId), ["2", "1"])
 		XCTAssertTrue(ChannelDiscovery.matching(channels, "!!!").isEmpty)
 	}
+
+	func testResolvedNamesAreNotCrowdedOutByLookAlikeSiblings() {
+		let channels = (1...30).map { channel(String($0), "UK| SKY SPORTS \($0) HD", number: "10\($0)") }
+			+ [channel("f1", "UK| SKY SPORTS F1 HD", number: "1040"), channel("news", "UK| SKY SPORTS NEWS HD", number: "1041")]
+		XCTAssertEqual(ChannelDiscovery.resolve(channels, "Sky Sports F1").map(\.itemId), ["f1"])
+		XCTAssertEqual(ChannelDiscovery.resolve(channels, "sky sports news").map(\.itemId), ["news"])
+		XCTAssertEqual(ChannelDiscovery.resolve(channels, "1040").map(\.itemId), ["f1"])
+		XCTAssertEqual(ChannelDiscovery.resolve(channels, "sky sports").count, 20)
+	}
+
+	func testResolvedNamesDropTimeshiftAndKeepTheNumberPath() {
+		let channels = [channel("1", "Sky Mix +1"), channel("2", "UK: Sky | Mix HD"), channel("3", "Sky Mix")]
+		XCTAssertEqual(ChannelDiscovery.resolve(channels, "Sky Mix").map(\.itemId), ["2", "3"])
+		XCTAssertEqual(ChannelDiscovery.resolve(channels, "sky mix +1").map(\.itemId), ["1"])
+		let numbered = [channel("1", "BBC One HD", number: "101"), channel("2", "BBC Two HD", number: "102")]
+		XCTAssertEqual(ChannelDiscovery.resolve(numbered, "101").map(\.itemId), ["1"])
+		XCTAssertEqual(ChannelDiscovery.resolve(numbered, "bbc two").map(\.itemId), ["2"])
+		XCTAssertTrue(ChannelDiscovery.resolve(numbered, "  \n ").isEmpty)
+		XCTAssertTrue(ChannelDiscovery.resolve(numbered, "missing").isEmpty)
+	}
 }

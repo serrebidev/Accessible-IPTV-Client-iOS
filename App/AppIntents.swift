@@ -101,7 +101,7 @@ struct TVChannelQuery: EntityStringQuery, EntityPropertyQuery {
 
 	@MainActor func entities(matching string: String) async throws -> [TVChannelEntity] {
 		let channels = try await SiriLibrary.live()
-		let matches = await Task.detached { Array(ChannelDiscovery.matching(channels, string).prefix(20)) }.value
+		let matches = await Task.detached { ChannelDiscovery.resolve(channels, string) }.value
 		return matches.map(TVChannelEntity.init)
 	}
 

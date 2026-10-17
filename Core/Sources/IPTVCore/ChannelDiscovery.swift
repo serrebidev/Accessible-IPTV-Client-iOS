@@ -41,6 +41,27 @@ public enum ChannelDiscovery {
 		return !key.isEmpty && (exact ? candidate == key : candidate.contains(key))
 	}
 
+	/// Resolution for one spoken channel by a system picker: a number, or a name that is spoken
+	/// exactly, wins outright. [matching] still answers everything else, but a channel with many
+	/// look-alikes is never left to compete with its siblings for a place in a short list.
+	public static func resolve(_ channels: [Channel], _ text: String, limit: Int = 20) -> [Channel] {
+		let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
+		guard !query.isEmpty, limit > 0 else { return [] }
+		if let number = Int(query), number > 0 {
+			let byNumber = channels.filter { Int($0.number) == number }
+			if !byNumber.isEmpty { return Array(byNumber.prefix(limit)) }
+		}
+		let spoken = Lists.lowerName(spokenName(query))
+		if !spoken.isEmpty {
+			let said = channels.filter { Lists.lowerName(spokenName($0.name)) == spoken }
+			if !said.isEmpty { return Array(said.prefix(limit)) }
+		}
+		let plain = Lists.lowerName(publicText(query))
+		let named = channels.filter { Lists.lowerName(publicText($0.name)) == plain }
+		if !named.isEmpty { return Array(named.prefix(limit)) }
+		return Array(matching(channels, query).prefix(limit))
+	}
+
 	public static func suggestions(_ channels: [Channel], favorites: Set<String>, recent: [String]) -> [Channel] {
 		let byKey = Dictionary(channels.map { ($0.key, $0) }, uniquingKeysWith: { first, _ in first })
 		var seen = Set<String>()

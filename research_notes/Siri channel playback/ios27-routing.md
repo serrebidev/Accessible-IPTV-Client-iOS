@@ -98,6 +98,17 @@ Two constraints learned from a working adoption (holgerkrupp/PodcastClient, `Pla
 needs the MediaIntents request types, and the entity query already resolves a spoken channel
 name. Xcode may warn about the missing half; adopt it if Siri fails to find channels.
 
+## Resolution in 0.4.3
+
+Siri could then play some channels but not others. Two defects: the schema entity's title was the
+provider's raw label ("UK: Sky | Mix HD") with no spoken alias or number as alternate names, and every
+unnamed entry — whose label is its credential-bearing URL — was titled "Channel", so those were
+indistinguishable from each other. The title is now the spoken name, with the provider label and the
+number as synonyms, and unnamed entries fall back to their number and then their group.
+`ChannelDiscovery.resolve` also returns an exact spoken match outright rather than racing it against
+look-alikes inside a 20-candidate list (Sky Sports F1 versus Sky Sports 1 to 30); both the schema query
+and `TVChannelQuery` use it.
+
 ## Known gaps
 
 - App Shortcut phrase *wording* is English for all 14 app languages. Apple localizes phrase text

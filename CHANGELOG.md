@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.3
+
+- Siri can play channels it previously could not find. The channel entity offered to Siri used the provider's raw label as its name, so decorated entries such as "UK: Sky | Mix HD" were far harder to match than clean ones, and every unnamed entry (whose label is its credential-bearing URL) was presented to Siri as plain "Channel".
+- The entity now carries the spoken name as its title, with the provider label and channel number as alternate names, and unnamed entries fall back to their number or group so each stays distinguishable.
+- A spoken channel that matches a name exactly now wins outright instead of competing with its look-alikes. A request for Sky Sports F1 no longer shares a short candidate list with Sky Sports 1 to 30.
+- Both system paths use that resolution: the playback schema Siri AI calls and the Find Channels and Tune channel actions in Shortcuts.
+
 ## 0.4.2
 
 - Siri AI can play a channel now. Saying "watch Sky Mix in Accessible IPTV" answered that the app does not support playing content directly through Siri, because Apple requires an action schema for that, and the app had none. It now adopts the audio domain's playback schemas: a live radio station entity for channels and the Play audio intent, both iOS 27 or later, with iOS 17 to 26 unchanged.

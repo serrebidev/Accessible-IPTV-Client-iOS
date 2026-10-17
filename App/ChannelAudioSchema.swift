@@ -16,22 +16,32 @@ struct LiveChannelSchemaEntity {
 
 	/// The same stable hash TVChannelEntity and the Spotlight index use.
 	let id: String
+	/// What Siri says and matches on: the spoken name, without provider decoration.
 	var title: String
 	var providerName: String?
 	var group: String?
 	var number: String?
+	/// The provider's own label, kept as an alternate name so it matches when it is read out.
+	var providerLabel: String?
 
 	var displayRepresentation: DisplayRepresentation {
-		DisplayRepresentation(title: "\(title)", subtitle: "\(Format.sentences([group ?? "", number ?? ""]))")
+		let alternate = [providerLabel, number].compactMap { $0 }.filter { !$0.isEmpty && $0 != title }
+		return DisplayRepresentation(title: "\(title)", subtitle: "\(Format.sentences([group ?? "", number ?? ""]))",
+			synonyms: alternate.map { LocalizedStringResource(stringLiteral: $0) })
 	}
 
 	init(_ channel: Channel) {
 		id = TVChannelEntity.identifier(channel)
-		let name = ChannelDiscovery.publicText(channel.name)
-		title = name.isEmpty ? L("channel") : name
-		providerName = nil
-		group = ChannelDiscovery.publicText(channel.group)
-		number = ChannelDiscovery.publicText(channel.number)
+		let spoken = ChannelDiscovery.spokenName(channel.name)
+		let label = ChannelDiscovery.publicText(channel.name)
+		let groupText = ChannelDiscovery.publicText(channel.group)
+		let numberText = ChannelDiscovery.publicText(channel.number)
+		group = groupText.isEmpty ? nil : groupText
+		number = numberText.isEmpty ? nil : numberText
+		providerLabel = label.isEmpty || label == spoken ? nil : label
+		// An unnamed entry's label is its credential-bearing URL and is useless as a title, so
+		// fall back to what someone can actually say: the number, then the group.
+		title = !spoken.isEmpty ? spoken : (!numberText.isEmpty ? numberText : (!groupText.isEmpty ? groupText : L("channel")))
 	}
 }
 
@@ -48,7 +58,7 @@ struct LiveChannelSchemaQuery: EntityStringQuery {
 	@MainActor func entities(matching string: String) async throws -> [LiveChannelSchemaEntity] {
 		let channels = try await SiriLibrary.live()
 		return await Task.detached {
-			Array(ChannelDiscovery.matching(channels, string).prefix(20)).map(LiveChannelSchemaEntity.init)
+			ChannelDiscovery.resolve(channels, string).map(LiveChannelSchemaEntity.init)
 		}.value
 	}
 
