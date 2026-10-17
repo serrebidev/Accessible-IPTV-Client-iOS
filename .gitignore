@@ -11,3 +11,4 @@ DerivedData/
 TestBuild/
 *.xcresult/
 __pycache__/
+*.log
