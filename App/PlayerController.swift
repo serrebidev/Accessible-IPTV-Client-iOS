@@ -516,7 +516,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		player.pause()
 		if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
 		#if os(iOS)
-		if !live { videoRelay?.player.pause() }
+		if !live, !preparingVideo { videoRelay?.player.pause() }
 		#endif
 		isPlaying = false
 		nowPlayingInfo()
@@ -542,9 +542,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		UIApplication.shared.isIdleTimerDisabled = UIApplication.shared.applicationState == .active
 		#if os(iOS)
 		if let relay = videoRelay {
-			PlaybackTeardown.play(relay.player)
 			// Conversion already owns the provider while its first manifest is being written.
 			if relay.url == nil { return }
+			PlaybackTeardown.play(relay.player)
 		}
 		#endif
 		if usesNative {

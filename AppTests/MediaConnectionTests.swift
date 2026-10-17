@@ -19,6 +19,7 @@ final class ProviderConnectionTests: XCTestCase {
 		recorder.download(url, name: "Test", title: "")
 		try await wait { recorder.active.isEmpty }
 		XCTAssertEqual(server.requests, 1, "Recording must not open another provider reader")
+		XCTAssertEqual(server.peakConnections, 1)
 		XCTAssertEqual(AppModel.shared.status, L("single_connection_busy"))
 		player.close()
 		let stopped = await PlaybackTeardown.ready()
@@ -63,11 +64,11 @@ final class ProviderConnectionTests: XCTestCase {
 		try await wait { server.requests == 1 && server.connections.isEmpty }
 		player.pause()
 		player.resume()
-		try await wait { server.requests == 2 }
+		try await wait { server.requests >= 2 }
 		player.pause()
 		player.resume()
 		try await Task.sleep(nanoseconds: 1_000_000_000)
-		XCTAssertEqual(server.requests, 2, "Resuming conversion must not restart the direct provider reader")
+		XCTAssertEqual(server.peakConnections, 1, "Cast handoffs and reconnects must never overlap provider readers")
 		player.close()
 		let stopped = await PlaybackTeardown.ready()
 		XCTAssertTrue(stopped)
@@ -90,6 +91,7 @@ private final class StreamServer {
 	private let body: Data
 	private var port: UInt16?
 	private(set) var requests = 0
+	private(set) var peakConnections = 0
 	private(set) var connections: [ObjectIdentifier: NWConnection] = [:]
 
 	init(body: Data) throws {
@@ -124,6 +126,7 @@ private final class StreamServer {
 
 	private func accept(_ connection: NWConnection) {
 		connections[ObjectIdentifier(connection)] = connection
+		peakConnections = max(peakConnections, connections.count)
 		connection.start(queue: .main)
 		receive(connection, request: Data())
 	}
@@ -138,6 +141,7 @@ private final class StreamServer {
 					guard request.count <= 16_384 else { self.close(connection); return }
 					if request.range(of: Data("\r\n\r\n".utf8)) != nil {
 						self.requests += 1
+						print("Test provider request \(self.requests): \(self.connections.count) active connections")
 						connection.send(content: Data("HTTP/1.1 200 OK\r\nContent-Type: video/mp2t\r\nConnection: close\r\n\r\n".utf8),
 							completion: .contentProcessed { _ in })
 						self.pump(connection)

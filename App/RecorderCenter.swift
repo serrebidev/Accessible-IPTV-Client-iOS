@@ -115,13 +115,11 @@ final class RecorderCenter: ObservableObject {
 
 	/// Starts recording now. [endMs] 0 = until stopped.
 	func start(_ ch: Channel, title: String, endMs: Int64 = 0) {
-		Notify.ask()
 		run(key: ch.key, channel: ch, url: ch.url, name: ch.name, title: title, end: endMs, expect: 0)
 	}
 
 	/// Saves a catch-up programme, movie or episode to a file.
 	func download(_ url: String, name: String, title: String, expectMs: Int64 = 0) {
-		Notify.ask()
 		run(key: "dl:\(url.hashValue)", channel: nil, url: url, name: name, title: title, end: 0, expect: expectMs)
 	}
 
@@ -151,6 +149,7 @@ final class RecorderCenter: ObservableObject {
 				return
 			}
 			updateKeepAlive()
+			Notify.ask()
 			let msg = await Self.record(lib: lib, channel: channel, url: url, label: label, end: end, expect: expect, live: channel != nil)
 			MediaConnection.shared.release(connectionID)
 			active[key] = nil
