@@ -14,6 +14,14 @@ final class ParsingTests: XCTestCase {
 		XCTAssertEqual(ch[0].catchupDays, 2)
 	}
 
+	func testDispatcharrPlaylistIsMarkedSoItsBufferStaysAsSaved() {
+		let marked = M3U.parse(sourceId: "s", text: "#EXTM3U x-tvg-url=\"http://g/x.xml\" catchup-timezone=\"UTC\"\n#EXTINF:-1 tvg-id=\"1\",A\nhttp://h/live/u/p/1\n#EXTINF:-1 tvg-id=\"2\",B\nhttp://h/live/u/p/2\n")
+		XCTAssertEqual(marked.count, 2)
+		XCTAssertTrue(marked.allSatisfy { $0.isDispatcharr })
+		let plain = M3U.parse(sourceId: "s", text: "#EXTM3U\n#EXTINF:-1,A\nhttp://h/1\n")
+		XCTAssertFalse(plain[0].isDispatcharr)
+	}
+
 	func testWindowsLineEndings() {
 		let ch = M3U.parse(sourceId: "s", text: "#EXTM3U\r\n#EXTINF:-1 group-title=\"News\",A\r\nhttp://h/1.ts\r\n")
 		XCTAssertEqual(ch[0].name, "A")

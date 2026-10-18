@@ -456,11 +456,12 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	}
 
 	/// Buffering after playback began is a stall: the cushion grows a second, like the desktop.
+	/// A Dispatcharr channel keeps the saved buffer: it restreams from its own server-side one.
 	private func bufferingChanged(_ progress: Float) {
 		guard hasPlayed, !closing else { return }
 		if progress < 100 && !buffering {
 			buffering = true
-			stalls += 1
+			if channel?.isDispatcharr != true { stalls += 1 }
 			say(L("buffering"), 3)
 		} else if progress >= 100 {
 			let recovered = buffering

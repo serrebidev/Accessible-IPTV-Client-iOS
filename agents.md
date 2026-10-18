@@ -39,6 +39,8 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
 - Live buffer: `Cushion` in Playback.swift - quick start 0.5 s, the saved setting plus a second per
   stall. The player never sets a rate below 1 (2026-10-17, the desktop's rule): filling the buffer must
   not slow playback down, and the buffer only grows from what the server hands over ahead of real time.
+  Dispatcharr channels (`Channel.isDispatcharr`, the header's `catchup-timezone`) keep the saved buffer:
+  a stall does not grow it (`PlayerController.bufferingChanged`).
 - Background: UIBackgroundModes audio. Playback continues with the screen locked (video track off).
   Recording keeps the app awake with a silent looping sound while recording or a schedule is within 6 h;
   otherwise a local notification at start time asks to open the app. iOS cannot wake an app on time.

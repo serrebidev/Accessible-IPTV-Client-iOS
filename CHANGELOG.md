@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.7
+
+- Channels from a Dispatcharr restreamer keep the buffer you saved. It restreams from its own server-side buffer, so a stalled channel no longer grows the client buffer by a second and no longer waits for a bigger cushion before sound returns. Same rule as the desktop app.
+
 ## 0.4.6
 
 - A live channel no longer plays 5% slow while it fills its buffer. Playback stays at normal speed from the first second, and the buffer grows only from what the server hands over ahead of real time. The half-second quick start, the full-cushion resume after a stall, the one-second growth per stall, and the saved buffer in Settings are unchanged. Same rule as the desktop app.
