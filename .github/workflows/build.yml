@@ -75,7 +75,7 @@ jobs:
           xcodebuild -project AccessibleIPTV.xcodeproj -scheme AccessibleIPTV -configuration Debug \
             -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath TestBuild \
             -clonedSourcePackagesDirPath SourcePackages -resultBundlePath PlaybackTests.xcresult \
-            CODE_SIGNING_ALLOWED=NO -parallel-testing-enabled NO test 2>&1 | tee playback-integration.log | tail -60
+            CODE_SIGNING_ALLOWED=NO -parallel-testing-enabled NO -collect-test-diagnostics never test 2>&1 | tee playback-integration.log | tail -60
 
       # The owner's Apple Development certificate (the one AltStore made), from repo secrets.
       # No provisioning profile: AltStore re-signs with its own on install.
