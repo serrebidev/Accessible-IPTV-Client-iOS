@@ -57,7 +57,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var buffering = false
 	private var stalls = 0
 	private var cacheSeconds = Cushion.quickStartSeconds
-	private var paced: Float = 1
 	private var closing = false
 	private let connectionID = UUID()
 	private var started = false
@@ -124,8 +123,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			open()
 			say(L("connecting"), 2)
 		}
-		// Quick start, then build the cushion: a live stream plays 5% slow until it is held.
-		if live { timers.append(Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.pace() } }) }
 		restartTrackSelection()
 		nowPlayingInfo()
 		#if os(iOS)
@@ -247,7 +244,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		media.addOption(":adaptive-use-access=1")
 		hasPlayed = false
 		buffering = false
-		paced = 1
 		player.media = media
 		PlaybackTeardown.play(player)
 	}
@@ -588,19 +584,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		let wait = max(1, Double(change - nowMs() + 2_000) / 1000)
 		programmeTimer = Timer.scheduledTimer(withTimeInterval: wait, repeats: false) { [weak self] _ in Task { @MainActor in self?.showProgramme(announce: true) } }
 		nowPlayingInfo()
-	}
-
-	/// Plays a live stream slightly slow until the buffer setting is held locally.
-	private func pace() {
-		guard live, sharePlayback == nil, casting == nil, player.isPlaying, let media = player.media else { return }
-		let stats = media.statistics
-		let cushion = Cushion.liveCushionSeconds(readBytes: stats.readBytes, demuxBytes: stats.demuxReadBytes,
-			playedMs: Int64(player.time.intValue), cacheSeconds: cacheSeconds)
-		let want = Cushion.paceRate(cushion: cushion, target: Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls), current: paced)
-		if want != paced {
-			paced = want
-			player.rate = want
-		}
 	}
 
 	// MARK: audio tracks
@@ -1009,7 +992,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		leaveSharePlay()
 		player.rate = 1
 		if usesNative, isPlaying { nativePlayer.rate = 1 }
-		paced = 1
 		let adapter = SharePlaybackCoordinator(controller: self, identifier: identifier)
 		sharePlayback = adapter
 		adapter.join(session)

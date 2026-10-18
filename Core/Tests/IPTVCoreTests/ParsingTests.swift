@@ -396,19 +396,12 @@ final class ParsingTests: XCTestCase {
 		XCTAssertEqual(r.next(), 400)
 	}
 
-	func testLiveCushionAndPace() {
-		// Under 10 s of history: just the cache.
-		XCTAssertEqual(Cushion.liveCushionSeconds(readBytes: 9_000_000, demuxBytes: 1_000_000, playedMs: 5_000, cacheSeconds: 0.5), 0.5)
-		// 60 s played on a 0.5 s cache: 1 MB/s demuxed; 5 MB unread = 5 s more.
-		let c = Cushion.liveCushionSeconds(readBytes: 65_500_000, demuxBytes: 60_500_000, playedMs: 60_000, cacheSeconds: 0.5)
-		XCTAssertEqual(c, 5.5, accuracy: 0.001)
-		XCTAssertEqual(Cushion.paceRate(cushion: 2, target: 25, current: 1), Cushion.slowRate)
-		XCTAssertEqual(Cushion.paceRate(cushion: 24.9, target: 25, current: Cushion.slowRate), Cushion.slowRate)
-		XCTAssertEqual(Cushion.paceRate(cushion: 25, target: 25, current: Cushion.slowRate), 1)
-		XCTAssertEqual(Cushion.paceRate(cushion: 24.5, target: 25, current: 1), 1, "no flapping just under the target")
-		XCTAssertEqual(Cushion.paceRate(cushion: 23.9, target: 25, current: 1), Cushion.slowRate)
-		XCTAssertEqual(Cushion.target(base: 2, max: 30, stalls: 0), 25)
-		XCTAssertEqual(Cushion.target(base: 2, max: 30, stalls: 9), 30)
+	func testCushionKeepsTheSavedBufferAndNeverSlowsPlayback() {
+		// The saved setting is what the player keeps, plus a second per stall, capped.
+		XCTAssertEqual(Cushion.quickStartSeconds, 0.5)
+		XCTAssertEqual(Cushion.target(base: 2, max: 30, stalls: 0), 2)
+		XCTAssertEqual(Cushion.target(base: 25, max: 30, stalls: 0), 25)
+		XCTAssertEqual(Cushion.target(base: 2, max: 30, stalls: 9), 11)
 		XCTAssertEqual(Cushion.target(base: 40, max: 30, stalls: 0), 30)
 	}
 

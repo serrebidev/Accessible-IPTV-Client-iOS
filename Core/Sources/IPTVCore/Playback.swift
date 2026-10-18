@@ -32,38 +32,16 @@ public struct PlaybackIntent {
 }
 
 /// The desktop player's live cushion (internal_player.py), for libVLC on iOS too: a live channel
-/// opens on a [quickStartSeconds] cache, then plays at [slowRate] until the full cushion is
-/// held locally. Live TV arrives at real time, so slower playback is the only way it grows;
-/// libVLC keeps reading at network speed and the unplayed bytes pile up in its stream cache.
+/// opens on a [quickStartSeconds] cache and the rest of the buffer is played as it arrives.
+/// Filling never slows playback down (2026-10-17, the desktop's rule): the buffer only grows
+/// from what the server hands over ahead of real time, so the rate stays 1.
 public enum Cushion {
 	public static let quickStartSeconds = 0.5
-	// ponytail: fixed 5% slower (pitch kept by VLC's scaletempo); 4 s of cushion takes 80 s.
-	public static let slowRate: Float = 0.95
-	/// The cushion grows to at least this, whatever buffer is saved.
-	public static let liveCushionSeconds = 25.0
 
-	/// Seconds of live media held locally: VLC's cache plus bytes read but not yet demuxed.
-	/// The byte rate comes from what was demuxed over the time played. Under 10 s of history
-	/// the rate is noise: just the cache, so pacing keeps building.
-	public static func liveCushionSeconds(readBytes: UInt64, demuxBytes: UInt64, playedMs: Int64, cacheSeconds: Double) -> Double {
-		let span = Double(playedMs) / 1000 + cacheSeconds
-		if playedMs < 10_000 || demuxBytes == 0 || span <= 0 { return cacheSeconds }
-		let rate = Double(demuxBytes) / span
-		return cacheSeconds + Double(readBytes > demuxBytes ? readBytes - demuxBytes : 0) / rate
-	}
-
-	/// [slowRate] while the cushion is short of [target], 1 once full; slow again only a
-	/// second below target, so the rate does not flip back and forth around it.
-	public static func paceRate(cushion: Double, target: Double, current: Float) -> Float {
-		if cushion >= target { return 1 }
-		if current < 1 || cushion < target - 1 { return slowRate }
-		return 1
-	}
-
-	/// The cushion to build: the saved buffer, at least [liveCushionSeconds], at most the
-	/// maximum, plus one second per stall (desktop: base_buffer_seconds + 1 per stall).
+	/// The buffer to keep: the saved setting, at most the maximum, plus one second per stall
+	/// (desktop: base_buffer_seconds + 1 per stall, capped at max_buffer_seconds).
 	public static func target(base: Double, max: Double, stalls: Int) -> Double {
-		min(max, Swift.max(liveCushionSeconds, base) + Double(stalls))
+		min(max, base + Double(stalls))
 	}
 }
 

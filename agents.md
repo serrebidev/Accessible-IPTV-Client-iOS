@@ -36,8 +36,9 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
   emits absent rendition references, an incorrect EVENT tag, and leaves evicted files on disk.
 - libVLC never hands over subtitle text: embedded subtitles are drawn in the picture; only a loaded
   SRT/WebVTT file is spoken (same limit as the desktop).
-- Live cushion = desktop's VLC method: `media.statistics` read vs demux bytes, rate 0.95 until the
-  cushion is held (`Cushion` in Playback.swift).
+- Live buffer: `Cushion` in Playback.swift - quick start 0.5 s, the saved setting plus a second per
+  stall. The player never sets a rate below 1 (2026-10-17, the desktop's rule): filling the buffer must
+  not slow playback down, and the buffer only grows from what the server hands over ahead of real time.
 - Background: UIBackgroundModes audio. Playback continues with the screen locked (video track off).
   Recording keeps the app awake with a silent looping sound while recording or a schedule is within 6 h;
   otherwise a local notification at start time asks to open the app. iOS cannot wake an app on time.

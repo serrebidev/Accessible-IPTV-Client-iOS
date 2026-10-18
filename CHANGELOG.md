@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.6
+
+- A live channel no longer plays 5% slow while it fills its buffer. Playback stays at normal speed from the first second, and the buffer grows only from what the server hands over ahead of real time. The half-second quick start, the full-cushion resume after a stall, the one-second growth per stall, and the saved buffer in Settings are unchanged. Same rule as the desktop app.
+
 ## 0.4.5
 
 - Stopping a stream could be reported as finished while VLC was still stopping, so the next channel, recording or conversion could start over the tail of the previous one. Playback teardown now waits until the stopped state has held briefly before anything else may use the connection.
