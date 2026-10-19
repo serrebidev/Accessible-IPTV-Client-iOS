@@ -540,8 +540,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 				frozen = ProcessInfo.processInfo.systemUptime - since
 			}
 		} else { lastPosition = position; frozenSince = nil }
+		// VLCKit 4 has no buffering state: a stall after play is the buffering flag,
+		// and before play it is the opening state.
 		let waiting = usesNative ? nativePlayer.timeControlStatus == .waitingToPlayAtSpecifiedRate
-			: player.state == .opening || player.state == .buffering
+			: buffering || player.state == .opening
 		switch health.tick(buffering: waiting, frozen: frozen) {
 		case .none: break
 		case .restart: recover(grow: false)
