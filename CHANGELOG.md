@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.9
+
+- Audit of connecting, the single connection, buffering, skipping back and reconnecting. Pausing or closing while a channel was still connecting could be announced as “One IPTV stream at a time” and could leave the provider connection claimed until the player screen closed; it now says nothing and hands the connection back at once.
+- Buffering is announced while a channel connects, as on Android, instead of leaving “Connecting…” up silently until the first frame or “Stream lost”.
+- A film or catch-up programme that stalls or errors now resumes where it stopped: the position is taken when the stall is detected, not after the reconnect wait, by which time an errored player could already report the start and skip the film back to the beginning. A Dispatcharr archive stream again earns the extra second per stall, as on the desktop; only its live channels keep the saved buffer.
+- Once playback has failed, the playback-health checks stop, so a later “Stream lost” no longer overwrites the real reason (a busy provider or a timed-out teardown). While casting or converting for a receiver, the receiver owns playback and the phone no longer gives up on the stream or reopens it.
+- CarPlay announces “Connecting…” and reconnects a dropped channel inside the same retry budget as the player screen, announcing “Reconnecting…” and then “Stream lost” when the budget is spent, instead of ending silently. The reconnect budget itself also starts again correctly after two quiet minutes even when its first attempt landed on clock zero.
+
 ## 0.4.8
 
 - Buffering now follows the desktop app's rules end to end. A live channel reopened after a stall waits with the whole saved buffer before sound returns, instead of starting again on the half-second quick start every time — the changelog promised that full-cushion resume in 0.4.6, and the live player now actually does it. The buffer grows by a second only when a restart actually happens, not on every short dip.
