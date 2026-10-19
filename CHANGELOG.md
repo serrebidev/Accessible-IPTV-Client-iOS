@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.10
+
+- Fix constant live-stream reconnects: VLCKit 4 reports buffering from 0 to 1, but the app waited for 100. A healthy stream therefore stayed marked as buffering and the watchdog repeatedly reopened it. Buffering completion now clears that state correctly.
+- Each reconnect gets fresh startup grace plus its configured cache time. Initial cache filling no longer counts as a prolonged stall, and Apple playback timeouts also allow the configured buffer to fill. Switching from Apple playback to VLC cancels any pending retry and gives the new backend its own startup deadline.
+- Playback health now checks decoded audio and video and output counters before falling back to the playback clock, matching the Windows app. Missing or never-advancing clocks cannot declare a stream frozen. Video disabled in the background is excluded, and old progress samples are cleared on reopen, resume and return to the app. Repeated Play commands do not start a false no-media deadline.
+- Extensionless Xtream live URLs with a numeric channel ID now use VLC directly for MPEG-TS, avoiding an unnecessary Apple-player attempt. Genuine reconnects log their cause and backend without logging provider URLs or credentials.
+
 ## 0.4.9
 
 - Audit of connecting, the single connection, buffering, skipping back and reconnecting. Pausing or closing while a channel was still connecting could be announced as “One IPTV stream at a time” and could leave the provider connection claimed until the player screen closed; it now says nothing and hands the connection back at once.
