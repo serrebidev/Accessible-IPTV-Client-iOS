@@ -9,7 +9,7 @@ final class PlaybackBackendTests: XCTestCase {
 	}
 
 	func testTransportStreamsAndCompatibilityFormatsStayUnchanged() {
-		for url in ["https://tv.test/live/user/pass/1.ts", "file:///recording.ts", "https://tv.test/movie.mkv", "https://tv.test/movie.avi"] {
+		for url in ["https://tv.test/live/user/pass/1.ts", "https://tv.test/live/user/pass/123", "file:///recording.ts", "https://tv.test/movie.mkv", "https://tv.test/movie.avi"] {
 			XCTAssertEqual(PlaybackBackend.preferred(for: url), .vlc, url)
 		}
 	}

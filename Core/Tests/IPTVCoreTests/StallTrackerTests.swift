@@ -86,6 +86,55 @@ final class StallTrackerTests: XCTestCase {
 		XCTAssertEqual(verdict, .none)
 	}
 
+	func testReopenGetsFreshStartupGraceBeforeFrozenClockCanRestart() {
+		var t = tracker()
+		t.playing()
+		now = 100
+		t.prepared()
+		t.playing()
+		now = 110
+		XCTAssertEqual(t.tick(buffering: false, frozen: 10), .none)
+		now = 112
+		XCTAssertEqual(t.tick(buffering: false, frozen: 12), .restartGrown)
+	}
+
+	func testReopenDoesNotCountCacheFillAsProlongedBuffering() {
+		var t = tracker()
+		t.playing()
+		now = 100
+		t.prepared()
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .none)
+		now = 110
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .none)
+		now = 112
+		t.playing()
+		now = 150
+		XCTAssertEqual(t.tick(buffering: false, frozen: 0), .none)
+	}
+
+	func testReopenWaitsForSavedCacheAndThenDetectsAFrozenClock() {
+		var t = tracker()
+		t.playing()
+		now = 100
+		t.prepared(caching: 25)
+		t.playing()
+		now = 125
+		XCTAssertEqual(t.tick(buffering: true, frozen: 25), .none)
+		now = 137
+		XCTAssertEqual(t.tick(buffering: false, frozen: 37), .restartGrown)
+	}
+
+	func testReopenWithoutMediaStillRestartsWithoutGrowingTheBuffer() {
+		var t = tracker()
+		t.playing()
+		now = 100
+		t.prepared(caching: 25)
+		now = 125
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .none)
+		now = 137
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .restart)
+	}
+
 	func testFrozenProgressRestartsWithABiggerCushion() {
 		var t = tracker()
 		now = 1

@@ -5,6 +5,7 @@ import UIKit
 import VLCKit
 import IPTVCore
 import GroupActivities
+import OSLog
 
 /// Native playback and AirPlay for compatible media; VLC handles raw TS and other IPTV formats.
 @MainActor
@@ -64,8 +65,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var health = StallTracker()
 	/// Media-progress sampling for the health tick: the last position seen, and since
 	/// when it has stood still while the player claims to be playing.
-	private var lastPosition = -1.0
-	private var frozenSince: Double?
+	private var progress = PlaybackProgress()
+	private static let playbackLog = Logger(subsystem: "dev.serrebi.accessibleiptv", category: "Playback")
 	private var closing = false
 	private let connectionID = UUID()
 	private var started = false
@@ -232,7 +233,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func openNow() {
 		guard !closing, intent.canPlay else { return }
-		health.prepared()
+		progress.reset()
+		cacheSeconds = usesNative || !live
+			? Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
+			: Cushion.openSeconds(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls, reopened: reopened)
+		health.prepared(caching: cacheSeconds)
 		if usesNative { openNative(); return }
 		let (plain, headers) = M3U.splitHeaders(playbackURL)
 		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
@@ -245,13 +250,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		if let cookie = headers["Cookie"], let host = url.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
 		let ms: Int
 		if live {
-			cacheSeconds = Cushion.openSeconds(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls, reopened: reopened)
 			ms = Int(cacheSeconds * 1000)
 			// Live: drop late frames so playback stays at real time instead of drifting behind.
 			media.addOption(":clock-jitter=1500")
 		} else {
 			// VOD, catch-up and files open with the same full caching value as the desktop.
-			cacheSeconds = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
 			ms = Int(cacheSeconds * 1000)
 			media.addOption(":clock-jitter=0")
 			media.addOption(":clock-synchro=0")
@@ -277,7 +280,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		let item = AVPlayerItem(asset: AVURLAsset(url: url, options: [AVURLAssetHTTPUserAgentKey: agent]))
 		// The forward buffer is the saved cushion for every kind, like the desktop's
 		// caching value; a file or film used to get a flat 2 s here.
-		item.preferredForwardBufferDuration = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
+		item.preferredForwardBufferDuration = cacheSeconds
 		hasPlayed = false
 		buffering = false
 		#if !os(visionOS)
@@ -305,7 +308,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 				switch self.nativePlayer.timeControlStatus {
 				case .playing:
 					self.nativeTimeout?.cancel()
-					self.bufferingChanged(100)
+					self.bufferingChanged(1)
 					self.stateChanged(.playing)
 				case .waitingToPlayAtSpecifiedRate:
 					self.bufferingChanged(0)
@@ -359,8 +362,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private func armNativeTimeout() {
 		nativeTimeout?.cancel()
 		guard intent.canPlay, !sharedPausePending else { return }
+		let timeout = UInt64(max(20, cacheSeconds + StallTracker.startupGraceSeconds) * 1_000_000_000)
 		nativeTimeout = Task { [weak self] in
-			do { try await Task.sleep(nanoseconds: 20_000_000_000) } catch { return }
+			do { try await Task.sleep(nanoseconds: timeout) } catch { return }
 			guard let self, !Task.isCancelled, self.intent.canPlay, self.usesNative,
 				self.nativePlayer.timeControlStatus != .playing else { return }
 			self.fallbackToVLC()
@@ -369,6 +373,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func fallbackToVLC() {
 		guard usesNative, !closing else { return }
+		retryTask?.cancel()
+		retryTask = nil
 		#if os(iOS)
 		let retryVideo = !isRelayingVideo && nativePlayer.isExternalPlaybackActive
 		#endif
@@ -380,6 +386,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		videoRelay = nil
 		#endif
 		usesNative = false
+		// Compatibility fallback is a fresh backend, not a retry of the failed native open.
+		health.reset()
 		restartTrackSelection()
 		failed = !intent.canPlay
 		say(L("compatibility_playback"), 2)
@@ -463,14 +471,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			hasPlayed = true
 			failed = false
 		case .error:
-			if recover(grow: true) { return }
+			if recover(grow: true, reason: "player error") { return }
 			say(L("play_failed", VLCLibrary.currentErrorMessage ?? ""), 1)
 			failed = true
 		case .stopped:
 			guard intent.canPlay else { return }
 			// A live stream that ends was dropped by the server: reconnect, as the desktop does.
 			// Casting stops the player on purpose and announces it, so this is not a drop.
-			if retryTask != nil || casting != nil || (live && recover(grow: false)) { return }
+			if retryTask != nil || casting != nil || (live && recover(grow: false, reason: "stream stopped")) { return }
 			say(L("stream_ended"), 1)
 			failed = true
 		default:
@@ -485,10 +493,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		// Before the first frame this follows "Connecting…", as on Android: a channel
 		// stuck buffering is said out loud instead of spinning silently.
 		guard !closing else { return }
-		if progress < 100 && !buffering {
+		if progress < 1 && !buffering {
 			buffering = true
 			say(L("buffering"), 3)
-		} else if progress >= 100 {
+		} else if progress >= 1 {
 			let recovered = buffering
 			buffering = false
 			if recovered { sharePlayback?.reapply() }
@@ -500,13 +508,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// [grow] is set when the stall earns a bigger cushion, as a desktop stall does; when
 	/// the budget is spent the channel is declared lost instead of retrying forever.
 	@discardableResult
-	private func recover(grow: Bool) -> Bool {
+	private func recover(grow: Bool, reason: String) -> Bool {
 		guard intent.canPlay, casting == nil, !isRelayingVideo else { return false }
 		if retryTask != nil { return true }
 		// Only a live Dispatcharr channel is exempt: its archive streams are ordinary
 		// files and keep the extra second, as on the desktop.
 		if grow, !(live && channel?.isDispatcharr == true) { stalls += 1 }
 		reopened = true
+		Self.playbackLog.notice("Reconnect: \(reason, privacy: .public); native=\(self.usesNative); cache=\(self.cacheSeconds)")
 		guard let delay = reconnect.next() else { giveUp(); return true }
 		// A film or catch-up resumes where it stopped. Take the position now, while the
 		// player still holds it: by the time the reopen fires, an errored or stopped
@@ -544,25 +553,25 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		// the real failure (a busy provider, a teardown timeout). While casting or
 		// relaying, the receiver owns playback, as with Android's remote device check.
 		guard !closing, !failed, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo, casting == nil, !isRelayingVideo else { return }
-		let position = sharedPlaybackTime
 		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
 		var frozen = 0.0
 		if playingNow {
-			if position != lastPosition { lastPosition = position; frozenSince = nil }
-			else {
-				let since = frozenSince ?? ProcessInfo.processInfo.systemUptime
-				frozenSince = since
-				frozen = ProcessInfo.processInfo.systemUptime - since
-			}
-		} else { lastPosition = position; frozenSince = nil }
+			// Preserve invalid timestamps: sharedPlaybackTime clamps them for UI and SharePlay.
+			let position = usesNative ? nativePlayer.currentTime().seconds : Double(player.time.intValue) / 1000
+			if !usesNative, let stats = player.media?.statistics {
+				frozen = progress.sample(position: position,
+					audio: .init(decoded: stats.decodedAudio, output: stats.playedAudioBuffers),
+					video: videoOff ? nil : .init(decoded: stats.decodedVideo, output: stats.displayedPictures))
+			} else { frozen = progress.sample(position: position) }
+		} else { progress.reset() }
 		// VLCKit 4 has no buffering state: a stall after play is the buffering flag,
 		// and before play it is the opening state.
 		let waiting = usesNative ? nativePlayer.timeControlStatus == .waitingToPlayAtSpecifiedRate
 			: buffering || player.state == .opening
 		switch health.tick(buffering: waiting, frozen: frozen) {
 		case .none: break
-		case .restart: recover(grow: false)
-		case .restartGrown: recover(grow: true)
+		case .restart: recover(grow: false, reason: "no media")
+		case .restartGrown: recover(grow: true, reason: "playback stalled; waiting=\(waiting), frozen=\(frozen)")
 		case .giveUp: giveUp()
 		}
 	}
@@ -618,6 +627,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		intent.play()
 		guard intent.canPlay, activateAudio() else { return }
 		isPaused = false
+		progress.reset()
+		if !isPlaying {
+			health.prepared()
+			if usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing { health.playing() }
+		}
 		UIApplication.shared.isIdleTimerDisabled = UIApplication.shared.applicationState == .active
 		#if os(iOS)
 		if let relay = videoRelay {
@@ -977,6 +991,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// app, the picture returns.
 	func scene(_ phase: ScenePhase) {
 		UIApplication.shared.isIdleTimerDisabled = phase == .active && !isPaused
+		if phase == .active { progress.reset() }
 		nativeVideoAttached = phase != .background
 		if usesNative { return }
 		if phase == .background && casting == nil && !videoOff {

@@ -9,6 +9,9 @@ public enum PlaybackBackend {
 		// AVURLAsset has a public user-agent option, but no general HTTP-header option.
 		guard headers.keys.allSatisfy({ $0.lowercased() == "user-agent" }),
 			let url = URL(string: plain), ["http", "https", "file"].contains(url.scheme?.lowercased() ?? "") else { return .vlc }
+		// Xtream's extensionless /live/user/password/id endpoints serve MPEG-TS.
+		let path = url.pathComponents.filter { $0 != "/" }
+		if path.count == 4, path[0].lowercased() == "live", UInt64(path[3]) != nil { return .vlc }
 		let compatibility = ["ts", "m2ts", "mts", "mkv", "avi", "flv", "wmv", "asf", "vob", "ogg", "ogv"]
 		return compatibility.contains(url.pathExtension.lowercased()) ? .vlc : .native
 	}
@@ -57,7 +60,7 @@ public enum Cushion {
 /// The desktop player's playback-health bookkeeping (internal_player.py), fed once a
 /// second by whichever player is running: buffering that follows playback and lasts
 /// 10 s is a stall, four buffering events of 1.25 s or more inside a minute are choppy
-/// playback, media progress frozen for 10 s (after a 12 s startup grace) is a stall, a
+/// playback, media progress frozen for 10 s (after a fresh 12 s plus cache startup grace) is a stall, a
 /// reopened stream with no media after 25 s restarts, and a channel that has not played
 /// at all 30 s after it was chosen is given up on. Pure time arithmetic against an
 /// injected clock, so the rules are testable without a player.
@@ -78,6 +81,8 @@ public struct StallTracker {
 	private var openedAt: Double
 	private var preparedAt: Double
 	private var played = false
+	private var playedThisOpen = false
+	private var caching = 0.0
 	private var bufferingSince: Double?
 	private var events: [Double] = []
 	private var lastAdjustAt = -Double.infinity
@@ -94,6 +99,8 @@ public struct StallTracker {
 		openedAt = now()
 		preparedAt = openedAt
 		played = false
+		playedThisOpen = false
+		caching = 0
 		bufferingSince = nil
 		events = []
 		lastAdjustAt = -Double.infinity
@@ -101,14 +108,18 @@ public struct StallTracker {
 	}
 
 	/// A (re)open of the same stream: the no-media clock restarts, the channel's does not.
-	public mutating func prepared() {
+	public mutating func prepared(caching: Double = 0) {
 		preparedAt = now()
+		self.caching = max(0, caching)
+		playedThisOpen = false
 		bufferingSince = nil
+		events = []
 	}
 
 	/// Playback reached the screen: the first-play deadline is met for good.
 	public mutating func playing() {
 		played = true
+		playedThisOpen = true
 		closeEpisode()
 	}
 
@@ -123,17 +134,22 @@ public struct StallTracker {
 		}
 		if gaveUp { return .none }
 		if !played {
-			if t - openedAt >= Self.firstPlayDeadlineSeconds { gaveUp = true; return .giveUp }
-			if t - preparedAt >= Self.noMediaSeconds { return .restart }
+			if t - openedAt >= max(Self.firstPlayDeadlineSeconds, caching + Self.startupGraceSeconds + 5) { gaveUp = true; return .giveUp }
+			if t - preparedAt >= max(Self.noMediaSeconds, caching + Self.startupGraceSeconds) { return .restart }
 			return .none
 		}
+		if !playedThisOpen {
+			if t - preparedAt >= max(Self.noMediaSeconds, caching + Self.startupGraceSeconds) { return .restart }
+			return .none
+		}
+		// VLC can report Playing while it fills the cache; every reopen gets fresh grace.
+		guard t - preparedAt >= Self.startupGraceSeconds + caching else { return .none }
 		if isBuffering, let since = bufferingSince, t - since >= Self.prolongedSeconds {
 			bufferingSince = t
 			lastAdjustAt = t
 			return .restartGrown
 		}
-		if frozen >= Self.frozenSeconds, t - openedAt >= Self.startupGraceSeconds,
-			t - lastAdjustAt >= Self.cooldownSeconds {
+		if frozen >= Self.frozenSeconds, t - lastAdjustAt >= Self.cooldownSeconds {
 			lastAdjustAt = t
 			return .restartGrown
 		}
