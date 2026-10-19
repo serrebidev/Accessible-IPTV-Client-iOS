@@ -166,7 +166,9 @@ public final class Reconnect {
 	/// Delay before the next try in ms, or nil when it is time to give up.
 	public func next() -> Int64? {
 		let now = clock()
-		if last != 0 && now - last >= Reconnect.resetMs { attempts = 0 }
+		// attempts, not the clock, says whether there is a count to reset: a first
+		// attempt at clock 0 used to leave last at the "never attempted" sentinel.
+		if attempts > 0 && now - last >= Reconnect.resetMs { attempts = 0 }
 		if attempts >= Reconnect.max { return nil }
 		attempts += 1
 		last = now

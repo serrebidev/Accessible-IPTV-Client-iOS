@@ -53,10 +53,18 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
 /// Sound-only libVLC playback for CarPlay, with the lock screen and steering-wheel controls.
 @MainActor
-final class CarAudio {
+final class CarAudio: NSObject, VLCMediaPlayerDelegate {
 	static let shared = CarAudio()
 	private let player = VLCMediaPlayer()
 	private var connectionID: UUID?
+	/// The channel being played, kept so a dropped stream can reopen it.
+	private var current: (channel: Channel, raw: String)?
+	/// False once stop() is called on purpose: a deliberate stop is not a drop.
+	private var wanted = false
+	/// Our own teardown stop while reopening must not be read as another drop.
+	private var reopening = false
+	private var retryTask: Task<Void, Never>?
+	private let reconnect = Reconnect(clock: nowMs)
 
 	func play(_ ch: Channel) async {
 		let model = AppModel.shared
@@ -80,15 +88,12 @@ final class CarAudio {
 			return
 		}
 		guard let raw else { stop(); model.setStatus(L("play_failed", ch.name)); return }
-		let (plain, headers) = M3U.splitHeaders(raw)
-		guard let url = URL(string: plain), let media = VLCMedia(url: url) else { stop(); model.setStatus(L("play_failed", ch.name)); return }
-		media.addOption(":no-video")
-		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
-		media.addOption(":network-caching=3000")
-		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
-		try? AVAudioSession.sharedInstance().setActive(true)
-		player.media = media
-		PlaybackTeardown.play(player)
+		current = (ch, raw)
+		wanted = true
+		reconnect.reset()
+		player.delegate = self
+		model.setStatus(L("connecting"))
+		open(raw)
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: ch.name, MPNowPlayingInfoPropertyIsLiveStream: true]
 		let rc = MPRemoteCommandCenter.shared()
 		[rc.playCommand, rc.pauseCommand, rc.togglePlayPauseCommand].forEach { $0.removeTarget(nil) }
@@ -103,7 +108,64 @@ final class CarAudio {
 		}
 	}
 
+	/// (Re)opens the current channel's stream.
+	private func open(_ raw: String) {
+		let model = AppModel.shared
+		let (plain, headers) = M3U.splitHeaders(raw)
+		guard let url = URL(string: plain), let media = VLCMedia(url: url) else {
+			if let ch = current?.channel { stop(); model.setStatus(L("play_failed", ch.name)) }
+			return
+		}
+		media.addOption(":no-video")
+		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
+		media.addOption(":network-caching=3000")
+		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
+		try? AVAudioSession.sharedInstance().setActive(true)
+		player.media = media
+		PlaybackTeardown.play(player)
+	}
+
+	nonisolated func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
+		Task { @MainActor in
+			guard self.wanted, self.player.state == newState else { return }
+			switch newState {
+			case .error, .stopped: self.recover()
+			default: break
+			}
+		}
+	}
+
+	/// A dropped CarPlay stream reopens inside the same budget as the player screen;
+	/// when the budget is spent the channel is declared lost instead of ending silently.
+	private func recover() {
+		guard wanted, !reopening, retryTask == nil, let raw = current?.raw else { return }
+		guard let delay = reconnect.next() else {
+			stop()
+			AppModel.shared.setStatus(L("stream_lost"))
+			return
+		}
+		AppModel.shared.setStatus(L("reconnecting"))
+		retryTask = Task { [weak self] in
+			try? await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000)
+			guard let self, !Task.isCancelled, self.wanted else { return }
+			self.retryTask = nil
+			self.reopening = true
+			// Wait for the dropped reader to close before reopening, like the player screen.
+			PlaybackTeardown.stop(self.player)
+			let ready = await PlaybackTeardown.ready()
+			self.reopening = false
+			guard ready else { self.recover(); return }
+			guard self.wanted else { return }
+			self.open(raw)
+		}
+	}
+
 	func stop() {
+		wanted = false
+		current = nil
+		retryTask?.cancel()
+		retryTask = nil
+		player.delegate = nil
 		PlaybackTeardown.stop(player)
 		if let id = connectionID { MediaConnection.shared.release(id) { await PlaybackTeardown.finished() } }
 		connectionID = nil

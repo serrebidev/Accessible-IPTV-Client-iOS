@@ -200,7 +200,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		PlaybackTeardown.stop(player)
 		openingTask = Task { [weak self] in
 			let ready = await PlaybackTeardown.ready()
-			guard let self, !Task.isCancelled, !self.closing, self.intent.canPlay else { return }
+			guard let self else { return }
+			// Paused, closed or superseded while waiting: not a failure, and nothing to say.
+			guard !Task.isCancelled, !self.closing, self.intent.canPlay else { return }
 			guard ready else {
 				self.openingTask = nil
 				self.failed = true
@@ -209,13 +211,17 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			}
 			if !self.localFile {
 				guard await MediaConnection.shared.acquire(self.connectionID) else {
+					// A pause or close that landed during the wait is not a busy provider.
+					guard !Task.isCancelled, !self.closing, self.intent.canPlay else { return }
 					self.openingTask = nil
 					self.failed = true
 					self.say(L("single_connection_busy"), 1)
 					return
 				}
-				guard !Task.isCancelled, !self.closing else {
-					if self.closing { MediaConnection.shared.release(self.connectionID) { await PlaybackTeardown.finished() } }
+				guard !Task.isCancelled, !self.closing, self.intent.canPlay else {
+					// Claimed, then abandoned before opening: hand the slot back at once,
+					// or it stays taken until this screen closes.
+					MediaConnection.shared.release(self.connectionID) { await PlaybackTeardown.finished() }
 					return
 				}
 			}
@@ -476,7 +482,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// cushion grows only when a restart actually happens, like the desktop, not on every
 	/// dip. A Dispatcharr channel never grows: it restreams from its own server-side buffer.
 	private func bufferingChanged(_ progress: Float) {
-		guard hasPlayed, !closing else { return }
+		// Before the first frame this follows "Connecting…", as on Android: a channel
+		// stuck buffering is said out loud instead of spinning silently.
+		guard !closing else { return }
 		if progress < 100 && !buffering {
 			buffering = true
 			say(L("buffering"), 3)
@@ -495,16 +503,20 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private func recover(grow: Bool) -> Bool {
 		guard intent.canPlay, casting == nil, !isRelayingVideo else { return false }
 		if retryTask != nil { return true }
-		if grow, channel?.isDispatcharr != true { stalls += 1 }
+		// Only a live Dispatcharr channel is exempt: its archive streams are ordinary
+		// files and keep the extra second, as on the desktop.
+		if grow, !(live && channel?.isDispatcharr == true) { stalls += 1 }
 		reopened = true
 		guard let delay = reconnect.next() else { giveUp(); return true }
+		// A film or catch-up resumes where it stopped. Take the position now, while the
+		// player still holds it: by the time the reopen fires, an errored or stopped
+		// player may already report 0, and the film would skip back to the start.
+		if !live { let time = sharedPlaybackTime; if time > 0 { fallbackTime = time } }
 		say(L("reconnecting"), 2)
 		retryTask = Task {
 			try? await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000)
 			guard !Task.isCancelled, !closing, intent.canPlay, !preparingVideo, !isRelayingVideo else { return }
 			retryTask = nil
-			// A film or catch-up resumes where it stopped; live starts again at the live edge.
-			if !live { let time = sharedPlaybackTime; if time > 0 { fallbackTime = time } }
 			open()
 		}
 		return true
@@ -528,7 +540,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	/// stalls reopen the stream with a bigger cushion; a channel that produces nothing
 	/// restarts, then is given up on. SharePlay sessions keep their own recovery.
 	private func healthTick() {
-		guard !closing, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo else { return }
+		// Once failed, the verdicts are spent: a later "Stream lost" must not overwrite
+		// the real failure (a busy provider, a teardown timeout). While casting or
+		// relaying, the receiver owns playback, as with Android's remote device check.
+		guard !closing, !failed, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo, casting == nil, !isRelayingVideo else { return }
 		let position = sharedPlaybackTime
 		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
 		var frozen = 0.0
