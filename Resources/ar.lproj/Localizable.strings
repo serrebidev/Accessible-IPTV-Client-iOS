@@ -239,7 +239,10 @@
 "stop_playback" = "إيقاف التشغيل";
 "stop_recording" = "إيقاف";
 "stop_recording_channel" = "إيقاف التسجيل";
+"stream_busy" = "بث آخر قيد الاستخدام. أوقفه أولاً.";
 "stream_ended" = "انتهى";
+"stream_external_blocked" = "استخدم المشغل المدمج للحفاظ على اتصال واحد.";
+"stream_lost" = "فُقد البث";
 "stream_url_is" = "الرابط: %1$@";
 "subtitle_file" = "ملف ترجمة";
 "subtitle_speech_needs_text" = "النطق يحتاج ملف SRT أو WebVTT.";

@@ -43,6 +43,114 @@ public enum Cushion {
 	public static func target(base: Double, max: Double, stalls: Int) -> Double {
 		min(max, base + Double(stalls))
 	}
+
+	/// The cache an open starts with, in seconds. A first start is quick (half a second of
+	/// cache and the cushion fills while playing); a reopen after a stall waits with the
+	/// whole saved cushion, because the desktop creates the reopened media with the full
+	/// caching value instead of the quick-start one.
+	public static func openSeconds(base: Double, max: Double, stalls: Int, reopened: Bool) -> Double {
+		if reopened { return target(base: base, max: max, stalls: stalls) }
+		return min(target(base: base, max: max, stalls: 0), quickStartSeconds)
+	}
+}
+
+/// The desktop player's playback-health bookkeeping (internal_player.py), fed once a
+/// second by whichever player is running: buffering that follows playback and lasts
+/// 10 s is a stall, four buffering events of 1.25 s or more inside a minute are choppy
+/// playback, media progress frozen for 10 s (after a 12 s startup grace) is a stall, a
+/// reopened stream with no media after 25 s restarts, and a channel that has not played
+/// at all 30 s after it was chosen is given up on. Pure time arithmetic against an
+/// injected clock, so the rules are testable without a player.
+public struct StallTracker {
+	public enum Verdict: Equatable { case none, restart, restartGrown, giveUp }
+
+	public static let prolongedSeconds = 10.0
+	public static let eventMinSeconds = 1.25
+	public static let choppyWindowSeconds = 60.0
+	public static let choppyCount = 4
+	public static let cooldownSeconds = 20.0
+	public static let noMediaSeconds = 25.0
+	public static let firstPlayDeadlineSeconds = 30.0
+	public static let frozenSeconds = 10.0
+	public static let startupGraceSeconds = 12.0
+
+	private let now: () -> Double
+	private var openedAt: Double
+	private var preparedAt: Double
+	private var played = false
+	private var bufferingSince: Double?
+	private var events: [Double] = []
+	private var lastAdjustAt = -Double.infinity
+	private var gaveUp = false
+
+	public init(now: @escaping () -> Double = { ProcessInfo.processInfo.systemUptime }) {
+		self.now = now
+		openedAt = now()
+		preparedAt = openedAt
+	}
+
+	/// A fresh request (a new channel, or the user pressing play again): every clock restarts.
+	public mutating func reset() {
+		openedAt = now()
+		preparedAt = openedAt
+		played = false
+		bufferingSince = nil
+		events = []
+		lastAdjustAt = -Double.infinity
+		gaveUp = false
+	}
+
+	/// A (re)open of the same stream: the no-media clock restarts, the channel's does not.
+	public mutating func prepared() {
+		preparedAt = now()
+		bufferingSince = nil
+	}
+
+	/// Playback reached the screen: the first-play deadline is met for good.
+	public mutating func playing() {
+		played = true
+		closeEpisode()
+	}
+
+	/// One health tick. `frozen` is how long media progress has stood still while the
+	/// player claims to be playing (0 while buffering or paused).
+	public mutating func tick(buffering isBuffering: Bool, frozen: Double) -> Verdict {
+		let t = now()
+		if isBuffering {
+			if bufferingSince == nil { bufferingSince = t }
+		} else {
+			closeEpisode()
+		}
+		if gaveUp { return .none }
+		if !played {
+			if t - openedAt >= Self.firstPlayDeadlineSeconds { gaveUp = true; return .giveUp }
+			if t - preparedAt >= Self.noMediaSeconds { return .restart }
+			return .none
+		}
+		if isBuffering, let since = bufferingSince, t - since >= Self.prolongedSeconds {
+			bufferingSince = t
+			lastAdjustAt = t
+			return .restartGrown
+		}
+		if frozen >= Self.frozenSeconds, t - openedAt >= Self.startupGraceSeconds,
+			t - lastAdjustAt >= Self.cooldownSeconds {
+			lastAdjustAt = t
+			return .restartGrown
+		}
+		events = events.filter { t - $0 < Self.choppyWindowSeconds }
+		if events.count >= Self.choppyCount, t - lastAdjustAt >= Self.cooldownSeconds {
+			lastAdjustAt = t
+			events = []
+			return .restartGrown
+		}
+		return .none
+	}
+
+	private mutating func closeEpisode() {
+		guard let since = bufferingSince else { return }
+		bufferingSince = nil
+		if now() - since >= Self.eventMinSeconds { events.append(now()) }
+	}
 }
 
 /// The desktop player's stream recovery (_schedule_restart): a dropped live stream is

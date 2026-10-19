@@ -239,7 +239,10 @@
 "stop_playback" = "停止播放";
 "stop_recording" = "停止";
 "stop_recording_channel" = "停止录制";
+"stream_busy" = "正在使用另一个流。请先停止它。";
 "stream_ended" = "已结束";
+"stream_external_blocked" = "请使用内置播放器以保持单一连接。";
+"stream_lost" = "流已丢失";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "字幕文件";
 "subtitle_speech_needs_text" = "朗读需要 SRT 或 WebVTT 文件。";

@@ -239,7 +239,10 @@
 "stop_playback" = "Остановить воспроизведение";
 "stop_recording" = "Стоп";
 "stop_recording_channel" = "Остановить запись";
+"stream_busy" = "Используется другой поток. Сначала остановите его.";
 "stream_ended" = "Завершено";
+"stream_external_blocked" = "Используйте встроенный плеер для одного соединения.";
+"stream_lost" = "Поток потерян";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Файл субтитров";
 "subtitle_speech_needs_text" = "Для озвучивания нужен файл SRT или WebVTT.";

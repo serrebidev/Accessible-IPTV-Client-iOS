@@ -239,7 +239,10 @@
 "stop_playback" = "再生を停止";
 "stop_recording" = "停止";
 "stop_recording_channel" = "録画を停止";
+"stream_busy" = "別のストリームを使用中です。先に停止してください。";
 "stream_ended" = "終了";
+"stream_external_blocked" = "接続を1つに保つには内蔵プレーヤーを使用してください。";
+"stream_lost" = "ストリームが失われました";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "字幕ファイル";
 "subtitle_speech_needs_text" = "読み上げには SRT か WebVTT ファイルが必要です。";

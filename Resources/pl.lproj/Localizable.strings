@@ -239,7 +239,10 @@
 "stop_playback" = "Zatrzymaj odtwarzanie";
 "stop_recording" = "Zatrzymaj";
 "stop_recording_channel" = "Zatrzymaj nagrywanie";
+"stream_busy" = "Inny strumień jest w użyciu. Najpierw go zatrzymaj.";
 "stream_ended" = "Zakończono";
+"stream_external_blocked" = "Użyj wbudowanego odtwarzacza, aby zachować jedno połączenie.";
+"stream_lost" = "Utracono strumień";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Plik napisów";
 "subtitle_speech_needs_text" = "Czytanie wymaga pliku SRT lub WebVTT.";

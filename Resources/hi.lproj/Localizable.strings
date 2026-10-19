@@ -239,7 +239,10 @@
 "stop_playback" = "चलाना बंद करें";
 "stop_recording" = "रोकें";
 "stop_recording_channel" = "रिकॉर्डिंग रोकें";
+"stream_busy" = "दूसरी स्ट्रीम चल रही है। पहले उसे रोकें।";
 "stream_ended" = "समाप्त";
+"stream_external_blocked" = "एक ही कनेक्शन रखने के लिए ऐप के प्लेयर का उपयोग करें।";
+"stream_lost" = "स्ट्रीम खो गई";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "उपशीर्षक फ़ाइल";
 "subtitle_speech_needs_text" = "बोलने के लिए SRT या WebVTT फ़ाइल चाहिए।";

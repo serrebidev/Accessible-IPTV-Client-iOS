@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.8
+
+- Buffering now follows the desktop app's rules end to end. A live channel reopened after a stall waits with the whole saved buffer before sound returns, instead of starting again on the half-second quick start every time — the changelog promised that full-cushion resume in 0.4.6, and the live player now actually does it. The buffer grows by a second only when a restart actually happens, not on every short dip.
+- A stalled channel is reopened the desktop's way: buffering for 10 seconds, a frozen picture, or four stalls inside a minute reopen it with a bigger buffer. A stream that sends nothing restarts after 25 seconds, and one that has not played at all 30 seconds after it was chosen is announced as Stream lost instead of spinning silently.
+- Films and catch-up get the same recovery: an error or a stall reopens them inside the same retry budget and resumes where they stopped, instead of failing at once. They also open with the full saved buffer, where they used to start on a flat 2 seconds.
+
 ## 0.4.7
 
 - Channels from a Dispatcharr restreamer keep the buffer you saved. It restreams from its own server-side buffer, so a stalled channel no longer grows the client buffer by a second and no longer waits for a bigger cushion before sound returns. Same rule as the desktop app.

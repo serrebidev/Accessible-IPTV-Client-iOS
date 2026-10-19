@@ -24,6 +24,10 @@ LANGS = {"": "en", "ar": "ar", "de": "de", "es": "es", "fr": "fr", "hi": "hi", "
 # Android app leaves in English, and iOS-only features. Order: en ar de es fr hi hu it ja pl pt-BR ru tr zh-Hans.
 ORDER = ["en", "ar", "de", "es", "fr", "hi", "hu", "it", "ja", "pl", "pt-BR", "ru", "tr", "zh-Hans"]
 EXTRA = {
+    # The external-player feature is iOS-only now (Android removed it), so its two
+    # strings live here instead of coming from the Android resources.
+    "no_external_player": ["No other player installed.", "لا يوجد مشغل آخر مثبت.", "Kein anderer Player installiert.", "No hay otro reproductor instalado.", "Aucun autre lecteur installé.", "कोई दूसरा प्लेयर इंस्टॉल नहीं है।", "Nincs másik lejátszó telepítve.", "Nessun altro lettore installato.", "他のプレーヤーがありません。", "Brak innego odtwarzacza.", "Nenhum outro player instalado.", "Другой плеер не установлен.", "Başka oynatıcı yüklü değil.", "没有安装其他播放器。"],
+    "use_external_player": ["Use another player app", "استخدام تطبيق مشغل آخر", "Andere Player-App verwenden", "Usar otra app de reproducción", "Utiliser une autre app de lecture", "दूसरा प्लेयर ऐप इस्तेमाल करें", "Másik lejátszó alkalmazás használata", "Usa un’altra app di riproduzione", "他のプレーヤーアプリを使う", "Użyj innej aplikacji odtwarzacza", "Usar outro app de reprodução", "Использовать другой плеер", "Başka bir oynatıcı uygulaması kullan", "使用其他播放器应用"],
     "single_connection_busy": [
         "One IPTV stream at a time. Stop playback, recording or downloading first.",
         "بث IPTV واحد في كل مرة. أوقف التشغيل أو التسجيل أو التنزيل أولًا.",

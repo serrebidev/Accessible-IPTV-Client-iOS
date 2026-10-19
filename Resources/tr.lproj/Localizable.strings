@@ -239,7 +239,10 @@
 "stop_playback" = "Oynatmayı durdur";
 "stop_recording" = "Durdur";
 "stop_recording_channel" = "Kaydı durdur";
+"stream_busy" = "Başka bir yayın kullanımda. Önce onu durdurun.";
 "stream_ended" = "Bitti";
+"stream_external_blocked" = "Tek bağlantı için yerleşik oynatıcıyı kullanın.";
+"stream_lost" = "Yayın kaybedildi";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Altyazı dosyası";
 "subtitle_speech_needs_text" = "Seslendirme için SRT veya WebVTT dosyası gerekir.";

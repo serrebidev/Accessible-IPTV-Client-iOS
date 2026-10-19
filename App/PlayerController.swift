@@ -57,6 +57,15 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var buffering = false
 	private var stalls = 0
 	private var cacheSeconds = Cushion.quickStartSeconds
+	/// Set once this session has reopened after a stall: the reopen waits with the whole
+	/// saved cushion, like the desktop, instead of the half-second quick start.
+	private var reopened = false
+	/// The desktop's playback-health rules, ticked once a second while playing.
+	private var health = StallTracker()
+	/// Media-progress sampling for the health tick: the last position seen, and since
+	/// when it has stood still while the player claims to be playing.
+	private var lastPosition = -1.0
+	private var frozenSince: Double?
 	private var closing = false
 	private let connectionID = UUID()
 	private var started = false
@@ -123,6 +132,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			open()
 			say(L("connecting"), 2)
 		}
+		let healthTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in Task { @MainActor in self?.healthTick() } }
+		timers.append(healthTimer)
 		restartTrackSelection()
 		nowPlayingInfo()
 		#if os(iOS)
@@ -181,8 +192,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 	}
 
-	/// Opens the stream. A first start and a reconnect wait for half a second of cache; the
-	/// rest of the cushion is built by pace().
+	/// Opens the stream. A first start waits for half a second of cache; a reopen after a
+	/// stall waits with the whole saved cushion (Cushion.openSeconds).
 	private func open() {
 		openingTask?.cancel()
 		stopNative()
@@ -215,6 +226,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func openNow() {
 		guard !closing, intent.canPlay else { return }
+		health.prepared()
 		if usesNative { openNative(); return }
 		let (plain, headers) = M3U.splitHeaders(playbackURL)
 		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
@@ -227,14 +239,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		if let cookie = headers["Cookie"], let host = url.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
 		let ms: Int
 		if live {
-			let target = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
-			cacheSeconds = min(target, Cushion.quickStartSeconds)
+			cacheSeconds = Cushion.openSeconds(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls, reopened: reopened)
 			ms = Int(cacheSeconds * 1000)
 			// Live: drop late frames so playback stays at real time instead of drifting behind.
 			media.addOption(":clock-jitter=1500")
 		} else {
-			// ponytail: VOD and catch-up start on a fixed 2 s cache; files seek, so no cushion is built.
-			ms = localFile ? 300 : 2000
+			// VOD, catch-up and files open with the same full caching value as the desktop.
+			cacheSeconds = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
+			ms = Int(cacheSeconds * 1000)
 			media.addOption(":clock-jitter=0")
 			media.addOption(":clock-synchro=0")
 			media.addOption(":drop-late-frames=0")
@@ -242,6 +254,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 		for opt in ["network-caching", "live-caching", "file-caching"] { media.addOption(":\(opt)=\(ms)") }
 		media.addOption(":adaptive-use-access=1")
+		media.addOption(":http-reconnect=true")
+		media.addOption(":rtsp-tcp")
 		hasPlayed = false
 		buffering = false
 		player.media = media
@@ -255,7 +269,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		guard let url = URL(string: plain) else { fallbackToVLC(); return }
 		let agent = headers.first { $0.key.lowercased() == "user-agent" }?.value ?? Net.userAgent
 		let item = AVPlayerItem(asset: AVURLAsset(url: url, options: [AVURLAssetHTTPUserAgentKey: agent]))
-		item.preferredForwardBufferDuration = live ? Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls) : 2
+		// The forward buffer is the saved cushion for every kind, like the desktop's
+		// caching value; a file or film used to get a flat 2 s here.
+		item.preferredForwardBufferDuration = Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
 		hasPlayed = false
 		buffering = false
 		#if !os(visionOS)
@@ -409,6 +425,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func stateChanged(_ s: VLCMediaPlayerState) {
 		guard !closing else { return }
+		if s == .playing { health.playing() }
 		if s == .playing {
 			if !usesNative, let file = pendingSubtitle {
 				_ = player.addPlaybackSlave(file, type: .subtitle, enforce: true)
@@ -440,14 +457,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			hasPlayed = true
 			failed = false
 		case .error:
-			if tryReconnect() { return }
+			if recover(grow: true) { return }
 			say(L("play_failed", VLCLibrary.currentErrorMessage ?? ""), 1)
 			failed = true
 		case .stopped:
 			guard intent.canPlay else { return }
 			// A live stream that ends was dropped by the server: reconnect, as the desktop does.
 			// Casting stops the player on purpose and announces it, so this is not a drop.
-			if retryTask != nil || casting != nil || tryReconnect() { return }
+			if retryTask != nil || casting != nil || (live && recover(grow: false)) { return }
 			say(L("stream_ended"), 1)
 			failed = true
 		default:
@@ -455,13 +472,13 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 	}
 
-	/// Buffering after playback began is a stall: the cushion grows a second, like the desktop.
-	/// A Dispatcharr channel keeps the saved buffer: it restreams from its own server-side one.
+	/// Buffering is announced here; whether it is a stall is the health tick's call — the
+	/// cushion grows only when a restart actually happens, like the desktop, not on every
+	/// dip. A Dispatcharr channel never grows: it restreams from its own server-side buffer.
 	private func bufferingChanged(_ progress: Float) {
 		guard hasPlayed, !closing else { return }
 		if progress < 100 && !buffering {
 			buffering = true
-			if channel?.isDispatcharr != true { stalls += 1 }
 			say(L("buffering"), 3)
 		} else if progress >= 100 {
 			let recovered = buffering
@@ -470,19 +487,67 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 	}
 
-	/// Schedules the next reconnect of a live stream; false when this stream does not get one.
-	private func tryReconnect() -> Bool {
-		guard intent.canPlay, live, casting == nil, !isRelayingVideo, let delay = reconnect.next() else { return false }
+	/// Schedules a reopen of the current stream inside the reconnect budget, for every
+	/// kind of playback; false when this stream gets none (paused, casting, relaying).
+	/// [grow] is set when the stall earns a bigger cushion, as a desktop stall does; when
+	/// the budget is spent the channel is declared lost instead of retrying forever.
+	@discardableResult
+	private func recover(grow: Bool) -> Bool {
+		guard intent.canPlay, casting == nil, !isRelayingVideo else { return false }
+		if retryTask != nil { return true }
+		if grow, channel?.isDispatcharr != true { stalls += 1 }
+		reopened = true
+		guard let delay = reconnect.next() else { giveUp(); return true }
 		say(L("reconnecting"), 2)
-		retryTask?.cancel()
 		retryTask = Task {
 			try? await Task.sleep(nanoseconds: UInt64(delay) * 1_000_000)
 			guard !Task.isCancelled, !closing, intent.canPlay, !preparingVideo, !isRelayingVideo else { return }
 			retryTask = nil
-			// Behind the live window after a drop: start again at the live edge.
+			// A film or catch-up resumes where it stopped; live starts again at the live edge.
+			if !live { let time = sharedPlaybackTime; if time > 0 { fallbackTime = time } }
 			open()
 		}
 		return true
+	}
+
+	/// The budget is spent, or the channel never played at all: the desktop declares it
+	/// lost and stops, rather than leaving a silent spinner up.
+	private func giveUp() {
+		guard !failed else { return }
+		retryTask?.cancel()
+		retryTask = nil
+		failed = true
+		if usesNative { nativePlayer.pause() } else { PlaybackTeardown.stop(player) }
+		isPlaying = false
+		nowPlayingInfo()
+		say(L("stream_lost"), 1)
+	}
+
+	/// Once a second, the desktop's playback-health rules run over whichever player is
+	/// active (StallTracker): prolonged buffering, a frozen picture and repeated short
+	/// stalls reopen the stream with a bigger cushion; a channel that produces nothing
+	/// restarts, then is given up on. SharePlay sessions keep their own recovery.
+	private func healthTick() {
+		guard !closing, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo else { return }
+		let position = sharedPlaybackTime
+		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
+		var frozen = 0.0
+		if playingNow {
+			if position != lastPosition { lastPosition = position; frozenSince = nil }
+			else {
+				let since = frozenSince ?? ProcessInfo.processInfo.systemUptime
+				frozenSince = since
+				frozen = ProcessInfo.processInfo.systemUptime - since
+			}
+		} else { lastPosition = position; frozenSince = nil }
+		let waiting = usesNative ? nativePlayer.timeControlStatus == .waitingToPlayAtSpecifiedRate
+			: player.state == .opening || player.state == .buffering
+		switch health.tick(buffering: waiting, frozen: frozen) {
+		case .none: break
+		case .restart: recover(grow: false)
+		case .restartGrown: recover(grow: true)
+		case .giveUp: giveUp()
+		}
 	}
 
 	// MARK: controls
@@ -545,15 +610,25 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 		#endif
 		if usesNative {
-			if failed || nativePlayer.currentItem == nil { failed = false; open() }
+			if failed || nativePlayer.currentItem == nil {
+				reconnect.reset()
+				health.reset()
+				stalls = 0
+				reopened = false
+				failed = false
+				open()
+			}
 			else { nativePlayer.play(); armNativeTimeout() }
 			return
 		}
 		if failed || player.state == .stopped || player.state == .stopping || player.state == .error {
-			// Retry after a failure: a live stream starts again at the live edge.
+			// Retry after a failure: a fresh start — quick start, saved buffer, full budget.
 			retryTask?.cancel()
 			retryTask = nil
 			reconnect.reset()
+			health.reset()
+			stalls = 0
+			reopened = false
 			failed = false
 			open()
 			return
@@ -1047,6 +1122,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		retryTask?.cancel()
 		retryTask = nil
 		reconnect.reset()
+		reopened = true
 		failed = false
 		sharedPausePending = true
 		sharedPauseTemporary = true
