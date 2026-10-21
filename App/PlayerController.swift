@@ -1139,7 +1139,7 @@ final class PlayerController: NSObject, ObservableObject {
 
 	func joinSharePlay(_ session: GroupSession<WatchTVActivity>, identifier: String) {
 		leaveSharePlay()
-		try? player.setPlaybackRate(1)
+		try? player.setPlaybackRate(1.0)
 		if usesNative, isPlaying { nativePlayer.rate = 1 }
 		let adapter = SharePlaybackCoordinator(controller: self, identifier: identifier)
 		sharePlayback = adapter
