@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+
+- Live channels reconnect in place when the provider drops the connection. libVLC 4 ignored the old reconnect option, so a dropped MPEG-TS stream used to stop and reopen from scratch.
+- HLS played through VLC now follows the buffer setting. It starts at least 15 seconds behind live, on segments the server already holds, so it starts fast and does not run dry. Apple playback of live HLS keeps its distance from live after a stall instead of drifting behind.
+- New playback engine: SwiftVLC replaces the VLCKit 4 alpha. Same libVLC 4, with fixes for damaged transport streams and HLS crashes. The engine starts when the app opens, so the first channel connects sooner, and switching channels no longer waits on a polling loop.
+- Closed captions, teletext and other text subtitles from the stream show under the video and are spoken, unless Speak subtitles is off. Picture subtitles stay in the image.
+- Needs iOS 18, tvOS 18 or visionOS 2.
+- A playlist's Cookie header is no longer sent: libVLC 4 has no cookie API.
+
 ## 0.4.10
 
 - Fix constant live-stream reconnects: VLCKit 4 reports buffering from 0 to 1, but the app waited for 100. A healthy stream therefore stayed marked as buffering and the watchdog repeatedly reopened it. Buffering completion now clears that state correctly.
