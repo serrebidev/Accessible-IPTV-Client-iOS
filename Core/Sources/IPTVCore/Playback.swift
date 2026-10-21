@@ -9,11 +9,37 @@ public enum PlaybackBackend {
 		// AVURLAsset has a public user-agent option, but no general HTTP-header option.
 		guard headers.keys.allSatisfy({ $0.lowercased() == "user-agent" }),
 			let url = URL(string: plain), ["http", "https", "file"].contains(url.scheme?.lowercased() ?? "") else { return .vlc }
-		// Xtream's extensionless /live/user/password/id endpoints serve MPEG-TS.
-		let path = url.pathComponents.filter { $0 != "/" }
-		if path.count == 4, path[0].lowercased() == "live", UInt64(path[3]) != nil { return .vlc }
-		let compatibility = ["ts", "m2ts", "mts", "mkv", "avi", "flv", "wmv", "asf", "vob", "ogg", "ogv"]
+		if StreamOptions.isTransportStream(url) { return .vlc }
+		let compatibility = ["m2ts", "mts", "mkv", "avi", "flv", "wmv", "asf", "vob", "ogg", "ogv"]
 		return compatibility.contains(url.pathExtension.lowercased()) ? .vlc : .native
+	}
+}
+
+/// libVLC 4 input options for one network stream.
+public enum StreamOptions {
+	/// A .ts file or Xtream's extensionless /live/user/password/id endpoint (MPEG-TS).
+	public static func isTransportStream(_ url: URL) -> Bool {
+		let path = url.pathComponents.filter { $0 != "/" }
+		if path.count == 4, path[0].lowercased() == "live", UInt64(path[3]) != nil { return true }
+		return url.pathExtension.lowercased() == "ts"
+	}
+
+	public static func network(_ url: URL, live: Bool, cacheMs: Int) -> [String] {
+		var options = [":network-caching=\(cacheMs)", ":file-caching=\(cacheMs)", ":adaptive-use-access=1",
+			// Only libVLC's legacy HTTP module reads this; it serves the streams the default module refuses.
+			":http-reconnect=1"]
+		if url.pathExtension.lowercased() == "m3u8" {
+			// HLS ignores network-caching: playback starts this far behind the live edge, using
+			// segments the server already holds. VLC's 15 s default is kept as the floor.
+			let delay = max(15_000, cacheMs)
+			options += [":adaptive-livedelay=\(delay)", ":adaptive-maxbuffer=\(max(30_000, delay * 2))"]
+		} else if live && isTransportStream(url) {
+			// libVLC 4's HTTP module ends a live response at the first drop unless it is told the
+			// resource is continuous; then it reconnects once in place. Never for HLS or a file:
+			// it would refetch a finished body forever.
+			options.append(":http-continuous=1")
+		}
+		return options
 	}
 }
 

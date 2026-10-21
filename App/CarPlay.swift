@@ -118,7 +118,7 @@ final class CarAudio: NSObject, VLCMediaPlayerDelegate {
 		}
 		media.addOption(":no-video")
 		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
-		media.addOption(":network-caching=3000")
+		StreamOptions.network(url, live: true, cacheMs: 3000).forEach { media.addOption($0) }
 		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
 		try? AVAudioSession.sharedInstance().setActive(true)
 		player.media = media

@@ -248,22 +248,17 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
 		if let ref = headers["Referer"] { media.addOption(":http-referrer=\(ref)") }
 		if let cookie = headers["Cookie"], let host = url.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
-		let ms: Int
 		if live {
-			ms = Int(cacheSeconds * 1000)
 			// Live: drop late frames so playback stays at real time instead of drifting behind.
 			media.addOption(":clock-jitter=1500")
 		} else {
 			// VOD, catch-up and files open with the same full caching value as the desktop.
-			ms = Int(cacheSeconds * 1000)
 			media.addOption(":clock-jitter=0")
 			media.addOption(":clock-synchro=0")
 			media.addOption(":drop-late-frames=0")
 			media.addOption(":skip-frames=0")
 		}
-		for opt in ["network-caching", "live-caching", "file-caching"] { media.addOption(":\(opt)=\(ms)") }
-		media.addOption(":adaptive-use-access=1")
-		media.addOption(":http-reconnect=true")
+		StreamOptions.network(url, live: live, cacheMs: Int(cacheSeconds * 1000)).forEach { media.addOption($0) }
 		media.addOption(":rtsp-tcp")
 		hasPlayed = false
 		buffering = false
@@ -281,6 +276,8 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		// The forward buffer is the saved cushion for every kind, like the desktop's
 		// caching value; a file or film used to get a flat 2 s here.
 		item.preferredForwardBufferDuration = cacheSeconds
+		// After a stall, live HLS skips ahead to its distance from the live edge instead of drifting behind.
+		item.automaticallyPreservesTimeOffsetFromLive = live
 		hasPlayed = false
 		buffering = false
 		#if !os(visionOS)
