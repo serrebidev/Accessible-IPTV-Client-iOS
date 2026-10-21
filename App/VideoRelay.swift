@@ -83,8 +83,12 @@ final class VideoRelay {
 					guard let self, !self.stopped else { return }
 					do {
 						try self.prune()
-						if self.url == nil, self.manifest("index.m3u8") != nil,
-							let media = self.manifest("playlist-0-manifest.m3u8"),
+						// The media playlist's name changes between libVLC builds: take it from the master.
+						if self.url == nil, let master = self.manifest("index.m3u8"),
+							let name = String(decoding: master, as: UTF8.self).split(whereSeparator: \.isNewline)
+								.first(where: { !$0.hasPrefix("#") && !$0.trimmingCharacters(in: .whitespaces).isEmpty })
+								.flatMap({ URL(string: String($0).trimmingCharacters(in: .whitespaces))?.lastPathComponent }),
+							let media = self.manifest(name),
 							String(decoding: media, as: UTF8.self).components(separatedBy: "#EXTINF:").count >= 3 {
 							self.url = outputURL
 							let done = self.completion
@@ -126,7 +130,7 @@ final class VideoRelay {
 		if let done { done(.failure(error)) } else { failed?() }
 	}
 
-	/// a22 removes segments from its manifest but leaves their files on disk.
+	/// libVLC removes segments from its manifest but leaves their files on disk.
 	private func prune() throws {
 		let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: [.contentModificationDateKey])
 		let manifests = files.filter { $0.pathExtension == "m3u8" }.compactMap { try? String(contentsOf: $0, encoding: .utf8) }.joined(separator: "\n")

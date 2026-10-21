@@ -50,7 +50,7 @@ Implementation references: [Apple’s entity and intent sample](https://develope
 
 On iPhone and iPad, opening the app and loading a live playlist indexes its channels for Spotlight. Search by channel name or number, then choose a result to start playback. Provider punctuation and quality labels have clean alternate names. Indexing runs in batches; leave the app open until it announces Search ready for a large playlist.
 
-On iOS 18 or later, Spotlight items are associated with indexed channel entities so Apple Intelligence and Siri can discover more than the small App Shortcut suggestion list. This supplies searchable data; Siri recognition and Apple Intelligence availability still depend on Apple’s system. iOS 17 uses ordinary Core Spotlight results with the same playback action.
+On iOS 18 or later, Spotlight items are associated with indexed channel entities so Apple Intelligence and Siri can discover more than the small App Shortcut suggestion list. This supplies searchable data; Siri recognition and Apple Intelligence availability still depend on Apple’s system.
 
 Source changes remove unavailable channel results. Index updates retain a private manifest of opaque IDs so interrupted work can be retried safely, and Spotlight can request a rebuild. Indexed metadata contains names, groups and numbers; stream URLs, provider logins, raw channel keys and remote logos are excluded.
 
@@ -81,7 +81,7 @@ Add the serrebiALT source to AltStore:
 
 https://raw.githubusercontent.com/serrebidev/serrebiALT/main/apps.json
 
-then install Accessible IPTV from it. AltStore keeps it updated. The `.ipa` files for iPhone and iPad, Apple TV and Vision Pro are also on the [Releases page](https://github.com/serrebidev/Accessible-IPTV-Client-iOS/releases) for other sideloading tools. Needs iOS 17, tvOS 17 or visionOS 1 or later.
+then install Accessible IPTV from it. AltStore keeps it updated. The `.ipa` files for iPhone and iPad, Apple TV and Vision Pro are also on the [Releases page](https://github.com/serrebidev/Accessible-IPTV-Client-iOS/releases) for other sideloading tools. Needs iOS 18, tvOS 18 or visionOS 2 or later.
 
 ## Getting started
 

@@ -34,7 +34,7 @@ A tela cheia esconde os botões. Um toque, Esc ou o botão Voltar do controle tr
 
 A audiodescrição é escolhida quando o canal tem. A faixa que você escolher é lembrada por canal.
 
-Legendas do canal aparecem na imagem. Um arquivo de legendas aparece abaixo do vídeo e, se for SRT ou WebVTT, é lido em voz alta, a menos que Ler legendas esteja desativado em Configurações.
+Legendas em texto do canal, como closed captions e teletexto, aparecem abaixo do vídeo. Elas são lidas em voz alta, como os arquivos de legendas SRT e WebVTT, a menos que Ler legendas esteja desativado em Configurações. Legendas em imagem ficam na imagem e não podem ser lidas.
 
 Quando o programa muda, o player diz o que está no ar. Configurações, Anúncios define quanto o player fala.
 

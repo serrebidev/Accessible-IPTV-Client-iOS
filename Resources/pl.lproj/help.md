@@ -34,7 +34,7 @@ Pełny ekran ukrywa przyciski. Stuknięcie, Escape lub przycisk Wstecz pilota pr
 
 Audiodeskrypcja jest wybierana, gdy kanał ją ma. Wybrana ścieżka jest zapamiętywana dla każdego kanału.
 
-Napisy ze strumienia widać na obrazie. Plik napisów jest widoczny pod wideo, a SRT i WebVTT są też czytane, chyba że Czytaj napisy jest wyłączone w Ustawieniach.
+Napisy tekstowe ze strumienia, np. napisy dla niesłyszących i telegazeta, są widoczne pod wideo. Są czytane, tak jak pliki napisów SRT i WebVTT, chyba że Czytaj napisy jest wyłączone w Ustawieniach. Napisy graficzne zostają na obrazie i nie mogą być czytane.
 
 Gdy zmienia się audycja, odtwarzacz mówi, co jest teraz. Ustawienia, Komunikaty określają, ile mówi odtwarzacz.
 

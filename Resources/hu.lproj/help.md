@@ -34,7 +34,7 @@ A teljes képernyő elrejti a gombokat. Koppintás, Escape vagy a távirányít�
 
 A hangalámondás ki lesz választva, ha a csatornán van. A kiválasztott hangsávot csatornánként megjegyzi.
 
-Az adás feliratai a képen jelennek meg. A Feliratfájl a videó alatt jelenik meg, SRT és WebVTT esetén fel is olvassa, kivéve ha a Feliratok felolvasása ki van kapcsolva a Beállításokban.
+Az adás szöveges feliratai, például a hallássérülteknek szóló felirat és a teletext, a videó alatt jelennek meg. A program felolvassa őket, az SRT és WebVTT feliratfájlokhoz hasonlóan, kivéve ha a Feliratok felolvasása ki van kapcsolva a Beállításokban. A képes feliratok a képen maradnak, és nem olvashatók fel.
 
 Ha változik a műsor, a lejátszó bemondja, mi megy most. A Beállítások, Bejelentések adja meg, mennyit beszél a lejátszó.
 

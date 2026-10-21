@@ -34,7 +34,7 @@ Le plein écran masque les boutons. Un toucher, Échap ou le bouton Retour de la
 
 L’audiodescription est choisie quand la chaîne en a une. La piste que vous choisissez est mémorisée par chaîne.
 
-Les sous-titres du flux s’affichent dans l’image. Un fichier de sous-titres s’affiche sous la vidéo et, en SRT ou WebVTT, est lu à voix haute, sauf si Lire les sous-titres est désactivé dans Réglages.
+Les sous-titres texte du flux, comme les sous-titres pour sourds et malentendants et le télétexte, s’affichent sous la vidéo. Ils sont lus à voix haute, comme les fichiers de sous-titres SRT et WebVTT, sauf si Lire les sous-titres est désactivé dans Réglages. Les sous-titres en image restent dans l’image et ne peuvent pas être lus.
 
 Quand le programme change, le lecteur annonce ce qui passe. Réglages, Annonces règle ce que dit le lecteur.
 

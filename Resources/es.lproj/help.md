@@ -34,7 +34,7 @@ La pantalla completa oculta los botones. Un toque, Escape o el botón Atrás del
 
 Se elige la audiodescripción cuando el canal la tiene. La pista que elijas se recuerda por canal.
 
-Los subtítulos de la emisión se ven en la imagen. Un archivo de subtítulos se muestra bajo el vídeo y, si es SRT o WebVTT, se lee en voz alta, salvo que Leer subtítulos esté desactivado en Ajustes.
+Los subtítulos de texto de la emisión, como los subtítulos para sordos y el teletexto, se muestran bajo el vídeo. Se leen en voz alta, igual que los archivos de subtítulos SRT y WebVTT, salvo que Leer subtítulos esté desactivado en Ajustes. Los subtítulos de imagen se quedan en la imagen y no se pueden leer.
 
 Cuando cambia el programa, el reproductor dice lo que se emite ahora. Ajustes, Anuncios decide cuánto habla el reproductor.
 
