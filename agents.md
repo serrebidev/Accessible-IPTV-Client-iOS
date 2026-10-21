@@ -2,7 +2,7 @@
 
 iOS port of the Android app (serrebidev/Accessible-IPTV-Client-Android, local checkout
 `../accessible IPTV client Android`). One SwiftUI target for iPhone, iPad, Apple TV and Vision Pro,
-plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
+plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
 
 ## Layout
 
@@ -10,7 +10,7 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
   Xtream, Stalker, SQLite guide (`Epg`), `Library` (port of Android `App.kt`), prefs, recording loop,
   TS clock, live cushion and reconnect, subtitle cues. No UIKit. Tests in `Core/Tests` are ports of the
   Android ParsingTest/CoreTest/GuideTest/AppTest/FeatureTest.
-- `App/` - SwiftUI screens (one per Android activity), `PlayerController` (libVLC via VLCKit 4),
+- `App/` - SwiftUI screens (one per Android activity), `PlayerController` (libVLC 4 via SwiftVLC),
   `RecorderCenter`, `CarPlay.swift`, `VoiceSearch`.
 - `Resources/<lang>.lproj` - generated. `tools/android_strings.py` converts the Android strings.xml
   (14 languages) and holds the iOS-only strings; `tools/build_help.py` builds help.md from the Android
@@ -27,15 +27,24 @@ plus a CarPlay audio scene. iOS 17 / tvOS 17 / visionOS 1.
 
 ## Rules
 
-- AVPlayer prefers compatible streams; VLCKit 4.0.0-a22 handles raw MPEG-TS and compatibility fallback.
+- AVPlayer prefers compatible streams; libVLC 4 handles raw MPEG-TS and compatibility fallback through
+  SwiftVLC, pinned in project.yml to the serrebidev/SwiftVLC fork (branch accessible-iptv), which only
+  adds `Player.setVideoEnabled`. Rebase that one commit to update. One `VLCInstance.app` with
+  application-managed audio session; warmed at launch.
+- libVLC 4 options (`StreamOptions` in Playback.swift): `:http-reconnect` is dead (legacy HTTP module
+  only); live `.ts` uses `:http-continuous=1` (reconnect in place, never on HLS or files: it refetches a
+  finished body forever). HLS through VLC ignores network-caching: `:adaptive-livedelay` (15 s floor).
   Provider URLs stay `.ts` (Dispatcharr answers `.m3u8` with 500). On iPhone/iPad, VideoRelay uses
   shipped VLC transcode/HLS modules to create local H.264/AAC HLS for AirPlay video and Chromecast.
   No separate server. Conversion needs foreground use and receiver access to the phone’s LAN address.
-  PlaybackTeardown waits for VLC’s asynchronous stop before another provider reader starts.
-  Preserve HLS manifest normalization, complete-manifest caching and expired-segment cleanup: a22
-  emits absent rendition references, an incorrect EVENT tag, and leaves evicted files on disk.
-- libVLC never hands over subtitle text: embedded subtitles are drawn in the picture; only a loaded
-  SRT/WebVTT file is spoken (same limit as the desktop).
+  PlaybackTeardown waits for VLC’s asynchronous stop (`stopAndWait`) before another provider reader
+  starts. Preserve HLS manifest normalization, complete-manifest caching and expired-segment cleanup:
+  libVLC's hls output emits absent rendition references, an incorrect EVENT tag, and leaves evicted
+  files on disk. libVLC 4 has no public cookie API: a playlist Cookie header is not sent.
+- Text subtitles come out of libVLC as text (`Player.textSubtitleStream`, enabled before the first
+  play): closed captions, teletext, ASS and stream tracks are shown by the app and spoken; libVLC no
+  longer draws them. Loaded SRT/WebVTT files keep their own cue reader (also spoken while relaying).
+  Bitmap subtitles (DVB, PGS) stay in the picture and cannot be spoken.
 - Live buffer: `Cushion` in Playback.swift - quick start 0.5 s, the saved setting plus a second per
   stall. The player never sets a rate below 1 (2026-10-17, the desktop's rule): filling the buffer must
   not slow playback down, and the buffer only grows from what the server hands over ahead of real time.

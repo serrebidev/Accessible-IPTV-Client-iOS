@@ -5,15 +5,16 @@ options:
   bundleIdPrefix: dev.serrebi
   developmentLanguage: en
   deploymentTarget:
-    iOS: "17.0"
-    tvOS: "17.0"
-    visionOS: "1.0"
+    iOS: "18.0"
+    tvOS: "18.0"
+    visionOS: "2.0"
 packages:
   IPTVCore:
     path: Core
-  VLCKit:
-    url: https://code.videolan.org/videolan/VLCKit.git
-    exactVersion: 4.0.0-a22
+  # SwiftVLC (libVLC 4) plus Player.setVideoEnabled, which the upstream API lacks.
+  SwiftVLC:
+    url: https://github.com/serrebidev/SwiftVLC.git
+    revision: 76b74b0e6114deff686a8bed78800aef7d1aaba7
 settings:
   base:
     MARKETING_VERSION: 0.4.10
@@ -31,7 +32,7 @@ targets:
       testTargets: [PlaybackTests]
     dependencies:
       - package: IPTVCore
-      - package: VLCKit
+      - package: SwiftVLC
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.serrebi.accessibleiptv
@@ -82,7 +83,7 @@ targets:
   PlaybackTests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "18.0"
     sources:
       - path: AppTests
         excludes: ["*.ts"]
@@ -90,7 +91,7 @@ targets:
         buildPhase: resources
     dependencies:
       - target: AccessibleIPTV
-      - package: VLCKit
+      - package: SwiftVLC
     settings:
       base:
         GENERATE_INFOPLIST_FILE: YES

@@ -1,11 +1,15 @@
 import AVFoundation
 import CoreVideo
 import XCTest
-import VLCKit
+import SwiftVLC
 @testable import AccessibleIPTV
 
 /// Runs on the iOS simulator against the bundled synthetic MPEG-2/MP2 transport stream.
 final class VideoRelayTests: XCTestCase {
+	/// Decodes without drawing or sound, like the simulator run needs.
+	private static let headless = try! VLCInstance(arguments: VLCInstance.defaultArguments + ["--vout=dummy", "--aout=dummy"],
+		appleAudioSessionPolicy: .applicationManaged)
+
 	@MainActor
 	func testIncompatibleVideoBecomesDecodableNativeHLS() async throws {
 		try await assertDecodedVideo(subtitles: false)
@@ -20,20 +24,19 @@ final class VideoRelayTests: XCTestCase {
 	private func assertDecodedVideo(subtitles: Bool) async throws {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
 		let subtitleFile = subtitles ? Bundle(for: Self.self).url(forResource: "captions", withExtension: "srt") : nil
-		let source = VLCMediaPlayer(options: ["--vout=dummy", "--aout=dummy"])
-		let sourceMedia = try XCTUnwrap(VLCMedia(url: fixture))
+		let source = Player(instance: Self.headless)
+		let sourceMedia = try Media(url: fixture)
 		if let subtitleFile { sourceMedia.addOption(":sub-file=\(subtitleFile.path)") }
-		source.media = sourceMedia
-		PlaybackTeardown.play(source)
+		PlaybackTeardown.play(source, sourceMedia)
 		defer { PlaybackTeardown.stop(source) }
 		// CI runners are shared and loaded: real transcoding needs more room here than on a phone.
 		let deadline = Date().addingTimeInterval(45)
-		while source.videoTracks.isEmpty || source.audioTracks.isEmpty || subtitles && source.textTracks.isEmpty {
+		while source.videoTracks.isEmpty || source.audioTracks.isEmpty || subtitles && source.subtitleTracks.isEmpty {
 			guard Date() < deadline else { XCTFail("VLC did not discover MPEG-2 and MP2 tracks"); return }
 			try await Task.sleep(nanoseconds: 200_000_000)
 		}
-		let tracks = [try XCTUnwrap(source.videoTracks.first).trackId, try XCTUnwrap(source.audioTracks.first).trackId]
-		let subtitleID = subtitles ? source.textTracks.first?.trackId : nil
+		let tracks = [try XCTUnwrap(source.videoTracks.first).id, try XCTUnwrap(source.audioTracks.first).id]
+		let subtitleID = subtitles ? source.subtitleTracks.first?.id : nil
 		PlaybackTeardown.stop(source)
 		let stopped = await PlaybackTeardown.ready()
 		XCTAssertTrue(stopped)
@@ -66,15 +69,15 @@ final class VideoRelayTests: XCTestCase {
 	@MainActor
 	func testImmediateStopCancelsQueuedPlayback() async throws {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
-		let source = VLCMediaPlayer(options: ["--vout=dummy", "--aout=dummy"])
+		let source = Player(instance: Self.headless)
 		for _ in 0..<3 {
-			source.media = VLCMedia(url: fixture)
-			PlaybackTeardown.play(source)
+			PlaybackTeardown.play(source, try Media(url: fixture))
 			PlaybackTeardown.stop(source)
 			let stopped = await PlaybackTeardown.ready()
 			XCTAssertTrue(stopped)
+			// A bare play (a lock-screen Play) must not reopen the stopped media.
+			PlaybackTeardown.play(source)
 			try await Task.sleep(nanoseconds: 200_000_000)
-			XCTAssertNil(source.media)
 			XCTAssertFalse(source.isPlaying)
 			XCTAssertEqual(source.state, .stopped)
 		}
@@ -83,11 +86,10 @@ final class VideoRelayTests: XCTestCase {
 	@MainActor
 	func testNaturalEndDoesNotCompleteTheNextTeardown() async throws {
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
-		let source = VLCMediaPlayer(options: ["--vout=dummy", "--aout=dummy"])
-		let media = try XCTUnwrap(VLCMedia(url: fixture))
+		let source = Player(instance: Self.headless)
+		let media = try Media(url: fixture)
 		media.addOption(":stop-time=1")
-		source.media = media
-		PlaybackTeardown.play(source)
+		PlaybackTeardown.play(source, media)
 		defer { PlaybackTeardown.stop(source) }
 		var active = false
 		let deadline = Date().addingTimeInterval(45)
@@ -101,7 +103,7 @@ final class VideoRelayTests: XCTestCase {
 		PlaybackTeardown.stop(source)
 		let stopped = await PlaybackTeardown.ready()
 		XCTAssertTrue(stopped)
-		XCTAssertNil(source.media)
+		XCTAssertFalse(source.isPlaying)
 		XCTAssertEqual(source.state, .stopped)
 	}
 }

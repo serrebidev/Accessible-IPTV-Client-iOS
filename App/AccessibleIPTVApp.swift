@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import IPTVCore
+import SwiftVLC
 #if os(iOS)
 import CoreSpotlight
 #endif
@@ -12,6 +13,8 @@ struct AccessibleIPTVApp: App {
 	#endif
 	@StateObject private var model = AppModel.shared
 	@Environment(\.scenePhase) private var phase
+
+	init() { VLCInstance.warmUp() }
 
 	var body: some Scene {
 		WindowGroup {

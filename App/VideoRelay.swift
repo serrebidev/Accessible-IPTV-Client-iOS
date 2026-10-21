@@ -2,13 +2,14 @@
 import Darwin
 import Foundation
 import Network
-import VLCKit
+import SwiftVLC
 import IPTVCore
 
 /// One provider connection, converted on this device to H.264/AAC HLS for either receiver.
 @MainActor
-final class VideoRelay: NSObject, VLCMediaPlayerDelegate {
-	let player = VLCMediaPlayer()
+final class VideoRelay {
+	let player = Player(instance: .app)
+	private var events: Task<Void, Never>?
 	private let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
 	private let token = UUID().uuidString.replacingOccurrences(of: "-", with: "")
 	private var listener: NWListener?
@@ -56,21 +57,26 @@ final class VideoRelay: NSObject, VLCMediaPlayerDelegate {
 	private func convert(source: String, tracks: [String], seconds: Double, subtitleID: String?, subtitleFile: URL?, base: String) {
 		do {
 			let (plain, headers) = M3U.splitHeaders(source)
-			guard let sourceURL = URL(string: plain), let media = VLCMedia(url: sourceURL),
+			guard let sourceURL = URL(string: plain), let media = try? Media(url: sourceURL),
 				let outputURL = URL(string: base + "/index.m3u8") else { throw URLError(.badURL) }
 			media.addOption(try VideoCasting.output(directory: directory.path, baseURL: base, tracks: tracks))
 			media.addOption(":video-track-id=\(tracks[0])")
 			if tracks.count > 1 { media.addOption(":audio-track-id=\(tracks[1])") }
 			media.addOption(":sub-track-id=\(subtitleID ?? "none")")
 			if let subtitleFile { media.addOption(":sub-file=\(subtitleFile.path)") }
-			media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
-			if let ref = headers["Referer"] { media.addOption(":http-referrer=\(ref)") }
-			if let cookie = headers["Cookie"], let host = sourceURL.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
+			media.setHTTPUserAgent(headers["User-Agent"] ?? Net.userAgent)
+			if let ref = headers["Referer"] { media.setHTTPReferrer(ref) }
 			media.addOption(":network-caching=1000")
 			if seconds.isFinite, seconds > 0 { media.addOption(":start-time=\(seconds)") }
-			player.delegate = self
-			player.media = media
-			PlaybackTeardown.play(player)
+			let stream = player.events
+			events = Task { [weak self] in
+				for await event in stream {
+					guard let self else { return }
+					if case .stateChanged(let state) = event, self.player.state == state,
+						state == .error || state == .stopped && self.live { self.fail(URLError(.cannotDecodeContentData)) }
+				}
+			}
+			PlaybackTeardown.play(player, media)
 			monitor = Task { [weak self] in
 				let deadline = ProcessInfo.processInfo.systemUptime + (self?.firstManifestDeadline ?? 40)
 				while !Task.isCancelled {
@@ -103,7 +109,7 @@ final class VideoRelay: NSObject, VLCMediaPlayerDelegate {
 		listener = nil
 		connections.values.forEach { $0.cancel() }
 		connections.removeAll()
-		player.delegate = nil
+		events?.cancel()
 		let teardown = PlaybackTeardown.stop(player)
 		let directory = directory
 		Task {
@@ -118,13 +124,6 @@ final class VideoRelay: NSObject, VLCMediaPlayerDelegate {
 		let failed = onFailure
 		stop()
 		if let done { done(.failure(error)) } else { failed?() }
-	}
-
-	nonisolated func mediaPlayerStateChanged(_ state: VLCMediaPlayerState) {
-		Task { @MainActor in
-			guard self.player.state == state else { return }
-			if state == .error || state == .stopped && self.live { self.fail(URLError(.cannotDecodeContentData)) }
-		}
 	}
 
 	/// a22 removes segments from its manifest but leaves their files on disk.

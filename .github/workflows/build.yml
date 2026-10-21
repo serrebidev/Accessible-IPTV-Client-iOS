@@ -60,7 +60,7 @@ jobs:
           brew list xcodegen >/dev/null 2>&1 || brew install xcodegen
           xcodegen generate
 
-      - name: Package cache (VLCKit is an 800 MB download)
+      - name: Package cache (SwiftVLC's libVLC is a 380 MB download)
         uses: actions/cache@v6
         with:
           path: SourcePackages

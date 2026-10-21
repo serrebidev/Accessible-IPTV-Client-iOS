@@ -1,12 +1,25 @@
 import Foundation
 import AVFoundation
-import VLCKit
+import SwiftVLC
 
-/// VLCKit 4 stops asynchronously. Never open another provider connection until teardown finishes.
-/// VLCKit 4's `state` is not KVO-observable, so teardown completion is polled, not observed.
+extension VLCInstance {
+	/// One libVLC engine for every player. The app owns the audio session (background audio,
+	/// CarPlay, AirPlay routing), so libVLC never touches it.
+	static let app: VLCInstance = {
+		do { return try VLCInstance(appleAudioSessionPolicy: .applicationManaged) }
+		catch { fatalError("libVLC failed to start: \(error)") }
+	}()
+
+	/// libVLC's first start loads every plugin; doing it at launch keeps it off the first channel.
+	static func warmUp() { Task.detached(priority: .userInitiated) { _ = VLCInstance.app } }
+}
+
+/// libVLC stops asynchronously. Never open another provider connection until teardown finishes.
 @MainActor
 enum PlaybackTeardown {
 	private static var pending: [ObjectIdentifier: Task<Void, Never>] = [:]
+	/// Stopped players keep their last media; a bare play must not reopen it.
+	private static var stopped = Set<ObjectIdentifier>()
 
 	static func stop(_ player: AVPlayer) {
 		guard let item = player.currentItem else { return }
@@ -25,37 +38,30 @@ enum PlaybackTeardown {
 		while let task = pending.values.first { await task.value }
 	}
 
-	static func play(_ player: VLCMediaPlayer) {
-		guard pending[ObjectIdentifier(player)] == nil, player.media != nil else { return }
-		player.play()
+	/// Opens new media, on this device or on a cast receiver; a renderer applies only before play.
+	static func play(_ player: Player, _ media: Media, renderer: RendererItem? = nil) {
+		let id = ObjectIdentifier(player)
+		guard pending[id] == nil else { return }
+		stopped.remove(id)
+		player.load(media)
+		try? player.setRenderer(renderer)
+		try? player.play()
 	}
 
-	@discardableResult static func stop(_ player: VLCMediaPlayer) -> Task<Void, Never> {
+	/// Resumes the loaded media.
+	static func play(_ player: Player) {
+		let id = ObjectIdentifier(player)
+		guard pending[id] == nil, !stopped.contains(id), player.currentMedia != nil else { return }
+		try? player.play()
+	}
+
+	@discardableResult static func stop(_ player: Player) -> Task<Void, Never> {
 		let id = ObjectIdentifier(player)
 		if let task = pending[id] { return task }
-		// This public setter synchronously drains VLCKit's queued play/pause commands.
-		player.drawable = player.drawable
-		player.stop()
-		player.media = nil
+		stopped.insert(id)
 		let task = Task { @MainActor in
-			// `state` is VLCKit's cached copy of the core state, updated asynchronously.
-			// A stop that races a just-started play can poll `.stopped` before the core
-			// has even processed that play; the state then bounces back to `.stopping`
-			// while VLC works through the queued stop, so one terminal read does not
-			// prove the stop landed. The terminal state must hold across a settle
-			// window; any non-terminal read restarts it. `isPlaying` queries VLC
-			// synchronously, even before its cached state catches up with Start.
-			var settledSince: TimeInterval?
-			while true {
-				if !player.isPlaying, player.state == .stopped || player.state == .error {
-					let since = settledSince ?? ProcessInfo.processInfo.systemUptime
-					settledSince = since
-					if ProcessInfo.processInfo.systemUptime - since >= 0.5 { break }
-				} else {
-					settledSince = nil
-				}
-				try? await Task.sleep(nanoseconds: 100_000_000)
-			}
+			// Returns once libVLC released the input and its outputs (bounded at 10 s).
+			await player.stopAndWait()
 			pending.removeValue(forKey: id)
 		}
 		pending[id] = task

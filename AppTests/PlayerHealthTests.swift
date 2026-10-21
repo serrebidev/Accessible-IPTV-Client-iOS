@@ -13,9 +13,9 @@ final class PlayerHealthTests: XCTestCase {
 		let subscription = controller.$status.dropFirst().sink { status in
 			if status == L("buffering") { episodes.fulfill() }
 		}
-		controller.mediaPlayerBufferingChanged(0)
-		controller.mediaPlayerBufferingChanged(1)
-		controller.mediaPlayerBufferingChanged(0)
+		controller.vlcBuffering(0)
+		controller.vlcBuffering(1)
+		controller.vlcBuffering(0)
 		await fulfillment(of: [episodes], timeout: 3)
 		withExtendedLifetime(subscription) {}
 	}
@@ -33,12 +33,12 @@ final class PlayerHealthTests: XCTestCase {
 			guard Date() < deadline else { XCTFail("VLC never completed buffering"); return }
 			try await Task.sleep(nanoseconds: 200_000_000)
 		}
-		let media = try XCTUnwrap(controller.player.media)
+		let media = try XCTUnwrap(controller.player.currentMedia)
 		// A redundant system Play command must not start a new no-media deadline.
 		controller.resume()
 		let until = Date().addingTimeInterval(28)
 		while Date() < until {
-			XCTAssertTrue(controller.player.media === media, "Healthy live playback was reopened")
+			XCTAssertTrue(controller.player.currentMedia === media, "Healthy live playback was reopened")
 			XCTAssertNotEqual(controller.status, L("reconnecting"))
 			try await Task.sleep(nanoseconds: 200_000_000)
 		}
