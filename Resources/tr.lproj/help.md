@@ -34,7 +34,7 @@ Tam ekran düğmeleri gizler. Dokunma, Escape veya kumandanın Geri düğmesi on
 
 Kanalda sesli betimleme varsa seçilir. Seçtiğiniz parça her kanal için hatırlanır.
 
-Yayındaki altyazılar görüntüde gösterilir. Bir altyazı dosyası videonun altında gösterilir; SRT ve WebVTT ise ayrıca seslendirilir, Ayarlar’da Altyazıları seslendir kapalı değilse.
+Yayındaki metin altyazılar, örneğin işitme engelliler için altyazı ve teletekst, videonun altında gösterilir. SRT ve WebVTT altyazı dosyaları gibi seslendirilirler, Ayarlar’da Altyazıları seslendir kapalı değilse. Görüntü altyazılar görüntüde kalır ve seslendirilemez.
 
 Program değişince oynatıcı şimdi neyin yayında olduğunu söyler. Ayarlar, Duyurular oynatıcının ne kadar konuşacağını belirler.
 

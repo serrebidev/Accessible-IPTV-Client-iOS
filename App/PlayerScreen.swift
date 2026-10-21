@@ -1,6 +1,6 @@
 import SwiftUI
 import UIKit
-import VLCKit
+import SwiftVLC
 import IPTVCore
 import AVKit
 
@@ -27,30 +27,6 @@ private struct RoutePicker: UIViewRepresentable {
 }
 #endif
 
-/// libVLC draws into a plain UIView.
-private struct VLCVideoView: UIViewRepresentable {
-	let controller: PlayerController
-	private final class Host: UIView {
-		var surface: UIView?
-		override func didMoveToWindow() {
-			super.didMoveToWindow()
-			guard window != nil, let surface else { return }
-			surface.removeFromSuperview()
-			addSubview(surface)
-			surface.frame = bounds
-			surface.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-		}
-	}
-	func makeUIView(context: Context) -> UIView {
-		let v = Host()
-		v.surface = controller.videoSurface
-		v.backgroundColor = .black
-		v.isAccessibilityElement = false
-		return v
-	}
-	func updateUIView(_ v: UIView, context: Context) {}
-}
-
 private struct NativeVideoView: UIViewControllerRepresentable {
 	@ObservedObject var controller: PlayerController
 	func makeUIViewController(context: Context) -> AVPlayerViewController {
@@ -72,7 +48,7 @@ private struct VideoView: View {
 	@ObservedObject var controller: PlayerController
 	var body: some View {
 		if controller.usesNative { NativeVideoView(controller: controller) }
-		else { VLCVideoView(controller: controller) }
+		else { SwiftVLC.VideoView(controller.player).accessibilityHidden(true) }
 	}
 }
 

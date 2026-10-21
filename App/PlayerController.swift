@@ -2,14 +2,14 @@ import AVFoundation
 import MediaPlayer
 import SwiftUI
 import UIKit
-import VLCKit
+import SwiftVLC
 import IPTVCore
 import GroupActivities
 import OSLog
 
 /// Native playback and AirPlay for compatible media; VLC handles raw TS and other IPTV formats.
 @MainActor
-final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate {
+final class PlayerController: NSObject, ObservableObject {
 	@Published var status = ""
 	@Published var isPlaying = false
 	@Published var failed = false
@@ -39,8 +39,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		#endif
 	}
 
-	let player = VLCMediaPlayer()
-	let videoSurface = UIView()
+	let player = Player(instance: .app)
+	private var vlcEvents: Task<Void, Never>?
+	private var subtitleText: Task<Void, Never>?
 	let request: PlayRequest
 	private let model = AppModel.shared
 	private var prefs: Prefs { model.prefs }
@@ -94,7 +95,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	private var sharedPauseTemporary = false
 	private var sharedSeekTarget: Double?
 	#if os(iOS)
-	private var discoverers: [VLCRendererDiscoverer] = []
+	private var discoverers: [RendererDiscoverer] = []
+	private var discovery: [Task<Void, Never>] = []
+	private var found: [RendererItem] = []
+	/// The cast receiver VLC plays to, applied with each open.
+	private var castTarget: RendererItem?
 	private var videoRelay: VideoRelay?
 	private var castPreparation: Task<Void, Never>?
 	#endif
@@ -107,10 +112,6 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		live = !request.catchup && ch?.isLive == true
 		localFile = request.url.hasPrefix("file:")
 		super.init()
-		videoSurface.backgroundColor = .black
-		videoSurface.isAccessibilityElement = false
-		player.drawable = videoSurface
-		player.delegate = self
 	}
 
 	/// Looked up once: Library.channel scans every loaded list, movies included.
@@ -126,6 +127,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		#endif
 		observeAudioSession()
 		registerRemoteCommands()
+		observeVLC()
 		let audioReady = activateAudio()
 		UIApplication.shared.isIdleTimerDisabled = true
 		showProgramme(announce: false)
@@ -140,11 +142,45 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		#if os(iOS)
 		// Warm the cast device list so Cast has names to offer straight away.
 		if !localFile {
-			for d in VLCRendererDiscoverer.list() ?? [] {
-				if let r = VLCRendererDiscoverer(name: d.name), r.start() { discoverers.append(r) }
+			for service in RendererDiscoverer.availableServices(instance: .app) {
+				guard let d = try? RendererDiscoverer(name: service.name, instance: .app) else { continue }
+				let events = d.events
+				discovery.append(Task { [weak self] in
+					for await event in events {
+						guard let self else { return }
+						if let item = event.itemAdded { self.found.append(item) }
+						if let item = event.itemDeleted { self.found.removeAll { $0 == item } }
+					}
+				})
+				if (try? d.start()) != nil { discoverers.append(d) }
 			}
 		}
 		#endif
+	}
+
+	/// libVLC's events arrive on the main actor. Text subtitles are captured as text, shown and
+	/// spoken by the app (closed captions, teletext and subtitle files alike).
+	private func observeVLC() {
+		let events = player.events
+		vlcEvents = Task { [weak self] in
+			for await event in events {
+				guard let self else { return }
+				switch event {
+				case .stateChanged(let state):
+					if !self.usesNative && !self.preparingVideo && self.openingTask == nil && self.player.state == state { self.stateChanged(state) }
+				case .bufferingProgress(let fill):
+					if !self.usesNative && !self.preparingVideo { self.vlcBuffering(fill) }
+				default: break
+				}
+			}
+		}
+		guard let captions = try? player.textSubtitleStream() else { return }
+		subtitleText = Task { [weak self] in
+			for await snapshot in captions {
+				guard let self else { return }
+				self.captionChanged(snapshot.text)
+			}
+		}
 	}
 
 	func close() {
@@ -169,10 +205,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		videoRelay = nil
 		#endif
 		PlaybackTeardown.stop(player)
-		player.drawable = nil
-		player.delegate = nil
+		vlcEvents?.cancel()
+		subtitleText?.cancel()
 		MediaConnection.shared.release(connectionID) { await PlaybackTeardown.finished() }
 		#if os(iOS)
+		discovery.forEach { $0.cancel() }
 		discoverers.forEach { $0.stop() }
 		#endif
 		UIApplication.shared.isIdleTimerDisabled = false
@@ -240,14 +277,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		health.prepared(caching: cacheSeconds)
 		if usesNative { openNative(); return }
 		let (plain, headers) = M3U.splitHeaders(playbackURL)
-		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = VLCMedia(url: url) else {
+		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = try? Media(url: url) else {
 			say(L("play_failed", plain), 1)
 			failed = true
 			return
 		}
-		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
-		if let ref = headers["Referer"] { media.addOption(":http-referrer=\(ref)") }
-		if let cookie = headers["Cookie"], let host = url.host { _ = media.storeCookie(cookie, forHost: host, path: "/") }
+		// libVLC 4 has no public cookie API: a playlist's Cookie header is not sent.
+		media.setHTTPUserAgent(headers["User-Agent"] ?? Net.userAgent)
+		if let ref = headers["Referer"] { media.setHTTPReferrer(ref) }
 		if live {
 			// Live: drop late frames so playback stays at real time instead of drifting behind.
 			media.addOption(":clock-jitter=1500")
@@ -262,8 +299,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		media.addOption(":rtsp-tcp")
 		hasPlayed = false
 		buffering = false
-		player.media = media
-		PlaybackTeardown.play(player)
+		#if os(iOS)
+		PlaybackTeardown.play(player, media, renderer: castTarget)
+		#else
+		PlaybackTeardown.play(player, media)
+		#endif
 	}
 
 	// MARK: native playback
@@ -412,7 +452,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	private func chooseTrack(_ choice: TrackChoice) {
 		if usesNative, let group = choice.group { nativePlayer.currentItem?.select(choice.option, in: group) }
-		else { choice.track?.isSelectedExclusively = true }
+		else if let track = choice.track, let owner = choice.owner {
+			if track.type == .audio { owner.selectedAudioTrack = track } else { owner.selectedSubtitleTrack = track }
+		}
 	}
 
 	private func announceNativeRoute() {
@@ -424,26 +466,21 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	// MARK: VLC events
 
-	nonisolated func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
-		Task { @MainActor in
-			if !self.usesNative && !self.preparingVideo && self.openingTask == nil && self.player.state == newState { self.stateChanged(newState) }
-		}
+	/// libVLC's buffer fill, 0 to 1; VLC reports rebuffering only through it once playing.
+	func vlcBuffering(_ fill: Float) {
+		bufferingChanged(fill)
 	}
 
-	nonisolated func mediaPlayerBufferingChanged(_ progress: Float) {
-		Task { @MainActor in if !self.usesNative && !self.preparingVideo { self.bufferingChanged(progress) } }
-	}
-
-	private func stateChanged(_ s: VLCMediaPlayerState) {
+	private func stateChanged(_ s: PlayerState) {
 		guard !closing else { return }
 		if s == .playing { health.playing() }
 		if s == .playing {
 			if !usesNative, let file = pendingSubtitle {
-				_ = player.addPlaybackSlave(file, type: .subtitle, enforce: true)
+				try? player.addExternalTrack(from: file, type: .subtitle, select: true)
 				pendingSubtitle = nil
 			}
 			if !usesNative, let time = fallbackTime, player.isSeekable {
-				player.time = VLCTime(int: Int32(min(Double(Int32.max), time * 1000)))
+				try? player.seek(to: .milliseconds(Int64(time * 1000)))
 				fallbackTime = nil
 			}
 			let becameReady = !hasPlayed
@@ -464,12 +501,12 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		}
 		switch s {
 		case .playing:
-			if videoOff { player.deselectAllVideoTracks() }
+			if videoOff { player.setVideoEnabled(false) }
 			hasPlayed = true
 			failed = false
 		case .error:
 			if recover(grow: true, reason: "player error") { return }
-			say(L("play_failed", VLCLibrary.currentErrorMessage ?? ""), 1)
+			say(L("play_failed", request.title), 1)
 			failed = true
 		case .stopped:
 			guard intent.canPlay else { return }
@@ -554,17 +591,16 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		var frozen = 0.0
 		if playingNow {
 			// Preserve invalid timestamps: sharedPlaybackTime clamps them for UI and SharePlay.
-			let position = usesNative ? nativePlayer.currentTime().seconds : Double(player.time.intValue) / 1000
-			if !usesNative, let stats = player.media?.statistics {
+			let position = usesNative ? nativePlayer.currentTime().seconds : vlcSeconds
+			if !usesNative, let stats = player.statistics {
 				frozen = progress.sample(position: position,
 					audio: .init(decoded: stats.decodedAudio, output: stats.playedAudioBuffers),
 					video: videoOff ? nil : .init(decoded: stats.decodedVideo, output: stats.displayedPictures))
 			} else { frozen = progress.sample(position: position) }
 		} else { progress.reset() }
-		// VLCKit 4 has no buffering state: a stall after play is the buffering flag,
-		// and before play it is the opening state.
+		// VLC's buffering state exists only before the first frame: a later stall is the buffering flag.
 		let waiting = usesNative ? nativePlayer.timeControlStatus == .waitingToPlayAtSpecifiedRate
-			: buffering || player.state == .opening
+			: buffering || player.state == .opening || player.state == .buffering
 		switch health.tick(buffering: waiting, frozen: frozen) {
 		case .none: break
 		case .restart: recover(grow: false, reason: "no media")
@@ -694,7 +730,9 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	struct TrackChoice {
 		let name: String
-		var track: VLCMediaPlayer.Track?
+		var track: Track?
+		/// The VLC player the track belongs to: this screen's, or the AirPlay conversion's.
+		var owner: Player?
 		var option: AVMediaSelectionOption?
 		var group: AVMediaSelectionGroup?
 		var selected = false
@@ -703,25 +741,25 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func audioTracks() -> [TrackChoice] {
 		#if os(iOS)
-		if let relay = videoRelay { return named(relay.player.audioTracks) }
+		if let relay = videoRelay { return named(relay.player.audioTracks, on: relay.player) }
 		#endif
-		return usesNative ? selectedNativeTracks(nativeAudio) : named(player.audioTracks)
+		return usesNative ? selectedNativeTracks(nativeAudio) : named(player.audioTracks, on: player)
 	}
 	func textTracks() -> [TrackChoice] {
 		#if os(iOS)
-		if let relay = videoRelay { return named(relay.player.textTracks) }
+		if let relay = videoRelay { return named(relay.player.subtitleTracks, on: relay.player) }
 		#endif
-		return usesNative ? selectedNativeTracks(nativeText) : named(player.textTracks)
+		return usesNative ? selectedNativeTracks(nativeText) : named(player.subtitleTracks, on: player)
 	}
 
-	private func named(_ tracks: [VLCMediaPlayer.Track]) -> [TrackChoice] {
+	private func named(_ tracks: [Track], on owner: Player) -> [TrackChoice] {
 		tracks.enumerated().map { i, t in
-			var parts = [t.trackName]
+			var parts = [t.name]
 			if let l = t.language, !l.isEmpty { parts.append(Locale.current.localizedString(forLanguageCode: l) ?? l) }
 			if let d = t.trackDescription, !d.isEmpty { parts.append(d) }
 			var seen = Set<String>()
 			let name = parts.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty && seen.insert($0.lowercased()).inserted }.joined(separator: ", ")
-			return TrackChoice(name: name.isEmpty ? L("track_n", i + 1) : name, track: t)
+			return TrackChoice(name: name.isEmpty ? L("track_n", i + 1) : name, track: t, owner: owner)
 		}
 	}
 
@@ -774,17 +812,17 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			say(L("subtitles_set", c.name), 2)
 		} else {
 			if usesNative, let group = nativeText.first?.group { nativePlayer.currentItem?.select(nil, in: group) }
-			player.deselectAllTextTracks()
+			player.selectedSubtitleTrack = nil
 			#if os(iOS)
-			videoRelay?.player.deselectAllTextTracks()
+			videoRelay?.player.selectedSubtitleTrack = nil
 			#endif
 			subtitle = ""
 			say(L("subtitles_set", L("subtitles_off")), 2)
 		}
 	}
 
-	/// Loads an SRT/VTT (or other) subtitle file. libVLC shows it; SRT and WebVTT are also
-	/// spoken, since only their text can be read back (desktop subtitle_cues).
+	/// Loads an SRT/VTT (or other) subtitle file. SRT and WebVTT cues are read here (desktop
+	/// subtitle_cues), so they are also spoken while an AirPlay conversion plays.
 	func loadSubtitle(_ picked: URL) {
 		let ok = picked.startAccessingSecurityScopedResource()
 		defer { if ok { picked.stopAccessingSecurityScopedResource() } }
@@ -805,7 +843,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		#else
 		let subtitlePlayer = player
 		#endif
-		if subtitlePlayer.isPlaying { _ = subtitlePlayer.addPlaybackSlave(copy, type: .subtitle, enforce: true) }
+		if subtitlePlayer.isPlaying { try? subtitlePlayer.addExternalTrack(from: copy, type: .subtitle, select: true) }
 		else { pendingSubtitle = copy }
 		say(L("subtitles_set", picked.lastPathComponent), 2)
 		cues = []
@@ -815,16 +853,22 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			if !cues.isEmpty && cueTimer == nil {
 				cueTimer = Timer.scheduledTimer(withTimeInterval: 0.15, repeats: true) { [weak self] _ in Task { @MainActor in self?.cueTick() } }
 			}
-		} else if prefs.speakSubtitles {
-			say(L("subtitle_speech_needs_text"), 1)
 		}
+	}
+
+	/// Every other text subtitle libVLC decodes (closed captions, teletext, ASS and the
+	/// stream's own tracks) arrives as text: libVLC no longer draws it, the screen shows it.
+	private func captionChanged(_ text: String) {
+		guard cues.isEmpty, !usesNative, text != subtitle else { return }
+		subtitle = text
+		if !text.isEmpty && prefs.speakSubtitles && isPlaying { announce(text) }
 	}
 
 	private func cueTick() {
 		guard !cues.isEmpty else { return }
 		let off = !textTracks().contains { $0.isSelected }
-		// The subtitle delay is in microseconds; a positive delay shows cues later.
-		let ms = Int64(sharedPlaybackTime * 1000) - Int64(player.currentVideoSubTitleDelay / 1000)
+		// A positive delay shows cues later.
+		let ms = Int64(sharedPlaybackTime * 1000) - player.subtitleDelay.milliseconds
 		let index = off || ms < 0 ? nil : SubtitleCues.active(cues, ms)
 		guard index != cueIndex else { return }
 		cueIndex = index
@@ -836,11 +880,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 	// MARK: cast
 
 	#if os(iOS)
-	struct Renderer { let name: String; let item: VLCRendererItem }
+	struct Renderer { let name: String; let item: RendererItem }
 
 	func renderers() -> [Renderer] {
 		var seen = Set<String>()
-		return discoverers.flatMap { $0.renderers }.filter { seen.insert($0.name).inserted }.map { Renderer(name: $0.name, item: $0) }
+		return found.filter { seen.insert($0.name).inserted }.map { Renderer(name: $0.name, item: $0) }
 	}
 
 	/// Moves playback to a Chromecast (libVLC's renderer), or back to this device.
@@ -853,7 +897,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		preparingVideo = true
 		stopNative()
 		PlaybackTeardown.stop(player)
-		_ = player.setRendererItem(nil)
+		castTarget = nil
 		videoRelay?.stop()
 		videoRelay = nil
 		casting = nil
@@ -898,7 +942,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 				self.stopNative()
 				self.usesNative = false
 				PlaybackTeardown.stop(self.player)
-				_ = self.player.setRendererItem(nil)
+				self.castTarget = nil
 				self.open()
 			}
 			let deadline = ProcessInfo.processInfo.systemUptime + 15
@@ -916,13 +960,14 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 			self.autoTrackTries = 0
 			self.autoTrack()
 			let audio = self.player.audioTracks.first(where: { $0.isSelected }) ?? self.player.audioTracks.first
-			let subtitles = self.named(self.player.textTracks)
+			let subtitles = self.named(self.player.subtitleTracks, on: self.player)
+			var subtitle = self.player.selectedSubtitleTrack
 			if let name = self.selectedSubtitleName {
 				let index = AudioTracks.choose(names: subtitles.map(\.name), describesVideo: subtitles.map { _ in false }, remembered: name, preferAd: false, keywords: [])
-				if index >= 0 { subtitles[index].track?.isSelectedExclusively = true }
+				if index >= 0 { subtitle = subtitles[index].track }
 			}
-			let subtitleID = self.player.textTracks.first(where: { $0.isSelected })?.trackId
-			let tracks = [video.trackId] + (audio.map { [$0.trackId] } ?? [])
+			let subtitleID = subtitle?.id
+			let tracks = [video.id] + (audio.map { [$0.id] } ?? [])
 			// Reserve the relay before teardown so Resume cannot reopen the direct source during handoff.
 			let relay = VideoRelay()
 			self.videoRelay = relay
@@ -956,7 +1001,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		preparingVideo = true
 		stopNative()
 		PlaybackTeardown.stop(player)
-		_ = player.setRendererItem(renderer?.item)
+		castTarget = renderer?.item
 		casting = renderer?.name
 		usesNative = renderer == nil
 		preparingVideo = false
@@ -971,7 +1016,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		preparingVideo = true
 		stopNative()
 		PlaybackTeardown.stop(player)
-		_ = player.setRendererItem(nil)
+		castTarget = nil
 		videoRelay?.stop()
 		videoRelay = nil
 		usesNative = false
@@ -993,12 +1038,10 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		if usesNative { return }
 		if phase == .background && casting == nil && !videoOff {
 			videoOff = true
-			player.deselectAllVideoTracks()
-			player.drawable = nil
+			player.setVideoEnabled(false)
 		} else if phase == .active && videoOff {
 			videoOff = false
-			player.drawable = videoSurface
-			if !player.videoTracks.isEmpty { player.selectTrack(at: 0, type: .video) }
+			player.setVideoEnabled(true)
 		}
 	}
 
@@ -1075,10 +1118,11 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	var isSharingPlayback: Bool { sharePlayback != nil }
 	var sharedPlaybackTime: Double {
-		let time = usesNative ? nativePlayer.currentTime().seconds : Double(player.time.intValue) / 1000
+		let time = usesNative ? nativePlayer.currentTime().seconds : vlcSeconds
 		return time.isFinite ? max(0, time) + (isRelayingVideo && !live ? relayStartTime : 0) : 0
 	}
 	var sharedPlaybackRate: Float { isPaused ? 0 : 1 }
+	private var vlcSeconds: Double { Double(player.currentTime.milliseconds) / 1000 }
 	var sharedPlaybackReady: Bool {
 		guard hasPlayed, !buffering, !failed, !closing, retryTask == nil else { return false }
 		if usesNative {
@@ -1095,7 +1139,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 
 	func joinSharePlay(_ session: GroupSession<WatchTVActivity>, identifier: String) {
 		leaveSharePlay()
-		player.rate = 1
+		try? player.setPlaybackRate(1.0)
 		if usesNative, isPlaying { nativePlayer.rate = 1 }
 		let adapter = SharePlaybackCoordinator(controller: self, identifier: identifier)
 		sharePlayback = adapter
@@ -1131,7 +1175,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		guard !closing else { return }
 		sharedPausePending = false
 		resumeLocally()
-		player.rate = rate
+		try? player.setPlaybackRate(PlaybackRate(rate))
 		if usesNative { nativePlayer.rate = rate }
 	}
 
@@ -1141,7 +1185,7 @@ final class PlayerController: NSObject, ObservableObject, VLCMediaPlayerDelegate
 		guard abs(sharedPlaybackTime - target) > 0.2 else { return }
 		sharedSeekTarget = target
 		if usesNative { nativePlayer.seek(to: CMTime(seconds: target, preferredTimescale: 1000), toleranceBefore: .zero, toleranceAfter: .zero) }
-		else { player.time = VLCTime(int: Int32(target * 1000)) }
+		else { try? player.seek(to: .milliseconds(Int64(target * 1000))) }
 	}
 
 	func recoverSharedPlayback() {

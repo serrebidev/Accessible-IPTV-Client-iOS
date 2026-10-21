@@ -34,7 +34,7 @@ Vollbild blendet die Tasten aus. Tippen, Escape oder die Zurück-Taste der Fernb
 
 Audiodeskription wird gewählt, wenn der Sender sie hat. Eine gewählte Tonspur wird pro Sender gemerkt.
 
-Untertitel aus dem Stream erscheinen im Bild. Eine Untertiteldatei erscheint unter dem Video und wird bei SRT und WebVTT vorgelesen, außer Untertitel vorlesen ist in den Einstellungen aus.
+Textuntertitel aus dem Stream, etwa Untertitel für Hörgeschädigte und Videotext, erscheinen unter dem Video. Sie werden vorgelesen, wie SRT- und WebVTT-Untertiteldateien, außer Untertitel vorlesen ist in den Einstellungen aus. Bilduntertitel bleiben im Bild und können nicht vorgelesen werden.
 
 Wechselt die Sendung, sagt der Player, was jetzt läuft. Einstellungen, Ansagen legt fest, wie viel der Player sagt.
 

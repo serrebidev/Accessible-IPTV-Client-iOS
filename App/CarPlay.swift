@@ -1,7 +1,7 @@
 #if os(iOS)
 import CarPlay
 import MediaPlayer
-import VLCKit
+import SwiftVLC
 import IPTVCore
 
 /// CarPlay: Favourites and Recently watched live channels, played as sound only (CarPlay
@@ -53,9 +53,10 @@ final class CarPlaySceneDelegate: UIResponder, CPTemplateApplicationSceneDelegat
 
 /// Sound-only libVLC playback for CarPlay, with the lock screen and steering-wheel controls.
 @MainActor
-final class CarAudio: NSObject, VLCMediaPlayerDelegate {
+final class CarAudio {
 	static let shared = CarAudio()
-	private let player = VLCMediaPlayer()
+	private let player = Player(instance: .app)
+	private var events: Task<Void, Never>?
 	private var connectionID: UUID?
 	/// The channel being played, kept so a dropped stream can reopen it.
 	private var current: (channel: Channel, raw: String)?
@@ -91,7 +92,7 @@ final class CarAudio: NSObject, VLCMediaPlayerDelegate {
 		current = (ch, raw)
 		wanted = true
 		reconnect.reset()
-		player.delegate = self
+		observe()
 		model.setStatus(L("connecting"))
 		open(raw)
 		MPNowPlayingInfoCenter.default().nowPlayingInfo = [MPMediaItemPropertyTitle: ch.name, MPNowPlayingInfoPropertyIsLiveStream: true]
@@ -112,25 +113,26 @@ final class CarAudio: NSObject, VLCMediaPlayerDelegate {
 	private func open(_ raw: String) {
 		let model = AppModel.shared
 		let (plain, headers) = M3U.splitHeaders(raw)
-		guard let url = URL(string: plain), let media = VLCMedia(url: url) else {
+		guard let url = URL(string: plain), let media = try? Media(url: url) else {
 			if let ch = current?.channel { stop(); model.setStatus(L("play_failed", ch.name)) }
 			return
 		}
 		media.addOption(":no-video")
-		media.addOption(":http-user-agent=\(headers["User-Agent"] ?? Net.userAgent)")
+		media.setHTTPUserAgent(headers["User-Agent"] ?? Net.userAgent)
 		StreamOptions.network(url, live: true, cacheMs: 3000).forEach { media.addOption($0) }
 		try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, policy: .longFormAudio)
 		try? AVAudioSession.sharedInstance().setActive(true)
-		player.media = media
-		PlaybackTeardown.play(player)
+		PlaybackTeardown.play(player, media)
 	}
 
-	nonisolated func mediaPlayerStateChanged(_ newState: VLCMediaPlayerState) {
-		Task { @MainActor in
-			guard self.wanted, self.player.state == newState else { return }
-			switch newState {
-			case .error, .stopped: self.recover()
-			default: break
+	private func observe() {
+		guard events == nil else { return }
+		let stream = player.events
+		events = Task { [weak self] in
+			for await event in stream {
+				guard let self else { return }
+				guard case .stateChanged(let state) = event, self.wanted, self.player.state == state else { continue }
+				if state == .error || state == .stopped { self.recover() }
 			}
 		}
 	}
@@ -165,7 +167,6 @@ final class CarAudio: NSObject, VLCMediaPlayerDelegate {
 		current = nil
 		retryTask?.cancel()
 		retryTask = nil
-		player.delegate = nil
 		PlaybackTeardown.stop(player)
 		if let id = connectionID { MediaConnection.shared.release(id) { await PlaybackTeardown.finished() } }
 		connectionID = nil

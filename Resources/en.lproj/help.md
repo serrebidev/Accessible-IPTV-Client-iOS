@@ -34,7 +34,7 @@ Full screen hides the buttons. A tap, Escape or the remote’s Back button bring
 
 Audio description is picked when a channel has it. A track you pick is remembered per channel.
 
-Subtitles from the stream are shown in the picture. A Subtitle file shows under the video and, for SRT and WebVTT, is spoken, unless Speak subtitles is off in Settings.
+Text subtitles from the stream, such as closed captions and teletext, show under the video. They are spoken, like SRT and WebVTT subtitle files, unless Speak subtitles is off in Settings. Picture subtitles stay in the image and cannot be spoken.
 
 When the programme changes, the player says what is on now. Settings, Announcements sets how much the player says.
 

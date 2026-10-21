@@ -34,7 +34,7 @@ Lo schermo intero nasconde i pulsanti. Un tocco, Esc o il tasto Indietro del tel
 
 L’audiodescrizione viene scelta quando il canale ce l’ha. La traccia che scegli viene ricordata per canale.
 
-I sottotitoli del flusso compaiono nell’immagine. Un file di sottotitoli compare sotto il video e, se SRT o WebVTT, viene letto, salvo che Leggi i sottotitoli sia disattivato in Impostazioni.
+I sottotitoli di testo del flusso, come i sottotitoli per non udenti e il televideo, compaiono sotto il video. Vengono letti, come i file di sottotitoli SRT e WebVTT, salvo che Leggi i sottotitoli sia disattivato in Impostazioni. I sottotitoli a immagine restano nell’immagine e non possono essere letti.
 
 Quando cambia il programma, il lettore dice cosa va in onda. Impostazioni, Annunci decide quanto parla il lettore.
 
