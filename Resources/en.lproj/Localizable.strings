@@ -64,6 +64,7 @@
 "close" = "Close";
 "compatibility_playback" = "Using compatibility playback";
 "connecting" = "Connecting…";
+"copy_playback_log" = "Copy playback log";
 "delete" = "Delete";
 "delete_recording_q" = "Delete %1$@?";
 "delete_source_q" = "Delete %1$@?";
@@ -150,6 +151,8 @@
 "play_last" = "Play last";
 "play_next" = "Play next";
 "playback_heading" = "Playback";
+"playback_log_copied" = "Playback log copied.";
+"playback_log_empty" = "No playback log yet.";
 "playback_unavailable" = "Nothing is playing. Choose a channel first.";
 "player_title" = "%1$@";
 "playing" = "Playing";

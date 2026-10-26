@@ -64,6 +64,7 @@
 "close" = "Закрыть";
 "compatibility_playback" = "Совместимый режим воспроизведения";
 "connecting" = "Подключение…";
+"copy_playback_log" = "Копировать журнал воспроизведения";
 "delete" = "Удалить";
 "delete_recording_q" = "Удалить %1$@?";
 "delete_source_q" = "Удалить %1$@?";
@@ -150,6 +151,8 @@
 "play_last" = "Последним";
 "play_next" = "Следующим";
 "playback_heading" = "Воспроизведение";
+"playback_log_copied" = "Журнал воспроизведения скопирован.";
+"playback_log_empty" = "Журнал воспроизведения пока пуст.";
 "playback_unavailable" = "Ничего не воспроизводится. Сначала выберите канал.";
 "player_title" = "%1$@";
 "playing" = "Воспроизведение";

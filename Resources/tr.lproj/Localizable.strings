@@ -64,6 +64,7 @@
 "close" = "Kapat";
 "compatibility_playback" = "Uyumlu oynatma kullanılıyor";
 "connecting" = "Bağlanıyor…";
+"copy_playback_log" = "Oynatma günlüğünü kopyala";
 "delete" = "Sil";
 "delete_recording_q" = "%1$@ silinsin mi?";
 "delete_source_q" = "%1$@ silinsin mi?";
@@ -150,6 +151,8 @@
 "play_last" = "En son oynat";
 "play_next" = "Sıradaki olarak oynat";
 "playback_heading" = "Oynatma";
+"playback_log_copied" = "Oynatma günlüğü kopyalandı.";
+"playback_log_empty" = "Henüz oynatma günlüğü yok.";
 "playback_unavailable" = "Hiçbir şey oynatılmıyor. Önce bir kanal seçin.";
 "player_title" = "%1$@";
 "playing" = "Oynatılıyor";

@@ -68,6 +68,9 @@ final class PlayerController: NSObject, ObservableObject {
 	/// when it has stood still while the player claims to be playing.
 	private var progress = PlaybackProgress()
 	private static let playbackLog = Logger(subsystem: "dev.serrebi.accessibleiptv", category: "Playback")
+	/// When the current buffering spell began, and the last libVLC counters, for the playback log.
+	private var bufferingSince: Double?
+	private var lastStats: (stats: PlaybackStats, at: Double)?
 	private var closing = false
 	private let connectionID = UUID()
 	private var started = false
@@ -186,6 +189,7 @@ final class PlayerController: NSObject, ObservableObject {
 	func close() {
 		guard !closing else { return }
 		closing = true
+		note("closed")
 		leaveSharePlay()
 		intent.pause()
 		observers.forEach { NotificationCenter.default.removeObserver($0) }
@@ -275,6 +279,9 @@ final class PlayerController: NSObject, ObservableObject {
 			? Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
 			: Cushion.openSeconds(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls, reopened: reopened)
 		health.prepared(caching: cacheSeconds)
+		bufferingSince = nil
+		lastStats = nil
+		note("open \(usesNative ? "native" : "libVLC"), cache \(cacheSeconds) s\(reopened ? ", reopen" : "")")
 		if usesNative { openNative(); return }
 		let (plain, headers) = M3U.splitHeaders(playbackURL)
 		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = try? Media(url: url) else {
@@ -427,6 +434,7 @@ final class PlayerController: NSObject, ObservableObject {
 		health.reset()
 		restartTrackSelection()
 		failed = !intent.canPlay
+		note("native player failed: compatibility playback")
 		say(L("compatibility_playback"), 2)
 		_ = activateAudio()
 		open()
@@ -529,10 +537,16 @@ final class PlayerController: NSObject, ObservableObject {
 		guard !closing else { return }
 		if progress < 1 && !buffering {
 			buffering = true
+			bufferingSince = ProcessInfo.processInfo.systemUptime
+			note(hasPlayed ? "buffering started" : "waiting for the first frame")
 			say(L("buffering"), 3)
 		} else if progress >= 1 {
 			let recovered = buffering
 			buffering = false
+			if let since = bufferingSince {
+				note(String(format: "buffering ended after %.1f s", ProcessInfo.processInfo.systemUptime - since))
+				bufferingSince = nil
+			}
 			if recovered { sharePlayback?.reapply() }
 		}
 	}
@@ -549,8 +563,8 @@ final class PlayerController: NSObject, ObservableObject {
 		// files and keep the extra second, as on the desktop.
 		if grow, !(live && channel?.isDispatcharr == true) { stalls += 1 }
 		reopened = true
-		Self.playbackLog.notice("Reconnect: \(reason, privacy: .public); native=\(self.usesNative); cache=\(self.cacheSeconds)")
-		guard let delay = reconnect.next() else { giveUp(); return true }
+		note("reconnect: \(reason); cache \(cacheSeconds) s")
+		guard let delay = reconnect.next() else { note("reconnect budget spent"); giveUp(); return true }
 		// A film or catch-up resumes where it stopped. Take the position now, while the
 		// player still holds it: by the time the reopen fires, an errored or stopped
 		// player may already report 0, and the film would skip back to the start.
@@ -569,6 +583,7 @@ final class PlayerController: NSObject, ObservableObject {
 	/// lost and stops, rather than leaving a silent spinner up.
 	private func giveUp() {
 		guard !failed else { return }
+		note("gave up: stream lost")
 		retryTask?.cancel()
 		retryTask = nil
 		failed = true
@@ -587,6 +602,7 @@ final class PlayerController: NSObject, ObservableObject {
 		// the real failure (a busy provider, a teardown timeout). While casting or
 		// relaying, the receiver owns playback, as with Android's remote device check.
 		guard !closing, !failed, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo, casting == nil, !isRelayingVideo else { return }
+		if !usesNative, let stats = player.statistics { logStats(stats) }
 		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
 		var frozen = 0.0
 		if playingNow {
@@ -605,8 +621,37 @@ final class PlayerController: NSObject, ObservableObject {
 		case .none: break
 		case .restart: recover(grow: false, reason: "no media")
 		case .restartGrown: recover(grow: true, reason: "playback stalled; waiting=\(waiting), frozen=\(frozen)")
-		case .giveUp: giveUp()
+		case .giveUp: note("nothing played within \(Int(StallTracker.firstPlayDeadlineSeconds)) s"); giveUp()
 		}
+	}
+
+	/// Every 10 s, buffering included: what arrived and what the decoders did with it, so a
+	/// stall reads as either the network (bytes stop) or the player (bytes arrive, frames lost).
+	private func logStats(_ s: MediaStatistics) {
+		var now = PlaybackStats()
+		now.readBytes = s.readBytes
+		now.inputKbps = s.inputBitrate
+		now.corrupted = s.demuxCorrupted
+		now.discontinuities = s.demuxDiscontinuity
+		now.decodedVideo = s.decodedVideo
+		now.shownPictures = s.displayedPictures
+		now.latePictures = s.latePictures
+		now.lostPictures = s.lostPictures
+		now.playedAudio = s.playedAudioBuffers
+		now.lostAudio = s.lostAudioBuffers
+		let t = ProcessInfo.processInfo.systemUptime
+		guard let last = lastStats else { lastStats = (now, t); return }
+		guard t - last.at >= 10 else { return }
+		note(now.line(since: last.stats, seconds: t - last.at))
+		lastStats = (now, t)
+	}
+
+	/// One line for the copyable playback log (Settings) and the system log. Never a URL:
+	/// stream URLs carry credentials, and an unnamed entry's title is its URL.
+	private func note(_ line: String) {
+		let name = request.title.contains("://") ? "unnamed channel" : request.title
+		PlaybackLog.shared.add("\(name): \(line)")
+		Self.playbackLog.notice("\(line, privacy: .public)")
 	}
 
 	// MARK: controls
@@ -627,6 +672,7 @@ final class PlayerController: NSObject, ObservableObject {
 	}
 
 	private func pauseLocally() {
+		note("paused")
 		intent.pause()
 		isPaused = true
 		UIApplication.shared.isIdleTimerDisabled = false
@@ -657,6 +703,7 @@ final class PlayerController: NSObject, ObservableObject {
 	}
 
 	private func resumeLocally() {
+		note("resumed")
 		intent.play()
 		guard intent.canPlay, activateAudio() else { return }
 		isPaused = false

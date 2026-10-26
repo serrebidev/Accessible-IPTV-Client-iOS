@@ -38,7 +38,7 @@ Legendas em texto do canal, como closed captions e teletexto, aparecem abaixo do
 
 Quando o programa muda, o player diz o que está no ar. Configurações, Anúncios define quanto o player fala.
 
-Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada.
+Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada. Ajustes, Copiar registro de reprodução copia os detalhes de carregamento e reconexão desde a abertura, para relatar um problema.
 
 No iPhone e iPad, o AirPlay envia vídeos compatíveis pelo player da Apple. Os demais vídeos IPTV são convertidos para H.264 e AAC neste aparelho, sem servidor separado. Destino de reprodução usa a mesma conversão para Chromecast. Mantenha o app aberto na mesma rede Wi-Fi do receptor durante a conversão. Ela consome bateria e pode falhar com transmissões protegidas ou aparelhos sem desempenho suficiente. Receptores de áudio reproduzem apenas som. Apple TV e Vision Pro oferecem reprodução local; o envio de vídeo não é garantido. Escolha Destino de reprodução e depois um aparelho. Os aparelhos AirPlay e Cast estão etiquetados. A conversão de vídeo começa automaticamente quando necessário. Escolha o áudio e as legendas antes de enviar o vídeo.
 

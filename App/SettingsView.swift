@@ -70,6 +70,15 @@ struct SettingsView: View {
 				#endif
 				numberField(L("buffer_seconds"), $buffer, decimal: true)
 				numberField(L("max_buffer_seconds"), $maxBuffer, decimal: true)
+				#if !os(tvOS)
+				// Buffering spells, player statistics and reconnects since launch, to paste into a report.
+				Button(L("copy_playback_log")) {
+					let text = PlaybackLog.shared.text
+					guard !text.isEmpty else { say(L("playback_log_empty")); return }
+					UIPasteboard.general.string = text
+					say(L("playback_log_copied"))
+				}
+				#endif
 			} header: { Text(L("playback_heading")).accessibilityAddTraits(.isHeader) }
 
 			Section {

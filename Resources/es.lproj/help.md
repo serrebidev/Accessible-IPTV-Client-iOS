@@ -38,7 +38,7 @@ Los subtítulos de texto de la emisión, como los subtítulos para sordos y el t
 
 Cuando cambia el programa, el reproductor dice lo que se emite ahora. Ajustes, Anuncios decide cuánto habla el reproductor.
 
-Un directo que se corta se reconecta solo. El sonido sigue con la pantalla bloqueada.
+Un directo que se corta se reconecta solo. El sonido sigue con la pantalla bloqueada. Ajustes, Copiar registro de reproducción copia los detalles de carga y reconexión desde el inicio, para informar de un problema.
 
 En iPhone y iPad, AirPlay envía vídeo compatible mediante el reproductor de Apple. Los demás vídeos IPTV se convierten a H.264 y AAC en este dispositivo, sin otro servidor. Destino de reproducción usa la misma conversión para Chromecast. Mantén la aplicación abierta y en la misma red Wi-Fi que el receptor durante la conversión. Consume batería y puede fallar con emisiones protegidas o si el dispositivo no tiene suficiente rendimiento. Los receptores de audio solo reproducen sonido. Apple TV y Vision Pro permiten reproducción local; no se garantiza el envío de vídeo. Elige Destino de reproducción y luego un dispositivo. Los dispositivos AirPlay y Cast están etiquetados. La conversión de vídeo empieza automáticamente cuando hace falta. Elige el audio y los subtítulos antes de enviar el vídeo.
 

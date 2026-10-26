@@ -64,6 +64,7 @@
 "close" = "Schließen";
 "compatibility_playback" = "Kompatible Wiedergabe aktiv";
 "connecting" = "Verbinde…";
+"copy_playback_log" = "Wiedergabeprotokoll kopieren";
 "delete" = "Löschen";
 "delete_recording_q" = "%1$@ löschen?";
 "delete_source_q" = "%1$@ löschen?";
@@ -150,6 +151,8 @@
 "play_last" = "Zuletzt abspielen";
 "play_next" = "Als Nächstes";
 "playback_heading" = "Wiedergabe";
+"playback_log_copied" = "Wiedergabeprotokoll kopiert.";
+"playback_log_empty" = "Noch kein Wiedergabeprotokoll.";
 "playback_unavailable" = "Es läuft nichts. Wähle zuerst einen Sender.";
 "player_title" = "%1$@";
 "playing" = "Läuft";

@@ -38,7 +38,7 @@ Text subtitles from the stream, such as closed captions and teletext, show under
 
 When the programme changes, the player says what is on now. Settings, Announcements sets how much the player says.
 
-A live stream that drops reconnects by itself. Sound keeps playing with the screen locked.
+A live stream that drops reconnects by itself. Sound keeps playing with the screen locked. Settings, Copy playback log copies buffering and reconnect details since launch, for a problem report.
 
 On iPhone and iPad, AirPlay sends compatible video through Apple’s player. Other IPTV video is converted to H.264 and AAC on this device; no separate server is needed. Playback destination uses the same conversion for Chromecast. Keep the app open on the same Wi-Fi as the receiver while converting. Conversion uses battery and may fail for protected streams or when the device cannot keep up. Audio-only receivers play sound only. Apple TV and Vision Pro use local playback; video sending is not promised there. Choose Playback destination, then pick a device. AirPlay and Cast devices are labelled. Video conversion starts automatically when the stream needs it. Choose audio and subtitles before sending video.
 

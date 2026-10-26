@@ -64,6 +64,7 @@
 "close" = "Fechar";
 "compatibility_playback" = "Usando reprodução compatível";
 "connecting" = "Conectando…";
+"copy_playback_log" = "Copiar registro de reprodução";
 "delete" = "Excluir";
 "delete_recording_q" = "Excluir %1$@?";
 "delete_source_q" = "Excluir %1$@?";
@@ -150,6 +151,8 @@
 "play_last" = "Reproduzir por último";
 "play_next" = "Reproduzir em seguida";
 "playback_heading" = "Reprodução";
+"playback_log_copied" = "Registro de reprodução copiado.";
+"playback_log_empty" = "Ainda não há registro de reprodução.";
 "playback_unavailable" = "Nada está sendo reproduzido. Escolha um canal primeiro.";
 "player_title" = "%1$@";
 "playing" = "Reproduzindo";

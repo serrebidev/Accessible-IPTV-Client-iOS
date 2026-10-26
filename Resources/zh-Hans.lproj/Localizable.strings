@@ -64,6 +64,7 @@
 "close" = "关闭";
 "compatibility_playback" = "正在使用兼容播放";
 "connecting" = "正在连接…";
+"copy_playback_log" = "复制播放日志";
 "delete" = "删除";
 "delete_recording_q" = "删除 %1$@?";
 "delete_source_q" = "删除 %1$@?";
@@ -150,6 +151,8 @@
 "play_last" = "最后播放";
 "play_next" = "下一个播放";
 "playback_heading" = "播放";
+"playback_log_copied" = "已复制播放日志。";
+"playback_log_empty" = "暂无播放日志。";
 "playback_unavailable" = "当前没有播放内容。请先选择频道。";
 "player_title" = "%1$@";
 "playing" = "正在播放";

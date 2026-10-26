@@ -64,6 +64,7 @@
 "close" = "閉じる";
 "compatibility_playback" = "互換再生を使用中";
 "connecting" = "接続中…";
+"copy_playback_log" = "再生ログをコピー";
 "delete" = "削除";
 "delete_recording_q" = "%1$@ を削除しますか?";
 "delete_source_q" = "%1$@ を削除しますか?";
@@ -150,6 +151,8 @@
 "play_last" = "最後に再生";
 "play_next" = "次に再生";
 "playback_heading" = "再生";
+"playback_log_copied" = "再生ログをコピーしました。";
+"playback_log_empty" = "再生ログはまだありません。";
 "playback_unavailable" = "何も再生していません。先にチャンネルを選んでください。";
 "player_title" = "%1$@";
 "playing" = "再生中";

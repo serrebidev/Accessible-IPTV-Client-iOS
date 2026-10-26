@@ -64,6 +64,7 @@
 "close" = "Fermer";
 "compatibility_playback" = "Lecture de compatibilité active";
 "connecting" = "Connexion…";
+"copy_playback_log" = "Copier le journal de lecture";
 "delete" = "Supprimer";
 "delete_recording_q" = "Supprimer %1$@ ?";
 "delete_source_q" = "Supprimer %1$@ ?";
@@ -150,6 +151,8 @@
 "play_last" = "Lire en dernier";
 "play_next" = "Lire ensuite";
 "playback_heading" = "Lecture";
+"playback_log_copied" = "Journal de lecture copié.";
+"playback_log_empty" = "Aucun journal de lecture pour l’instant.";
 "playback_unavailable" = "Aucune lecture en cours. Choisissez d’abord une chaîne.";
 "player_title" = "%1$@";
 "playing" = "Lecture en cours";

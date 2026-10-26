@@ -64,6 +64,7 @@
 "close" = "إغلاق";
 "compatibility_playback" = "استخدام التشغيل المتوافق";
 "connecting" = "جارٍ الاتصال…";
+"copy_playback_log" = "نسخ سجل التشغيل";
 "delete" = "حذف";
 "delete_recording_q" = "حذف %1$@؟";
 "delete_source_q" = "حذف %1$@؟";
@@ -150,6 +151,8 @@
 "play_last" = "التشغيل أخيرًا";
 "play_next" = "التشغيل التالي";
 "playback_heading" = "التشغيل";
+"playback_log_copied" = "تم نسخ سجل التشغيل.";
+"playback_log_empty" = "لا يوجد سجل تشغيل بعد.";
 "playback_unavailable" = "لا يوجد تشغيل. اختر قناة أولًا.";
 "player_title" = "%1$@";
 "playing" = "قيد التشغيل";

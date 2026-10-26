@@ -64,6 +64,7 @@
 "close" = "बंद करें";
 "compatibility_playback" = "संगत प्लेबैक चालू है";
 "connecting" = "जुड़ रहा है…";
+"copy_playback_log" = "प्लेबैक लॉग कॉपी करें";
 "delete" = "हटाएँ";
 "delete_recording_q" = "%1$@ हटाएँ?";
 "delete_source_q" = "%1$@ हटाएँ?";
@@ -150,6 +151,8 @@
 "play_last" = "अंत में चलाएँ";
 "play_next" = "अगला चलाएँ";
 "playback_heading" = "प्लेबैक";
+"playback_log_copied" = "प्लेबैक लॉग कॉपी हो गया।";
+"playback_log_empty" = "अभी कोई प्लेबैक लॉग नहीं है।";
 "playback_unavailable" = "कुछ नहीं चल रहा है। पहले चैनल चुनें।";
 "player_title" = "%1$@";
 "playing" = "चल रहा है";

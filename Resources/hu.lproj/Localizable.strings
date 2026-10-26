@@ -64,6 +64,7 @@
 "close" = "Bezárás";
 "compatibility_playback" = "Kompatibilis lejátszás";
 "connecting" = "Kapcsolódás…";
+"copy_playback_log" = "Lejátszási napló másolása";
 "delete" = "Törlés";
 "delete_recording_q" = "Törli ezt: %1$@?";
 "delete_source_q" = "Törli ezt: %1$@?";
@@ -150,6 +151,8 @@
 "play_last" = "Lejátszás utolsóként";
 "play_next" = "Lejátszás következőként";
 "playback_heading" = "Lejátszás";
+"playback_log_copied" = "Lejátszási napló másolva.";
+"playback_log_empty" = "Még nincs lejátszási napló.";
 "playback_unavailable" = "Nincs lejátszás. Előbb válasszon csatornát.";
 "player_title" = "%1$@";
 "playing" = "Lejátszás folyamatban";

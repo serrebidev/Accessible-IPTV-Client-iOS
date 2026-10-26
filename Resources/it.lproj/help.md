@@ -38,7 +38,7 @@ I sottotitoli di testo del flusso, come i sottotitoli per non udenti e il televi
 
 Quando cambia il programma, il lettore dice cosa va in onda. Impostazioni, Annunci decide quanto parla il lettore.
 
-Una diretta interrotta si ricollega da sola. L’audio continua a schermo bloccato.
+Una diretta interrotta si ricollega da sola. L’audio continua a schermo bloccato. Impostazioni, Copia registro di riproduzione copia i dettagli di buffering e riconnessione dall’avvio, per segnalare un problema.
 
 Su iPhone e iPad, AirPlay invia i video compatibili tramite il lettore Apple. Gli altri video IPTV vengono convertiti in H.264 e AAC su questo dispositivo, senza server separati. Destinazione di riproduzione usa la stessa conversione per Chromecast. Mantieni l’app aperta sulla stessa rete Wi-Fi del ricevitore durante la conversione. Consuma batteria e può fallire con flussi protetti o dispositivi troppo lenti. I ricevitori audio riproducono solo il suono. Apple TV e Vision Pro supportano la riproduzione locale; l’invio video non è garantito. Scegli Destinazione di riproduzione, poi un dispositivo. I dispositivi AirPlay e Cast sono etichettati. La conversione video parte automaticamente quando serve. Scegli audio e sottotitoli prima di inviare il video.
 

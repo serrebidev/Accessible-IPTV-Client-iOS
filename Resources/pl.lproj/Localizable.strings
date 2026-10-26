@@ -64,6 +64,7 @@
 "close" = "Zamknij";
 "compatibility_playback" = "Odtwarzanie zgodne";
 "connecting" = "Łączenie…";
+"copy_playback_log" = "Kopiuj dziennik odtwarzania";
 "delete" = "Usuń";
 "delete_recording_q" = "Usunąć %1$@?";
 "delete_source_q" = "Usunąć %1$@?";
@@ -150,6 +151,8 @@
 "play_last" = "Odtwórz jako ostatni";
 "play_next" = "Odtwórz jako następny";
 "playback_heading" = "Odtwarzanie";
+"playback_log_copied" = "Skopiowano dziennik odtwarzania.";
+"playback_log_empty" = "Brak dziennika odtwarzania.";
 "playback_unavailable" = "Nic nie jest odtwarzane. Najpierw wybierz kanał.";
 "player_title" = "%1$@";
 "playing" = "Odtwarzanie";

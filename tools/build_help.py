@@ -1,4 +1,4 @@
-"""Builds Resources/<lang>.lproj/help.md from the Android app's raw*/help.md (29 blocks each).
+"""Builds Resources/<lang>.lproj/help.md from the Android app's raw*/help.md (31 blocks each).
 Paragraphs that say Android things (TalkBack, Menu key, Movies folder, Android installs)
 are replaced with the iOS wording below; the rest stays as the translators wrote it.
 
@@ -17,7 +17,10 @@ LANGS = {"": "en", "ar": "ar", "de": "de", "es": "es", "fr": "fr", "hi": "hi", "
 # Block index in the Android help -> iOS replacement. Block 1 and 4 name where the sources live
 # and what the button bar holds; block 8 is the More menu. "cast" goes after block 20; the
 # CarPlay and Apple TV sections go at the end.
-KEYS = {1: "s1", 3: "s3", 4: "s4", 5: "s5", 6: "s6", 8: "s8", 11: "s11", 15: "s15", 16: "s16", 18: "s18", 20: "s20", 22: "s22", 23: "s23", 26: "s26", 28: "s28"}
+KEYS = {1: "s1", 3: "s3", 4: "s4", 5: "s5", 6: "s6", 8: "s8", 11: "s11", 15: "s15", 16: "s16", 18: "s18", 20: "s20", 23: "s22", 24: "s23", 28: "s26", 30: "s28"}
+# Android-only paragraphs: one shared provider stream per device (21), HLS requests one at a time (26).
+DROP = {21, 26}
+BLOCKS = 31
 
 IOS = {
     "en": {
@@ -31,7 +34,7 @@ IOS = {
         "s15": "On iPhone and iPad, Minimize keeps playback running in a miniplayer above the tabs. Tap its title or video to expand it. Pause and Stop playback are separate controls. The expanded player has Audio, Subtitles, Record, Playback destination, AirPlay and Full screen. Keys: A for audio, S for subtitles, F for full screen, Escape to minimize. With VoiceOver, a two-finger double tap plays and pauses.",
         "s16": "Full screen hides the buttons. A tap, Escape or the remote’s Back button brings them back.",
         "s18": "Text subtitles from the stream, such as closed captions and teletext, show under the video. They are spoken, like SRT and WebVTT subtitle files, unless Speak subtitles is off in Settings. Picture subtitles stay in the image and cannot be spoken.",
-        "s20": "A live stream that drops reconnects by itself. Sound keeps playing with the screen locked.",
+        "s20": "A live stream that drops reconnects by itself. Sound keeps playing with the screen locked. Settings, Copy playback log copies buffering and reconnect details since launch, for a problem report.",
         "cast": "Playback destination sends the stream to a Chromecast on the same network. AirPlay, next to it, sends the sound to an Apple TV, HomePod or speaker; the picture stays on this device. To put the picture on a television, use Screen Mirroring in Control Center.",
         "s22": "Saved in the Files app: On My iPhone (or iPad), Accessible IPTV, Recordings. Recordings in progress are listed first; activate one to stop it.",
         "s23": "Scheduled recordings run 2 minutes past the end. Change the minutes before and after in Settings. The app stays awake in the background while it records, and when a recording starts within six hours. If the app was closed, a notification at the start time asks you to open it.",
@@ -51,7 +54,7 @@ IOS = {
         "s15": "Auf iPhone und iPad läuft die Wiedergabe nach Minimieren im Miniplayer über den Tabs weiter. Titel oder Video antippen öffnet den Player. Pause und Wiedergabe stoppen sind getrennt. Der große Player bietet Ton, Untertitel, Aufnehmen, Wiedergabeziel, AirPlay und Vollbild. Tasten: A für Ton, S für Untertitel, F für Vollbild, Escape zum Minimieren. Mit VoiceOver startet und pausiert ein Doppeltippen mit zwei Fingern.",
         "s16": "Vollbild blendet die Tasten aus. Tippen, Escape oder die Zurück-Taste der Fernbedienung holt sie zurück.",
         "s18": "Textuntertitel aus dem Stream, etwa Untertitel für Hörgeschädigte und Videotext, erscheinen unter dem Video. Sie werden vorgelesen, wie SRT- und WebVTT-Untertiteldateien, außer Untertitel vorlesen ist in den Einstellungen aus. Bilduntertitel bleiben im Bild und können nicht vorgelesen werden.",
-        "s20": "Ein abgebrochener Livestream verbindet sich selbst neu. Der Ton läuft bei gesperrtem Bildschirm weiter.",
+        "s20": "Ein abgebrochener Livestream verbindet sich selbst neu. Der Ton läuft bei gesperrtem Bildschirm weiter. Einstellungen, Wiedergabeprotokoll kopieren kopiert Puffer- und Neuverbindungsdetails seit dem Start für eine Fehlermeldung.",
         "cast": "Wiedergabeziel schickt den Stream an ein Chromecast im selben Netzwerk. AirPlay daneben schickt den Ton an Apple TV, HomePod oder Lautsprecher; das Bild bleibt auf diesem Gerät. Für das Bild auf dem Fernseher nutze Bildschirmsynchronisierung im Kontrollzentrum.",
         "s22": "Gespeichert in der Dateien-App: Auf meinem iPhone (oder iPad), Accessible IPTV, Recordings. Laufende Aufnahmen stehen oben; aktivieren stoppt sie.",
         "s23": "Geplante Aufnahmen laufen 2 Minuten über das Ende. Die Minuten vorher und nachher stehen in den Einstellungen. Die App bleibt im Hintergrund wach, solange sie aufnimmt und wenn eine Aufnahme innerhalb von sechs Stunden beginnt. War die App geschlossen, bittet eine Mitteilung zur Startzeit, sie zu öffnen.",
@@ -71,7 +74,7 @@ IOS = {
         "s15": "Sur iPhone et iPad, Réduire maintient la lecture dans un mini-lecteur au-dessus des onglets. Touchez son titre ou sa vidéo pour l’agrandir. Pause et Arrêter la lecture sont distincts. Le grand lecteur propose Audio, Sous-titres, Enregistrer, Destination de lecture, AirPlay et Plein écran. Touches : A pour l’audio, S pour les sous-titres, F pour le plein écran, Échap pour réduire. Avec VoiceOver, un double toucher à deux doigts lance ou met en pause.",
         "s16": "Le plein écran masque les boutons. Un toucher, Échap ou le bouton Retour de la télécommande les ramène.",
         "s18": "Les sous-titres texte du flux, comme les sous-titres pour sourds et malentendants et le télétexte, s’affichent sous la vidéo. Ils sont lus à voix haute, comme les fichiers de sous-titres SRT et WebVTT, sauf si Lire les sous-titres est désactivé dans Réglages. Les sous-titres en image restent dans l’image et ne peuvent pas être lus.",
-        "s20": "Un direct coupé se reconnecte tout seul. Le son continue écran verrouillé.",
+        "s20": "Un direct coupé se reconnecte tout seul. Le son continue écran verrouillé. Réglages, Copier le journal de lecture copie les détails de mise en mémoire tampon et de reconnexion depuis le lancement, pour signaler un problème.",
         "cast": "Destination de lecture envoie le flux vers un Chromecast du même réseau. AirPlay, à côté, envoie le son vers un Apple TV, un HomePod ou une enceinte ; l’image reste sur cet appareil. Pour l’image sur le téléviseur, utilisez Recopie de l’écran dans le centre de contrôle.",
         "s22": "Enregistrés dans l’app Fichiers : Sur mon iPhone (ou iPad), Accessible IPTV, Recordings. Les enregistrements en cours sont listés en premier ; activez-en un pour l’arrêter.",
         "s23": "Les enregistrements programmés continuent 2 minutes après la fin. Changez les minutes avant et après dans Réglages. L’app reste active en arrière-plan pendant un enregistrement et quand un enregistrement commence dans les six heures. Si l’app était fermée, une notification à l’heure de début demande de l’ouvrir.",
@@ -91,7 +94,7 @@ IOS = {
         "s15": "En iPhone y iPad, Minimizar mantiene la reproducción en un minirreproductor sobre las pestañas. Toca su título o vídeo para ampliarlo. Pausa y Detener reproducción son controles separados. El reproductor ampliado ofrece Audio, Subtítulos, Grabar, Destino de reproducción, AirPlay y Pantalla completa. Teclas: A para audio, S para subtítulos, F para pantalla completa, Escape para minimizar. Con VoiceOver, un doble toque con dos dedos reproduce y pausa.",
         "s16": "La pantalla completa oculta los botones. Un toque, Escape o el botón Atrás del mando los vuelve a mostrar.",
         "s18": "Los subtítulos de texto de la emisión, como los subtítulos para sordos y el teletexto, se muestran bajo el vídeo. Se leen en voz alta, igual que los archivos de subtítulos SRT y WebVTT, salvo que Leer subtítulos esté desactivado en Ajustes. Los subtítulos de imagen se quedan en la imagen y no se pueden leer.",
-        "s20": "Un directo que se corta se reconecta solo. El sonido sigue con la pantalla bloqueada.",
+        "s20": "Un directo que se corta se reconecta solo. El sonido sigue con la pantalla bloqueada. Ajustes, Copiar registro de reproducción copia los detalles de carga y reconexión desde el inicio, para informar de un problema.",
         "cast": "Destino de reproducción envía la emisión a un Chromecast de la misma red. AirPlay, al lado, envía el sonido a un Apple TV, HomePod o altavoz; la imagen se queda en este dispositivo. Para la imagen en el televisor, usa Duplicar pantalla en el centro de control.",
         "s22": "Se guardan en la app Archivos: En mi iPhone (o iPad), Accessible IPTV, Recordings. Las grabaciones en curso salen primero; activa una para detenerla.",
         "s23": "Las grabaciones programadas siguen 2 minutos tras el final. Cambia los minutos antes y después en Ajustes. La app sigue activa en segundo plano mientras graba y cuando una grabación empieza en menos de seis horas. Si la app estaba cerrada, una notificación a la hora de inicio pide abrirla.",
@@ -111,7 +114,7 @@ IOS = {
         "s15": "Su iPhone e iPad, Riduci mantiene la riproduzione nel mini lettore sopra le schede. Tocca titolo o video per espanderlo. Pausa e Interrompi riproduzione sono separati. Il lettore espanso offre Audio, Sottotitoli, Registra, Destinazione di riproduzione, AirPlay e Schermo intero. Tasti: A per audio, S per sottotitoli, F per schermo intero, Escape per ridurre. Con VoiceOver, un doppio tocco con due dita riproduce e mette in pausa.",
         "s16": "Lo schermo intero nasconde i pulsanti. Un tocco, Esc o il tasto Indietro del telecomando li riporta.",
         "s18": "I sottotitoli di testo del flusso, come i sottotitoli per non udenti e il televideo, compaiono sotto il video. Vengono letti, come i file di sottotitoli SRT e WebVTT, salvo che Leggi i sottotitoli sia disattivato in Impostazioni. I sottotitoli a immagine restano nell’immagine e non possono essere letti.",
-        "s20": "Una diretta interrotta si ricollega da sola. L’audio continua a schermo bloccato.",
+        "s20": "Una diretta interrotta si ricollega da sola. L’audio continua a schermo bloccato. Impostazioni, Copia registro di riproduzione copia i dettagli di buffering e riconnessione dall’avvio, per segnalare un problema.",
         "cast": "Destinazione di riproduzione invia il flusso a un Chromecast nella stessa rete. AirPlay, accanto, invia l’audio a un Apple TV, HomePod o altoparlante; l’immagine resta su questo dispositivo. Per l’immagine sul televisore, usa Duplica schermo nel centro di controllo.",
         "s22": "Salvate nell’app File: Sul mio iPhone (o iPad), Accessible IPTV, Recordings. Le registrazioni in corso sono elencate per prime; attivane una per fermarla.",
         "s23": "Le registrazioni programmate durano 2 minuti oltre la fine. Cambia i minuti prima e dopo in Impostazioni. L’app resta attiva in background mentre registra e quando una registrazione inizia entro sei ore. Se l’app era chiusa, una notifica all’ora d’inizio chiede di aprirla.",
@@ -131,7 +134,7 @@ IOS = {
         "s15": "No iPhone e iPad, Minimizar mantém a reprodução em um miniplayer acima das abas. Toque no título ou vídeo para expandir. Pausar e Parar reprodução são controles separados. O player expandido oferece Áudio, Legendas, Gravar, Destino de reprodução, AirPlay e Tela cheia. Teclas: A para áudio, S para legendas, F para tela cheia, Escape para minimizar. Com VoiceOver, um toque duplo com dois dedos reproduz e pausa.",
         "s16": "A tela cheia esconde os botões. Um toque, Esc ou o botão Voltar do controle traz de volta.",
         "s18": "Legendas em texto do canal, como closed captions e teletexto, aparecem abaixo do vídeo. Elas são lidas em voz alta, como os arquivos de legendas SRT e WebVTT, a menos que Ler legendas esteja desativado em Configurações. Legendas em imagem ficam na imagem e não podem ser lidas.",
-        "s20": "Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada.",
+        "s20": "Uma transmissão ao vivo que cai se reconecta sozinha. O som continua com a tela bloqueada. Ajustes, Copiar registro de reprodução copia os detalhes de carregamento e reconexão desde a abertura, para relatar um problema.",
         "cast": "Destino de reprodução envia o canal para um Chromecast na mesma rede. O AirPlay, ao lado, envia o som para uma Apple TV, HomePod ou caixa de som; a imagem fica neste aparelho. Para a imagem na TV, use Espelhar tela na Central de Controle.",
         "s22": "Salvas no app Arquivos: No Meu iPhone (ou iPad), Accessible IPTV, Recordings. Gravações em andamento aparecem primeiro; ative uma para pará-la.",
         "s23": "Gravações agendadas continuam 2 minutos após o fim. Mude os minutos antes e depois em Configurações. O app fica ativo em segundo plano enquanto grava e quando uma gravação começa em até seis horas. Se o app estava fechado, uma notificação na hora de início pede para abri-lo.",
@@ -151,7 +154,7 @@ IOS = {
         "s15": "Na iPhonie i iPadzie Minimalizuj utrzymuje odtwarzanie w miniodtwarzaczu nad kartami. Stuknij tytuł lub wideo, aby go rozwinąć. Pauza i Zatrzymaj odtwarzanie to osobne przyciski. Rozwinięty odtwarzacz oferuje Dźwięk, Napisy, Nagraj, Miejsce odtwarzania, AirPlay i Pełny ekran. Klawisze: A dźwięk, S napisy, F pełny ekran, Escape minimalizuje. Z VoiceOver dwukrotne stuknięcie dwoma palcami odtwarza i wstrzymuje.",
         "s16": "Pełny ekran ukrywa przyciski. Stuknięcie, Escape lub przycisk Wstecz pilota przywraca je.",
         "s18": "Napisy tekstowe ze strumienia, np. napisy dla niesłyszących i telegazeta, są widoczne pod wideo. Są czytane, tak jak pliki napisów SRT i WebVTT, chyba że Czytaj napisy jest wyłączone w Ustawieniach. Napisy graficzne zostają na obrazie i nie mogą być czytane.",
-        "s20": "Przerwany kanał na żywo sam łączy się ponownie. Dźwięk gra dalej przy zablokowanym ekranie.",
+        "s20": "Przerwany kanał na żywo sam łączy się ponownie. Dźwięk gra dalej przy zablokowanym ekranie. Ustawienia, Kopiuj dziennik odtwarzania kopiuje szczegóły buforowania i ponownych połączeń od uruchomienia, do zgłoszenia problemu.",
         "cast": "Miejsce odtwarzania wysyła strumień do Chromecasta w tej samej sieci. AirPlay obok wysyła dźwięk do Apple TV, HomePoda lub głośnika; obraz zostaje na tym urządzeniu. Aby obraz trafił na telewizor, użyj Dublowania ekranu w centrum sterowania.",
         "s22": "Zapisane w aplikacji Pliki: Na moim iPhonie (lub iPadzie), Accessible IPTV, Recordings. Trwające nagrania są pierwsze na liście; aktywuj jedno, aby je zatrzymać.",
         "s23": "Zaplanowane nagrania trwają 2 minuty po końcu. Minuty przed i po zmienisz w Ustawieniach. Aplikacja działa w tle, gdy nagrywa i gdy nagranie zaczyna się w ciągu sześciu godzin. Jeśli aplikacja była zamknięta, powiadomienie o czasie startu prosi o jej otwarcie.",
@@ -171,7 +174,7 @@ IOS = {
         "s15": "На iPhone и iPad кнопка Свернуть оставляет воспроизведение в мини-плеере над вкладками. Нажмите название или видео, чтобы развернуть. Пауза и Остановить воспроизведение — отдельные кнопки. В развёрнутом плеере доступны Звук, Субтитры, Запись, Устройство воспроизведения, AirPlay и Полный экран. Клавиши: A звук, S субтитры, F полный экран, Escape свернуть. С VoiceOver двойное касание двумя пальцами запускает и приостанавливает воспроизведение.",
         "s16": "Полный экран скрывает кнопки. Касание, Escape или кнопка «Назад» на пульте возвращает их.",
         "s18": "Текстовые субтитры потока, например скрытые субтитры и телетекст, показываются под видео. Они озвучиваются, как и файлы субтитров SRT и WebVTT, если в Настройках не выключено «Озвучивать субтитры». Графические субтитры остаются на изображении и не озвучиваются.",
-        "s20": "Прервавшийся эфир переподключается сам. Звук продолжает играть при заблокированном экране.",
+        "s20": "Прервавшийся эфир переподключается сам. Звук продолжает играть при заблокированном экране. Настройки, Копировать журнал воспроизведения копирует сведения о буферизации и переподключениях с момента запуска для сообщения о проблеме.",
         "cast": "Устройство воспроизведения отправляет поток на Chromecast в той же сети. AirPlay рядом отправляет звук на Apple TV, HomePod или колонку; изображение остаётся на этом устройстве. Чтобы вывести изображение на телевизор, используйте «Повтор экрана» в Пункте управления.",
         "s22": "Сохраняются в приложении «Файлы»: На iPhone (или iPad), Accessible IPTV, Recordings. Идущие записи стоят первыми; активируйте запись, чтобы остановить её.",
         "s23": "Запланированные записи идут 2 минуты после конца. Минуты до и после меняются в Настройках. Приложение работает в фоне, пока пишет, и когда запись начнётся в ближайшие шесть часов. Если приложение было закрыто, уведомление в момент начала попросит открыть его.",
@@ -191,7 +194,7 @@ IOS = {
         "s15": "iPhone ve iPad’de Küçült, oynatmayı sekmelerin üzerindeki mini oynatıcıda sürdürür. Genişletmek için başlığa veya videoya dokunun. Duraklat ve Oynatmayı durdur ayrı denetimlerdir. Büyük oynatıcıda Ses, Altyazılar, Kaydet, Oynatma hedefi, AirPlay ve Tam ekran bulunur. Tuşlar: ses için A, altyazı için S, tam ekran için F, küçültmek için Escape. VoiceOver ile iki parmakla çift dokunma oynatır ve duraklatır.",
         "s16": "Tam ekran düğmeleri gizler. Dokunma, Escape veya kumandanın Geri düğmesi onları geri getirir.",
         "s18": "Yayındaki metin altyazılar, örneğin işitme engelliler için altyazı ve teletekst, videonun altında gösterilir. SRT ve WebVTT altyazı dosyaları gibi seslendirilirler, Ayarlar’da Altyazıları seslendir kapalı değilse. Görüntü altyazılar görüntüde kalır ve seslendirilemez.",
-        "s20": "Kopan canlı yayın kendiliğinden yeniden bağlanır. Ekran kilitliyken ses çalmaya devam eder.",
+        "s20": "Kopan canlı yayın kendiliğinden yeniden bağlanır. Ekran kilitliyken ses çalmaya devam eder. Ayarlar, Oynatma günlüğünü kopyala, açılıştan beri arabelleğe alma ve yeniden bağlanma ayrıntılarını bir sorun bildirimi için kopyalar.",
         "cast": "Oynatma hedefi akışı aynı ağdaki bir Chromecast’e gönderir. Yanındaki AirPlay sesi Apple TV, HomePod veya hoparlöre gönderir; görüntü bu cihazda kalır. Görüntüyü televizyona vermek için Denetim Merkezi’ndeki Ekran Yansıtma’yı kullanın.",
         "s22": "Dosyalar uygulamasında kaydedilir: iPhone’umda (veya iPad’imde), Accessible IPTV, Recordings. Süren kayıtlar en üstte listelenir; durdurmak için birini etkinleştirin.",
         "s23": "Zamanlanmış kayıtlar bitişten sonra 2 dakika sürer. Önceki ve sonraki dakikaları Ayarlar’da değiştirin. Uygulama kayıt yaparken ve altı saat içinde başlayacak bir kayıt varken arka planda açık kalır. Uygulama kapalıysa, başlangıç saatinde bir bildirim onu açmanızı ister.",
@@ -211,7 +214,7 @@ IOS = {
         "s15": "iPhone-on és iPaden a Kis méret gomb után a lejátszás a lapfülek feletti minilejátszóban folytatódik. A címre vagy videóra koppintva újra megnyitható. A szüneteltetés és a lejátszás leállítása külön vezérlő. A nagy lejátszóban hang, felirat, rögzítés, lejátszási cél, AirPlay és teljes képernyő érhető el. Billentyűk: A hangsáv, S felirat, F teljes képernyő, Escape kis méret. VoiceOverrel a kétujjas dupla koppintás indít és szüneteltet.",
         "s16": "A teljes képernyő elrejti a gombokat. Koppintás, Escape vagy a távirányító Vissza gombja visszahozza őket.",
         "s18": "Az adás szöveges feliratai, például a hallássérülteknek szóló felirat és a teletext, a videó alatt jelennek meg. A program felolvassa őket, az SRT és WebVTT feliratfájlokhoz hasonlóan, kivéve ha a Feliratok felolvasása ki van kapcsolva a Beállításokban. A képes feliratok a képen maradnak, és nem olvashatók fel.",
-        "s20": "A megszakadt élő adás magától újrakapcsolódik. Lezárt képernyőnél a hang tovább szól.",
+        "s20": "A megszakadt élő adás magától újrakapcsolódik. Lezárt képernyőnél a hang tovább szól. Beállítások, Lejátszási napló másolása: az indítás óta történt pufferelési és újrakapcsolódási adatokat másolja egy hibajelentéshez.",
         "cast": "A lejátszási cél az adást egy ugyanazon a hálózaton lévő Chromecastra küldi. A mellette lévő AirPlay a hangot küldi Apple TV-re, HomePodra vagy hangszóróra; a kép ezen az eszközön marad. A kép televízióra viteléhez használja a Vezérlőközpont Képtükrözését.",
         "s22": "Mentés helye a Fájlok alkalmazásban: Saját iPhone (vagy iPad), Accessible IPTV, Recordings. A folyamatban lévő rögzítések elöl vannak; aktiváljon egyet a leállításához.",
         "s23": "Az ütemezett rögzítések a vége után még 2 percig futnak. Az előtte és utána perceket a Beállításokban módosíthatja. Az alkalmazás ébren marad a háttérben, amíg rögzít, és ha egy rögzítés hat órán belül indul. Ha az alkalmazás be volt zárva, a kezdéskor egy értesítés kéri, hogy nyissa meg.",
@@ -231,7 +234,7 @@ IOS = {
         "s15": "iPhoneとiPadでは「最小化」でタブの上のミニプレーヤーに再生を続けられます。タイトルや映像をタップすると開きます。一時停止と再生停止は別の操作です。開いたプレーヤーには音声、字幕、録画、再生先、AirPlay、全画面があります。キーは音声がA、字幕がS、全画面がF、最小化がEscapeです。VoiceOverでは2本指のダブルタップで再生と一時停止を切り替えます。",
         "s16": "全画面ではボタンが隠れます。タップ、Escape、またはリモコンの戻るボタンで戻ります。",
         "s18": "ストリームの文字字幕 (クローズドキャプションや文字多重放送など) は映像の下に表示され、SRT や WebVTT の字幕ファイルと同じく読み上げられます (設定の字幕を読み上げるがオフの場合を除く)。画像の字幕は映像の中に残り、読み上げられません。",
-        "s20": "途切れたライブ配信は自動で再接続します。画面をロックしても音声は流れ続けます。",
+        "s20": "途切れたライブ配信は自動で再接続します。画面をロックしても音声は流れ続けます。設定の「再生ログをコピー」は、起動以降のバッファリングと再接続の詳細を問題報告用にコピーします。",
         "cast": "再生先は、同じネットワーク上の Chromecast にストリームを送ります。隣の AirPlay は音声を Apple TV、HomePod、スピーカーへ送ります。映像はこのデバイスに残ります。映像をテレビに出すには、コントロールセンターの画面ミラーリングを使ってください。",
         "s22": "ファイル App に保存されます: このiPhone内 (または iPad)、Accessible IPTV、Recordings。録画中のものが先頭に並び、実行すると停止します。",
         "s23": "予約録画は終了後 2 分まで続きます。前後の分数は設定で変えられます。録画中と、6 時間以内に録画が始まるとき、アプリはバックグラウンドで動き続けます。アプリが閉じられていた場合は、開始時刻に通知でアプリを開くよう求めます。",
@@ -251,7 +254,7 @@ IOS = {
         "s15": "在 iPhone 和 iPad 上，最小化会在标签页上方的迷你播放器中继续播放。轻点标题或视频可展开。暂停和停止播放是独立控件。展开的播放器提供音频、字幕、录制、播放目标、AirPlay 和全屏。快捷键：A 选择音频，S 选择字幕，F 全屏，Escape 最小化。使用 VoiceOver 时，双指轻点两次可播放或暂停。",
         "s16": "全屏会隐藏按钮。轻点、Escape 或遥控器的返回键可让它们回来。",
         "s18": "流中的文字字幕（如隐藏式字幕和图文电视）显示在视频下方，并会像 SRT 和 WebVTT 字幕文件一样朗读，除非设置中关闭了朗读字幕。图像字幕留在画面里，无法朗读。",
-        "s20": "中断的直播会自动重新连接。锁屏后声音继续播放。",
+        "s20": "中断的直播会自动重新连接。锁屏后声音继续播放。设置中的“复制播放日志”会复制启动以来的缓冲和重新连接详情，用于报告问题。",
         "cast": "播放目标会把流发送到同一网络中的 Chromecast。旁边的 AirPlay 会把声音发送到 Apple TV、HomePod 或扬声器，画面仍留在本设备上。若要把画面送到电视，请使用控制中心的屏幕镜像。",
         "s22": "保存在“文件”App：我的 iPhone（或 iPad）、Accessible IPTV、Recordings。正在录制的排在最前；激活一项即可停止。",
         "s23": "预约录制会在结束后继续 2 分钟。可在设置中更改提前和延后的分钟数。录制期间，以及六小时内有录制开始时，应用会在后台保持运行。如果应用已关闭，开始时间会有通知提醒你打开它。",
@@ -271,7 +274,7 @@ IOS = {
         "s15": "على iPhone وiPad يبقي تصغير التشغيل مستمرًا في مشغل مصغر فوق علامات التبويب. اضغط العنوان أو الفيديو لتوسيعه. الإيقاف المؤقت وإيقاف التشغيل عنصران منفصلان. يقدم المشغل الموسع الصوت والترجمة والتسجيل ووجهة التشغيل وAirPlay وملء الشاشة. المفاتيح: A للصوت وS للترجمة وF لملء الشاشة وEscape للتصغير. مع VoiceOver، النقر المزدوج بإصبعين يشغّل ويوقف مؤقتًا.",
         "s16": "ملء الشاشة يخفي الأزرار. نقرة أو Escape أو زر الرجوع في جهاز التحكم يعيدها.",
         "s18": "ترجمة البث النصية، مثل الترجمة المغلقة والنص المتلفز، تظهر تحت الفيديو. وتُقرأ بصوت عالٍ مثل ملفات الترجمة SRT وWebVTT، ما لم تكن قراءة الترجمة متوقفة في الإعدادات. ترجمة الصور تبقى في الصورة ولا يمكن قراءتها.",
-        "s20": "البث المباشر الذي ينقطع يعيد الاتصال تلقائيًا. يستمر الصوت والشاشة مقفلة.",
+        "s20": "البث المباشر الذي ينقطع يعيد الاتصال تلقائيًا. يستمر الصوت والشاشة مقفلة. الإعدادات، نسخ سجل التشغيل ينسخ تفاصيل التخزين المؤقت وإعادة الاتصال منذ التشغيل، لإرفاقها ببلاغ عن مشكلة.",
         "cast": "وجهة التشغيل ترسل البث إلى جهاز Chromecast على الشبكة نفسها. وAirPlay بجانبه يرسل الصوت إلى Apple TV أو HomePod أو مكبر صوت؛ وتبقى الصورة على هذا الجهاز. لإظهار الصورة على التلفاز استخدم تكرار الشاشة من مركز التحكم.",
         "s22": "تُحفظ في تطبيق الملفات: على iPhone (أو iPad)، Accessible IPTV، Recordings. التسجيلات الجارية تظهر أولًا؛ فعّل أحدها لإيقافه.",
         "s23": "التسجيلات المجدولة تستمر دقيقتين بعد النهاية. غيّر دقائق ما قبل وما بعد في الإعدادات. يبقى التطبيق يعمل في الخلفية أثناء التسجيل وعندما يبدأ تسجيل خلال ست ساعات. إن كان التطبيق مغلقًا، يطلب إشعار عند وقت البدء فتحه.",
@@ -291,7 +294,7 @@ IOS = {
         "s15": "iPhone और iPad पर छोटा करें से टैब के ऊपर मिनी प्लेयर में चलना जारी रहता है। बड़ा करने के लिए उसके शीर्षक या वीडियो पर टैप करें। रोकें और चलाना बंद करें अलग नियंत्रण हैं। बड़े प्लेयर में ऑडियो, उपशीर्षक, रिकॉर्ड, प्लेबैक गंतव्य, AirPlay और पूर्ण स्क्रीन हैं। कुंजियाँ: ऑडियो के लिए A, उपशीर्षक के लिए S, पूर्ण स्क्रीन के लिए F, छोटा करने के लिए Escape। VoiceOver के साथ दो उँगलियों से दो बार टैप चलाता और रोकता है।",
         "s16": "पूर्ण स्क्रीन बटन छिपा देती है। टैप, Escape या रिमोट का वापस बटन उन्हें लौटाता है।",
         "s18": "स्ट्रीम के टेक्स्ट उपशीर्षक, जैसे क्लोज़्ड कैप्शन और टेलीटेक्स्ट, वीडियो के नीचे दिखते हैं। SRT और WebVTT उपशीर्षक फ़ाइलों की तरह ये पढ़े भी जाते हैं, जब तक सेटिंग्स में उपशीर्षक पढ़ें बंद न हो। तस्वीर वाले उपशीर्षक तस्वीर में ही रहते हैं और पढ़े नहीं जा सकते।",
-        "s20": "टूटी हुई लाइव स्ट्रीम अपने आप फिर जुड़ जाती है। स्क्रीन लॉक होने पर भी आवाज़ चलती रहती है।",
+        "s20": "टूटी हुई लाइव स्ट्रीम अपने आप फिर जुड़ जाती है। स्क्रीन लॉक होने पर भी आवाज़ चलती रहती है। सेटिंग्स में प्लेबैक लॉग कॉपी करें, ऐप खुलने के बाद से बफ़रिंग और दोबारा कनेक्ट होने का ब्योरा कॉपी करता है, ताकि समस्या की रिपोर्ट भेजी जा सके।",
         "cast": "प्लेबैक गंतव्य स्ट्रीम को उसी नेटवर्क के Chromecast पर भेजता है। बगल में AirPlay आवाज़ को Apple TV, HomePod या स्पीकर पर भेजता है; तस्वीर इसी डिवाइस पर रहती है। तस्वीर टीवी पर लाने के लिए कंट्रोल सेंटर में स्क्रीन मिररिंग इस्तेमाल करें।",
         "s22": "Files ऐप में सहेजी जाती हैं: On My iPhone (या iPad), Accessible IPTV, Recordings। चल रही रिकॉर्डिंग पहले दिखती हैं; रोकने के लिए किसी को सक्रिय करें।",
         "s23": "शेड्यूल की गई रिकॉर्डिंग अंत के बाद 2 मिनट चलती हैं। पहले और बाद के मिनट सेटिंग्स में बदलें। रिकॉर्डिंग के दौरान, और जब छह घंटे में कोई रिकॉर्डिंग शुरू होनी हो, ऐप बैकग्राउंड में चालू रहता है। अगर ऐप बंद था, तो शुरू होने के समय एक सूचना ऐप खोलने को कहती है।",
@@ -308,11 +311,13 @@ def main():
     for suffix, lang in LANGS.items():
         src = res / (f"raw-{suffix}" if suffix else "raw") / "help.md"
         blocks = re.split(r"\n\s*\n", src.read_text(encoding="utf-8").strip())
-        if len(blocks) != 29:
-            sys.exit(f"{src}: {len(blocks)} blocks, expected 29; update KEYS")
+        if len(blocks) != BLOCKS:
+            sys.exit(f"{src}: {len(blocks)} blocks, expected {BLOCKS}; update KEYS")
         t = IOS[lang]
         out = []
         for i, b in enumerate(blocks):
+            if i in DROP:
+                continue
             out.append(t[KEYS[i]] if i in KEYS else b)
             if i == 20:
                 out.append(" ".join(EXTRA[key][ORDER.index(lang)] for key in ["video_cast_help", "video_cast_prepare_help", "video_cast_tracks"]))
