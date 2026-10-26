@@ -602,14 +602,16 @@ final class PlayerController: NSObject, ObservableObject {
 		// the real failure (a busy provider, a teardown timeout). While casting or
 		// relaying, the receiver owns playback, as with Android's remote device check.
 		guard !closing, !failed, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo, casting == nil, !isRelayingVideo else { return }
-		if !usesNative, let stats = player.statistics { logStats(stats) }
 		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
 		var frozen = 0.0
 		if playingNow {
 			// Preserve invalid timestamps: sharedPlaybackTime clamps them for UI and SharePlay.
 			let position = usesNative ? nativePlayer.currentTime().seconds : vlcSeconds
 			if !usesNative, let stats = player.statistics {
-				frozen = progress.sample(position: position,
+				// Read only while playing, as before the playback log: with the read also running
+				// during an open, the v0.6.0 tag failed the "reaches Playing" integration tests.
+				logStats(stats)
+				frozen =progress.sample(position: position,
 					audio: .init(decoded: stats.decodedAudio, output: stats.playedAudioBuffers),
 					video: videoOff ? nil : .init(decoded: stats.decodedVideo, output: stats.displayedPictures))
 			} else { frozen = progress.sample(position: position) }
@@ -625,8 +627,9 @@ final class PlayerController: NSObject, ObservableObject {
 		}
 	}
 
-	/// Every 10 s, buffering included: what arrived and what the decoders did with it, so a
-	/// stall reads as either the network (bytes stop) or the player (bytes arrive, frames lost).
+	/// Every 10 s of playback: what arrived and what the decoders did with it, so a stall reads
+	/// as either the network (bytes stop) or the player (bytes arrive, frames lost). A buffering
+	/// spell shows up as one longer interval whose bytes cover the whole spell.
 	private func logStats(_ s: MediaStatistics) {
 		var now = PlaybackStats()
 		now.readBytes = s.readBytes
