@@ -611,7 +611,7 @@ final class PlayerController: NSObject, ObservableObject {
 				// Read only while playing, as before the playback log: with the read also running
 				// during an open, the v0.6.0 tag failed the "reaches Playing" integration tests.
 				logStats(stats)
-				frozen =progress.sample(position: position,
+				frozen = progress.sample(position: position,
 					audio: .init(decoded: stats.decodedAudio, output: stats.playedAudioBuffers),
 					video: videoOff ? nil : .init(decoded: stats.decodedVideo, output: stats.displayedPictures))
 			} else { frozen = progress.sample(position: position) }
