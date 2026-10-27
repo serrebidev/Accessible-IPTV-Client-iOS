@@ -7,6 +7,8 @@ import XCTest
 final class ProviderConnectionTests: XCTestCase {
 	@MainActor
 	func testRecordingCannotOpenASecondStreamDuringPlayback() async throws {
+		PlaybackBackend.forced = .vlc
+		defer { PlaybackBackend.forced = nil }
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
 		let server = try StreamServer(body: Data(contentsOf: fixture))
 		let url = try await server.url()
@@ -52,6 +54,8 @@ final class ProviderConnectionTests: XCTestCase {
 
 	@MainActor
 	func testResumeDuringCastStartupDoesNotReopenTheProvider() async throws {
+		PlaybackBackend.forced = .vlc
+		defer { PlaybackBackend.forced = nil }
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
 		let server = try StreamServer(body: Data(contentsOf: fixture))
 		let url = try await server.url()

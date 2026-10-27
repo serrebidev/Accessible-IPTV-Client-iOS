@@ -22,6 +22,8 @@ final class PlayerHealthTests: XCTestCase {
 
 	@MainActor
 	func testHealthyLiveVLCPlaybackDoesNotReopenAfterTenSeconds() async throws {
+		PlaybackBackend.forced = .vlc
+		defer { PlaybackBackend.forced = nil }
 		let fixture = try XCTUnwrap(Bundle(for: Self.self).url(forResource: "mpeg2-mp2", withExtension: "ts"))
 		let channel = Channel(sourceId: "test", itemId: "1", name: "Test", group: "", url: fixture.absoluteString)
 		let controller = PlayerController(request: PlayRequest(url: fixture.absoluteString, title: "Test",

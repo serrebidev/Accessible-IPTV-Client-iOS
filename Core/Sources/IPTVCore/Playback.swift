@@ -8,7 +8,13 @@ import Foundation
 public enum PlaybackBackend {
 	case native, vlc, aether
 
+	/// When set, every URL routes to this backend. Production code never sets it;
+	/// integration tests pin it to keep exercising one engine's invariants while
+	/// the default routing changes (the AetherEngine trial rerouted .ts).
+	public static var forced: PlaybackBackend?
+
 	public static func preferred(for raw: String) -> PlaybackBackend {
+		if let forced { return forced }
 		let (plain, headers) = M3U.splitHeaders(raw)
 		// AVURLAsset has a public user-agent option, but no general HTTP-header option.
 		guard headers.keys.allSatisfy({ $0.lowercased() == "user-agent" }),
