@@ -604,6 +604,14 @@ final class PlayerController: NSObject, ObservableObject {
 		// relaying, the receiver owns playback, as with Android's remote device check.
 		guard !closing, !failed, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo, casting == nil, !isRelayingVideo else { return }
 		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
+		// observeVLC drops a Playing event that arrives before player.state matches it (its
+		// stale-event filter), and then nothing marks the channel played: it was restarted at
+		// 25 s and given up at 30 s while audibly playing (CI 2026-10-27; KitBoga the same night).
+		// The state itself is the truth.
+		if playingNow, !usesNative, !hasPlayed {
+			note("Playing event missed: taking the player's state")
+			stateChanged(.playing)
+		}
 		var frozen = 0.0
 		if playingNow {
 			// Preserve invalid timestamps: sharedPlaybackTime clamps them for UI and SharePlay.
