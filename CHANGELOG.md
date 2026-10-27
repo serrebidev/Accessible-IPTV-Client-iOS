@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.4
+
+Everything in 0.6.3, plus:
+
+- Channels start sooner: while you browse the channel list, the app warms a connection to the stream server in the background, so picking a channel no longer waits on a name lookup and a secure-connection handshake before the first picture can arrive. Nothing about the stream itself changes — the request that does the warming goes to the server's front door only, opens no channel, and the buffer settings are exactly as they were. The win is biggest for channels Apple's player handles; VLC channels gain the name lookup, because VLC keeps its own connection machinery.
+
+
 ## 0.6.3
 
 - Dispatcharr is now recognised behind an Xtream login too, not only from its M3U playlist, so 0.6.2’s whole-buffer start applies to Xtream logins. Refresh sources once to pick it up straight away; otherwise it applies at the next automatic refresh, within 12 hours.
