@@ -277,7 +277,8 @@ final class PlayerController: NSObject, ObservableObject {
 		progress.reset()
 		cacheSeconds = usesNative || !live
 			? Cushion.target(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls)
-			: Cushion.openSeconds(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls, reopened: reopened)
+			: Cushion.openSeconds(base: prefs.bufferSeconds, max: prefs.maxBufferSeconds, stalls: stalls, reopened: reopened,
+				dispatcharr: channel?.isDispatcharr == true)
 		health.prepared(caching: cacheSeconds)
 		bufferingSince = nil
 		lastStats = nil

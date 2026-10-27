@@ -76,9 +76,13 @@ public enum Cushion {
 	/// The cache an open starts with, in seconds. A first start is quick (half a second of
 	/// cache and the cushion fills while playing); a reopen after a stall waits with the
 	/// whole saved cushion, because the desktop creates the reopened media with the full
-	/// caching value instead of the quick-start one.
-	public static func openSeconds(base: Double, max: Double, stalls: Int, reopened: Bool) -> Double {
-		if reopened { return target(base: base, max: max, stalls: stalls) }
+	/// caching value instead of the quick-start one. A Dispatcharr channel opens with the
+	/// whole cushion every time, which is where Android ends up after its first rebuffer
+	/// (its cushion resumes only with the saved buffer in hand): libVLC cannot grow its
+	/// cache after the open, so a quick start stayed a half-second cushion all session and
+	/// every short gap at the source was heard (KCPQ, 2026-10-26).
+	public static func openSeconds(base: Double, max: Double, stalls: Int, reopened: Bool, dispatcharr: Bool = false) -> Double {
+		if reopened || dispatcharr { return target(base: base, max: max, stalls: stalls) }
 		return min(target(base: base, max: max, stalls: 0), quickStartSeconds)
 	}
 }
@@ -87,8 +91,10 @@ public enum Cushion {
 /// second by whichever player is running: buffering that follows playback and lasts
 /// 10 s is a stall, four buffering events of 1.25 s or more inside a minute are choppy
 /// playback, media progress frozen for 10 s (after a fresh 12 s plus cache startup grace) is a stall, a
-/// reopened stream with no media after 25 s restarts, and a channel that has not played
-/// at all 30 s after it was chosen is given up on. Pure time arithmetic against an
+/// reopened stream with no media 25 s past its cache fill restarts, and a channel that has
+/// not played at all 30 s past its cache fill is given up on. The 25 and 30 s sit on top of
+/// the fill because the server's own startup comes first (a failing-over Dispatcharr channel
+/// took 18 s before any data). Pure time arithmetic against an
 /// injected clock, so the rules are testable without a player.
 public struct StallTracker {
 	public enum Verdict: Equatable { case none, restart, restartGrown, giveUp }
@@ -160,12 +166,12 @@ public struct StallTracker {
 		}
 		if gaveUp { return .none }
 		if !played {
-			if t - openedAt >= max(Self.firstPlayDeadlineSeconds, caching + Self.startupGraceSeconds + 5) { gaveUp = true; return .giveUp }
-			if t - preparedAt >= max(Self.noMediaSeconds, caching + Self.startupGraceSeconds) { return .restart }
+			if t - openedAt >= caching + Self.firstPlayDeadlineSeconds { gaveUp = true; return .giveUp }
+			if t - preparedAt >= caching + Self.noMediaSeconds { return .restart }
 			return .none
 		}
 		if !playedThisOpen {
-			if t - preparedAt >= max(Self.noMediaSeconds, caching + Self.startupGraceSeconds) { return .restart }
+			if t - preparedAt >= caching + Self.noMediaSeconds { return .restart }
 			return .none
 		}
 		// VLC can report Playing while it fills the cache; every reopen gets fresh grace.
