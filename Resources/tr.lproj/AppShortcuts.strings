@@ -1,6 +1,9 @@
+"Open ${programme} in ${applicationName}" = "${applicationName} içinde ${programme} programını aç";
 "Pause playback in ${applicationName}" = "${applicationName} içinde oynatmayı duraklat";
 "Play ${channel} in ${applicationName}" = "${applicationName} ile ${channel} oynat";
 "Play TV in ${applicationName}" = "${applicationName} içinde televizyon oynat";
+"Record ${programme} in ${applicationName}" = "${applicationName} içinde ${programme} programını kaydet";
+"Remind me about ${programme} in ${applicationName}" = "${applicationName} içinde ${programme} programını hatırlat";
 "Resume playback in ${applicationName}" = "${applicationName} içinde oynatmaya devam et";
 "Search the guide in ${applicationName}" = "${applicationName} içinde rehberde ara";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} rehberini göster";

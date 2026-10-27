@@ -1,6 +1,9 @@
+"Open ${programme} in ${applicationName}" = "${programme} megnyitása a(z) ${applicationName} alkalmazásban";
 "Pause playback in ${applicationName}" = "Lejátszás szüneteltetése a(z) ${applicationName} alkalmazásban";
 "Play ${channel} in ${applicationName}" = "${channel} lejátszása a(z) ${applicationName} alkalmazásban";
 "Play TV in ${applicationName}" = "Tévé lejátszása a(z) ${applicationName} alkalmazásban";
+"Record ${programme} in ${applicationName}" = "${programme} rögzítése a(z) ${applicationName} alkalmazásban";
+"Remind me about ${programme} in ${applicationName}" = "Emlékeztess a(z) ${programme} műsorra a(z) ${applicationName} alkalmazásban";
 "Resume playback in ${applicationName}" = "Lejátszás folytatása a(z) ${applicationName} alkalmazásban";
 "Search the guide in ${applicationName}" = "Műsorújság keresése a(z) ${applicationName} alkalmazásban";
 "Show the guide for ${channel} in ${applicationName}" = "A(z) ${channel} műsorújsága a(z) ${applicationName} alkalmazásban";

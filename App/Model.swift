@@ -84,6 +84,12 @@ enum Route: Hashable {
 	case episodes(String)
 }
 
+/// A programme to land on inside its channel guide (from Siri / Spotlight).
+struct ProgrammeFocus: Equatable {
+	let channelKey: String
+	let startMs: Int64
+}
+
 /// Process-wide state: the Library (lists and guide), the status line, the player request.
 @MainActor
 final class AppModel: ObservableObject {
@@ -103,6 +109,10 @@ final class AppModel: ObservableObject {
 	@Published var path: [Route] = []
 	@Published var guidePath: [Route] = []
 	@Published var selectedTab = 0
+	/// A programme Siri or Spotlight asked to land on in its channel guide.
+	@Published var programmeFocus: ProgrammeFocus?
+	/// A guide search term handed over by the system search schema (iOS 27).
+	@Published var pendingGuideSearch: String?
 	/// Installed players to pick from for "Play in another app".
 	@Published var externalChoice: [(String, URL)]?
 	/// Set when playlists change so the main screen reloads on return.
@@ -169,8 +179,19 @@ final class AppModel: ObservableObject {
 	#if os(iOS)
 	func refreshSystemDiscovery(_ channels: [Channel], sources: [Source]) {
 		let active = Set(sources.filter { loaded in prefs.sources.contains { $0.refersToSamePlaylist(as: loaded) } }.map(\.id))
-		ChannelSpotlight.shared.update(channels.filter { active.contains($0.sourceId) })
+		let live = channels.filter { active.contains($0.sourceId) }
+		ChannelSpotlight.shared.update(live)
+		ProgrammeSpotlight.shared.update(live, library.epg)
 		IPTVShortcuts.updateAppShortcutParameters()
+	}
+
+	/// The system search schema (iOS 27) hands a spoken or typed search to
+	/// the app's own guide search.
+	func openGuideSearch(_ term: String) {
+		minimizePlayer()
+		selectedTab = 1
+		guidePath = [.guideSearch]
+		pendingGuideSearch = term
 	}
 	#endif
 	func rememberChannel(_ channel: Channel) {
@@ -181,6 +202,9 @@ final class AppModel: ObservableObject {
 	}
 	func navigate(_ route: Route) {
 		if selectedTab == 1 { guidePath.append(route) } else { path.append(route) }
+		#if os(iOS)
+		if case .channelGuide(let key) = route, let ch = library.channel(key) { Donations.guideOpened(ch) }
+		#endif
 	}
 
 	/// Plays any list entry: shows open their episode list; Stalker links are fetched first.
@@ -215,6 +239,9 @@ final class AppModel: ObservableObject {
 			channel: channel ?? library.channel(key), archiveStart: archiveStart, archiveStop: archiveStop)
 		let controller = PlayerController(request: request)
 		player = controller
+		#if os(iOS)
+		if let tuned = request.channel, tuned.isLive { Donations.tuned(tuned) }
+		#endif
 		controller.start()
 		controller.scene(UIApplication.shared.applicationState == .background ? .background : .active)
 		playerPresented = true

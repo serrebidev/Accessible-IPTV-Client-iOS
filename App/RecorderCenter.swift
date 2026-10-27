@@ -76,6 +76,9 @@ final class RecorderCenter: ObservableObject {
 		let s = Recording.padded(id: Int(nowMs() % Int64(Int32.max)), channel: ch, title: title, start: start, end: end,
 			preMinutes: prefs.prePadMinutes, postMinutes: prefs.postPadMinutes)
 		scheduled.append(s)
+		#if os(iOS)
+		Donations.recordScheduled(Programme(channelKey: ch.key, start: start, stop: end, title: title, channelName: ch.name), ch)
+		#endif
 		persist()
 		Notify.ask()
 		// If the app is not running at the start time, this says so instead of silently not recording.

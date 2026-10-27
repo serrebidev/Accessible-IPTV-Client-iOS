@@ -16,6 +16,8 @@ final class PlayerController: NSObject, ObservableObject {
 	@Published var isPlaying = false
 	@Published var failed = false
 	@Published var nowPlaying = ""
+	/// The guide programme on now, for Siri's on-screen context.
+	@Published var currentProgramme: Programme?
 	@Published var subtitle = ""
 	@Published var casting: String?
 	@Published var fullscreen = false
@@ -933,8 +935,9 @@ final class PlayerController: NSObject, ObservableObject {
 	/// as an important event. Re-arms itself for the end of the programme. Live only.
 	private func showProgramme(announce: Bool) {
 		programmeTimer?.invalidate()
-		guard live, let ch = channel else { nowPlaying = request.title; return }
+		guard live, let ch = channel else { nowPlaying = request.title; currentProgramme = nil; return }
 		let nn = model.library.epg.nowNext(ch)
+		currentProgramme = nn.now
 		if let on = nn.now {
 			nowPlaying = Format.sentences([request.title, L("now_programme", Format.programme(on))])
 			if announce { say(L("now_programme", Format.programme(on)), 2) }

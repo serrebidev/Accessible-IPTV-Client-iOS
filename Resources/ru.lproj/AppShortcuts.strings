@@ -1,6 +1,9 @@
+"Open ${programme} in ${applicationName}" = "Открой ${programme} в ${applicationName}";
 "Pause playback in ${applicationName}" = "Приостанови воспроизведение в ${applicationName}";
 "Play ${channel} in ${applicationName}" = "Включи ${channel} в ${applicationName}";
 "Play TV in ${applicationName}" = "Включи телевизор в ${applicationName}";
+"Record ${programme} in ${applicationName}" = "Запиши ${programme} в ${applicationName}";
+"Remind me about ${programme} in ${applicationName}" = "Напомни мне о ${programme} в ${applicationName}";
 "Resume playback in ${applicationName}" = "Продолжи воспроизведение в ${applicationName}";
 "Search the guide in ${applicationName}" = "Найди в программе ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Покажи программу ${channel} в ${applicationName}";

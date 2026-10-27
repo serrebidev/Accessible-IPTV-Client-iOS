@@ -1,6 +1,9 @@
+"Open ${programme} in ${applicationName}" = "Abre ${programme} en ${applicationName}";
 "Pause playback in ${applicationName}" = "Pausa la reproducción en ${applicationName}";
 "Play ${channel} in ${applicationName}" = "Reproduce ${channel} en ${applicationName}";
 "Play TV in ${applicationName}" = "Reproduce televisión en ${applicationName}";
+"Record ${programme} in ${applicationName}" = "Graba ${programme} en ${applicationName}";
+"Remind me about ${programme} in ${applicationName}" = "Recuérdame ${programme} en ${applicationName}";
 "Resume playback in ${applicationName}" = "Reanuda la reproducción en ${applicationName}";
 "Search the guide in ${applicationName}" = "Busca en la guía de ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Muestra la guía de ${channel} en ${applicationName}";

@@ -159,6 +159,25 @@ enum SiriLibrary {
 		return current
 	}
 
+	/// Resolve a programme entity back to its guide entry and channel.
+	static func programme(_ entity: ProgrammeEntity) async throws -> (Programme, Channel) {
+		guard let found = try await programme(identifier: entity.id) else {
+			throw ActionError.message(L("no_guide_for", entity.channelName))
+		}
+		return found
+	}
+
+	static func programme(identifier: String) async throws -> (Programme, Channel)? {
+		guard let slot = ProgrammeEntity.parse(identifier) else { return nil }
+		let channels = try await live()
+		guard let ch = channels.first(where: { $0.key == slot.channelKey }) else { return nil }
+		let epg = AppModel.shared.library.epg
+		let found = await Task.detached {
+			epg.schedule(ch, from: slot.startMs, to: slot.startMs + 1).first { $0.start == slot.startMs }
+		}.value
+		return found.map { ($0, ch) }
+	}
+
 	enum ActionError: LocalizedError {
 		case message(String)
 		var errorDescription: String? { switch self { case .message(let text): return text } }
@@ -197,7 +216,7 @@ struct WhatsOnChannelIntent: AppIntent {
 	@Parameter(title: "channel", description: "channel_parameter_desc") var channel: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
-	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<[ProgrammeEntity]> & ProvidesDialog {
 		let ch = try await SiriLibrary.channel(channel)
 		let guide = AppModel.shared.library.epg.nowNext(ch)
 		var parts = [channel.name]
@@ -205,7 +224,8 @@ struct WhatsOnChannelIntent: AppIntent {
 		if let next = guide.next { parts.append(L("next_programme", Format.programme(next))) }
 		if guide.isEmpty { parts.append(L("no_guide_for", channel.name)) }
 		let text = Format.sentences(parts)
-		return .result(value: text, dialog: "\(text)")
+		let entities = [guide.now, guide.next].compactMap { $0 }.map { ProgrammeEntity($0, ch) }
+		return .result(value: entities, dialog: "\(text)")
 	}
 }
 
@@ -215,16 +235,20 @@ struct SearchGuideIntent: AppIntent {
 	@Parameter(title: "search", description: "search_parameter_desc") var query: String
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$query)") }
 
-	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<[ProgrammeEntity]> & ProvidesDialog {
 		let channels = try await SiriLibrary.live()
 		let epg = AppModel.shared.library.epg
 		let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
 		guard !term.isEmpty else { throw SiriLibrary.ActionError.message(L("no_matches")) }
 		let results = await Task.detached { epg.search(term, channels) }.value
-		// shortcut: read five matches aloud; the full guide search remains available in the app.
-		let lines = results.prefix(5).map { p, ch in "\(TVChannelEntity(ch).name). \(p.title). \(Format.dateTime(p.start)). \(Format.time(p.stop))" }
-		let text = lines.isEmpty ? L(epg.hasGuide ? "no_matches" : "no_guide") : lines.joined(separator: "\n")
-		return .result(value: text, dialog: "\(text)")
+		// The dialog is built for listening (one sentence per result, three at
+		// most); Shortcuts gets the entities, usable for follow-ups and actions.
+		if results.isEmpty {
+			let text = L(epg.hasGuide ? "no_matches" : "no_guide")
+			return .result(value: [ProgrammeEntity](), dialog: "\(text)")
+		}
+		let pairs = Array(results)
+		return .result(value: ProgrammeQuery.entities(from: pairs), dialog: "\(GuideSpeech.spoken(pairs))")
 	}
 }
 
@@ -241,6 +265,7 @@ struct OpenChannelGuideIntent: AppIntent {
 		model.minimizePlayer()
 		model.selectedTab = 1
 		model.guidePath = [.channelGuide(ch.key)]
+		Donations.guideOpened(ch)
 		return .result()
 	}
 }
@@ -296,6 +321,15 @@ struct IPTVShortcuts: AppShortcutsProvider {
 			"Show the guide for \(\.$channel) in \(.applicationName)",
 			"Open the guide for \(\.$channel) in \(.applicationName)"
 		], shortTitle: "channel_guide", systemImageName: "calendar")
+		AppShortcut(intent: RecordProgrammeIntent(), phrases: [
+			"Record \(\.$programme) in \(.applicationName)"
+		], shortTitle: "record_programme", systemImageName: "record.circle")
+		AppShortcut(intent: OpenProgrammeIntent(), phrases: [
+			"Open \(\.$programme) in \(.applicationName)"
+		], shortTitle: "open_programme", systemImageName: "calendar.badge.clock")
+		AppShortcut(intent: RemindProgrammeIntent(), phrases: [
+			"Remind me about \(\.$programme) in \(.applicationName)"
+		], shortTitle: "remind_programme", systemImageName: "bell")
 		AppShortcut(intent: PauseTVIntent(), phrases: ["Pause playback in \(.applicationName)"], shortTitle: "pause", systemImageName: "pause")
 		AppShortcut(intent: ResumeTVIntent(), phrases: ["Resume playback in \(.applicationName)"], shortTitle: "play", systemImageName: "play")
 		AppShortcut(intent: StopTVIntent(), phrases: ["Stop playback in \(.applicationName)"], shortTitle: "stop_playback", systemImageName: "stop")
@@ -304,6 +338,37 @@ struct IPTVShortcuts: AppShortcutsProvider {
 #endif
 
 extension View {
+	/// On-screen context for one programme (the iOS 27 view annotations API):
+	/// with the row on screen, "record this" has a target. Rows stay single
+	/// accessibility elements; the annotation is metadata only and does not
+	/// change VoiceOver output. Older systems keep the channel-level context.
+	@ViewBuilder func siriProgramme(_ programme: Programme, _ channel: Channel) -> some View {
+		#if os(iOS)
+		if #available(iOS 27.0, *) {
+			appEntityIdentifier(EntityIdentifier(for: ProgrammeEntity.self, identifier: ProgrammeEntity.identifier(programme)))
+		} else { self }
+		#else
+		self
+		#endif
+	}
+
+	/// On-screen context for the player's current programme: one singular
+	/// thing on screen, so the user activity path carries it (iOS 18.2+).
+	@ViewBuilder func siriNowPlaying(_ programme: Programme?, _ channel: Channel?) -> some View {
+		#if os(iOS)
+		if #available(iOS 18.2, *), let programme, let channel {
+			userActivity("dev.serrebi.accessibleiptv.programme", isActive: true) { activity in
+				let entity = ProgrammeEntity(programme, channel)
+				activity.title = entity.title
+				activity.appEntityIdentifier = EntityIdentifier(for: entity)
+				activity.isEligibleForHandoff = false
+			}
+		} else { self }
+		#else
+		self
+		#endif
+	}
+
 	@ViewBuilder func siriChannel(_ channel: Channel?, active: Bool = true) -> some View {
 		#if os(iOS)
 		if #available(iOS 18.2, *), let channel {

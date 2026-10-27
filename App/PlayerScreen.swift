@@ -207,6 +207,7 @@ struct PlayerScreen: View {
 		.background(Color.black.ignoresSafeArea())
 		.accessibilityAction(.magicTap) { c.togglePause() }
 		.siriChannel(c.channel)
+		.siriNowPlaying(c.currentProgramme, c.channel)
 		.onAppear {
 			// Start on Pause, so the first activation pauses or resumes.
 			focus = .pause

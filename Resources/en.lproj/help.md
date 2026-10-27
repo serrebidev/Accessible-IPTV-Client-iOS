@@ -74,6 +74,8 @@ Say Play Sky Mix in Accessible IPTV, Tune to Sky Mix in Accessible IPTV, or Watc
 
 After the app loads a live playlist, Spotlight can find channels by name or number. Choose a result to play it. Large lists take time; keep the app open until Search ready is announced. On iOS 18 or later, indexed channel entities also support Apple Intelligence discovery; recognition depends on system support. In Shortcuts, Find Channels supports name, group and number filters, sorting and limits. Pass its results to Tune channel. Tune channel returns the chosen channel for later actions. No stream URLs or logins are indexed.
 
+Programmes are in Spotlight and Siri too. Search a show title from the Home screen, or ask Siri what is on and follow up about a programme: record it, set a reminder for it, or open it in the guide. With a guide row or the player on screen, Siri knows which programme you mean. In guide search, Smart filter turns a plain-words request like "sports tonight after 8" into filters using only the on-device model; nothing about your guide leaves the phone.
+
 # SharePlay
 
 Start or join a FaceTime call, start playback, then choose Start SharePlay in the player. Everyone needs this app and their own playlist and login. URLs and passwords are never sent to other participants. Channel changes, play and pause are shared. Seeking is synchronized only when the source supports seeking. Different provider delays mean live playback may not match frame for frame. Minimize and background playback keep SharePlay running. Stop playback leaves the session on this device. Leave SharePlay leaves just you; End for everyone ends the session for all participants. The signed app and its installation profile must include permission for SharePlay group sessions.

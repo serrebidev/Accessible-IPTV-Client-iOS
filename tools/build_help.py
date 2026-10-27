@@ -322,7 +322,7 @@ def main():
             if i == 20:
                 out.append(" ".join(EXTRA[key][ORDER.index(lang)] for key in ["video_cast_help", "video_cast_prepare_help", "video_cast_tracks"]))
         out += ["# CarPlay", t["carplay"], "# Apple TV", t["tv"]]
-        out += ["# " + EXTRA["siri_shortcuts"][ORDER.index(lang)], EXTRA["siri_help"][ORDER.index(lang)], EXTRA["siri_tuning_help"][ORDER.index(lang)], EXTRA["spotlight_shortcuts_help"][ORDER.index(lang)]]
+        out += ["# " + EXTRA["siri_shortcuts"][ORDER.index(lang)], EXTRA["siri_help"][ORDER.index(lang)], EXTRA["siri_tuning_help"][ORDER.index(lang)], EXTRA["spotlight_shortcuts_help"][ORDER.index(lang)], EXTRA["siri_programme_help"][ORDER.index(lang)]]
         out += ["# " + EXTRA["shareplay_help"][ORDER.index(lang)], EXTRA["shareplay_help_body"][ORDER.index(lang)]]
         dest = ROOT / "Resources" / f"{lang}.lproj" / "help.md"
         dest.write_text("\n\n".join(out) + "\n", encoding="utf-8", newline="\n")

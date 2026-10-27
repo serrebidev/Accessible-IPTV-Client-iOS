@@ -61,6 +61,10 @@ struct ProgrammesView: View {
 					.submitLabel(.search)
 					.accessibilityLabel(L(mode == .search ? "search" : "filter"))
 				StatusLine(text: status)
+				if mode == .search && GuideNaturalFilter.isAvailable {
+					Button(L("smart_filter")) { runNaturalFilter() }
+						.accessibilityLabel(L("smart_filter"))
+				}
 				Text(P("programme_count", filteredCount)).font(.headline).accessibilityAddTraits(.isHeader)
 				if loaded && all.isEmpty && mode != .search {
 					Button(L("import_guide")) { importGuide() }
@@ -91,6 +95,15 @@ struct ProgrammesView: View {
 				guard !loaded else { return }
 				loaded = true
 				await load(proxy, moveFocus: true)
+				// A search handed over by the system search schema (iOS 27).
+				if mode == .search, let term = model.pendingGuideSearch {
+					model.pendingGuideSearch = nil
+					filter = term
+				}
+			}
+			.onChange(of: model.programmeFocus) { _, newValue in
+				guard let newValue, case .channel(let key) = mode, newValue.channelKey == key else { return }
+				focusProgramme(newValue, proxy)
 			}
 			.onChange(of: model.revision) { _, _ in
 				// A guide import that finishes behind this screen replaces its data.
@@ -205,6 +218,52 @@ struct ProgrammesView: View {
 			proxy.scrollTo(displayed[i].id, anchor: .top)
 			focus = displayed[i].id
 		}
+		// A programme Siri or Spotlight sent us to wins over the now position.
+		if let pending = model.programmeFocus, pending.channelKey == ch?.key {
+			focusProgramme(pending, proxy)
+		}
+	}
+
+	/// Lands on the programme an OpenProgrammeIntent named: widens the shown
+	/// window if needed, then scrolls and puts VoiceOver focus on the row.
+	private func focusProgramme(_ target: ProgrammeFocus, _ proxy: ScrollViewProxy) {
+		model.programmeFocus = nil
+		if let index = all.firstIndex(where: { $0.p.start == target.startMs }) {
+			if index >= displayed.count {
+				window = index + 1
+				refreshShown()
+			}
+			if let item = displayed.first(where: { $0.p.start == target.startMs }) {
+				proxy.scrollTo(item.id, anchor: .top)
+				focus = item.id
+			}
+		}
+	}
+
+	/// Guide search in plain words: the on-device model turns the typed
+	/// request into filters, applied to the local guide only.
+	private func runNaturalFilter() {
+		let text = filter.trimmingCharacters(in: .whitespaces)
+		guard text.count >= 3 else { say(L("guide_search_hint")); return }
+		searchTask?.cancel()
+		searchTask = Task {
+			say(L("loading"))
+			guard let spec = await GuideNaturalFilter.parse(text) else { say(L("no_matches")); return }
+			if !library.isLoaded(Library.live) { _ = await library.load(Library.live, force: false) }
+			let lib = library
+			let term = spec.searchTerm
+			let candidates: [(Programme, Channel)] = term.isEmpty
+				? await Task.detached { lib.epg.onNow(lib.channels) }.value
+				: await Task.detached { lib.epg.search(term, lib.channels) }.value
+			guard !Task.isCancelled else { return }
+			let kept = GuideNaturalFilter.apply(spec, to: candidates)
+			lastSearch = ""
+			all = kept.map { Item($0.0, $0.1) }
+			window = Self.windowSize
+			refreshShown()
+			if kept.isEmpty { say(L("no_matches")) }
+			else { say(""); announce(P("programme_count", kept.count)) }
+		}
 	}
 
 	private func catchupState(_ p: Programme, _ ch: Channel, _ now: Int64) -> Bool {
@@ -236,6 +295,7 @@ struct ProgrammesView: View {
 		return Button { open(p, ch) } label: { RowLabel(line1: Format.programme(p), line2: line2) }
 			.row(speech, actions: actions)
 			.accessibilityFocused($focus, equals: item.id)
+			.siriProgramme(p, ch)
 	}
 
 	private func details(_ p: Programme) {

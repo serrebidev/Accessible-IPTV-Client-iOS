@@ -1,6 +1,9 @@
+"Open ${programme} in ${applicationName}" = "افتح ${programme} في ${applicationName}";
 "Pause playback in ${applicationName}" = "أوقف التشغيل مؤقتًا في ${applicationName}";
 "Play ${channel} in ${applicationName}" = "شغّل ${channel} في ${applicationName}";
 "Play TV in ${applicationName}" = "شغّل التلفزيون في ${applicationName}";
+"Record ${programme} in ${applicationName}" = "سجّل ${programme} في ${applicationName}";
+"Remind me about ${programme} in ${applicationName}" = "ذكّرني بـ ${programme} في ${applicationName}";
 "Resume playback in ${applicationName}" = "استأنف التشغيل في ${applicationName}";
 "Search the guide in ${applicationName}" = "ابحث في الدليل في ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "اعرض دليل ${channel} في ${applicationName}";

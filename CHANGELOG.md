@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.0
+
+- Siri and Spotlight now know programmes, not just channels. Upcoming programmes are indexed, so a show title searched from the Home screen or asked about by name can be opened in its channel guide, recorded, or given a start-time reminder — including as follow-ups to "what's on" and guide searches, which now hand Shortcuts the programmes themselves. Asking Siri to record a programme schedules it in Recordings, and the app teaches Siri from what you do: tuning a channel, opening a guide, and scheduling a recording are donated.
+- Guide answers are spoken for listening: through AirPods or CarPlay, results come as separate sentences, channel first, three at most, instead of one long run-on text. The full list is still there on screen and in Shortcuts.
+- On iOS 27, Siri can reach the guide search directly with a natural request, without naming the app, and what is on screen counts: a guide row or the programme playing now is context Siri can act on ("record this").
+- Guide search gains a Smart filter when the on-device model is available: type a plain-words request like "sports tonight after 8" and it becomes guide filters. It runs only on the device — no guide data goes to any AI service.
+
 ## 0.6.6
 
 - Channels start in a couple of seconds again. The new playback engine was waiting until a full 25 seconds of the channel had arrived before showing the first picture — that is what its buffer setting means at join time — so every channel change took about 20 seconds. Live channels now join the fast way, starting on the first picture the source sends, the same quick start the app has always used on its other players. Stream probing at open is capped too, so a slow source cannot stretch the wait either.
