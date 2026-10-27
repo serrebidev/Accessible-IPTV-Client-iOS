@@ -25,7 +25,12 @@ struct ProgrammeEntity: AppEntity, Transferable {
 	let stopMs: Int64
 
 	init(_ programme: Programme, _ channel: Channel) {
+		// Plain stored properties first: assigning a @Property counts as a
+		// use of self until every plain property is initialized.
 		id = Self.identifier(programme)
+		channelKey = programme.channelKey
+		startMs = programme.start
+		stopMs = programme.stop
 		let publicTitle = ChannelDiscovery.publicText(programme.title)
 		title = publicTitle.isEmpty ? L("programme") : publicTitle
 		let publicChannel = ChannelDiscovery.publicText(channel.name)
@@ -34,9 +39,6 @@ struct ProgrammeEntity: AppEntity, Transferable {
 		details = ChannelDiscovery.publicText(programme.description)
 		start = Date(timeIntervalSince1970: Double(programme.start) / 1000)
 		stop = Date(timeIntervalSince1970: Double(programme.stop) / 1000)
-		channelKey = programme.channelKey
-		startMs = programme.start
-		stopMs = programme.stop
 	}
 
 	static func identifier(_ programme: Programme) -> String {
