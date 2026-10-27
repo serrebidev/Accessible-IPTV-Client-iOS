@@ -43,6 +43,13 @@ final class PlaybackBackendTests: XCTestCase {
 		}
 	}
 
+	func testForcedBackendOverridesRouting() {
+		PlaybackBackend.forced = .vlc
+		defer { PlaybackBackend.forced = nil }
+		XCTAssertEqual(PlaybackBackend.preferred(for: "https://tv.test/live/video.ts"), .vlc)
+		XCTAssertEqual(PlaybackBackend.preferred(for: "https://tv.test/movie.m3u8"), .vlc)
+	}
+
 	func testHlsDelayKeepsVlcFloorAndFollowsALargerCushion() {
 		let hls = URL(string: "https://tv.test/live.m3u8?token=1")!
 		XCTAssertTrue(StreamOptions.network(hls, live: true, cacheMs: 500).contains(":adaptive-livedelay=15000"))
