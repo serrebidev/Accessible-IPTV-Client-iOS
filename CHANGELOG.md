@@ -1,6 +1,8 @@
 # Changelog
 
-## 0.6.0
+## 0.6.1
+
+0.6.0 was not released: its build failed the playback tests.
 
 - Settings, Copy playback log copies what the player saw since the app opened: each buffering spell and how long it lasted, what arrived from the server and what the player did with it every 10 seconds, reconnects and why, and when playback stopped. Paste it into a problem report. Times are in UTC. Stream addresses and logins are never included. Not on Apple TV.
 
