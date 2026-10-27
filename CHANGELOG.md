@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2
+
+- Dispatcharr channels now start with your whole saved buffer, as Android does after its first rebuffer. They used to start with half a second, and the player cannot add to its buffer once a channel is open, so every short pause at the source was heard as buffering. Starting takes longer: about the buffer setting in seconds, after the server is ready. Lower Buffer seconds in Settings for a faster start with less protection.
+- A channel that takes long to start is no longer restarted or given up while its buffer fills: the 25 and 30 second limits now count from the end of the fill.
+
 ## 0.6.1
 
 0.6.0 was not released: its build failed the playback tests.
