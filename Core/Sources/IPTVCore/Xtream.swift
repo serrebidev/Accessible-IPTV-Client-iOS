@@ -57,22 +57,50 @@ public enum Xtream {
 	}
 
 	public static func liveChannels(_ src: Source) async throws -> [Channel] {
+		// The root answer is only a hint: a panel that fails it still lists its channels.
+		let root = try? await Net.response(api(src))
+		let p = root.map { panel(src, body: $0.body, finalURL: $0.url) } ?? Panel(base: src.url, dispatcharr: false)
 		let cats = try await categories(src, "get_live_categories")
 		var out: [Channel] = []
-		try await Net.forEachObject(api(src, "get_live_streams")) { o in out.append(live(src, o, cats)) }
+		try await Net.forEachObject(api(src, "get_live_streams")) { o in out.append(live(src, o, cats, p)) }
 		return out
 	}
 
+	/// What player_api's root answer says about the panel behind a login.
+	struct Panel: Equatable {
+		/// Where stream addresses start: the login's server, or its https form when the panel
+		/// redirects http to https on the same host, so a tune does not pay for the redirect.
+		var base: String
+		/// Dispatcharr's server_info has none of the https_port and rtmp_port that Xtream-UI
+		/// and XUI panels always send (Dispatcharr apps/output/views.py _build_xc_server_info).
+		/// Its playlist header marks M3U channels (catchup-timezone); an Xtream login has no header.
+		var dispatcharr: Bool
+	}
+
+	static func panel(_ src: Source, body: Data, finalURL: URL?) -> Panel {
+		var dispatcharr = false
+		if case .object(let root)? = try? JSONDecoder().decode(JSONValue.self, from: body), case .object(let info)? = root["server_info"] {
+			dispatcharr = info["https_port"] == nil && info["rtmp_port"] == nil
+		}
+		var base = src.url
+		if let final = finalURL, final.scheme == "https", let from = URL(string: src.url), from.scheme == "http",
+			from.host == final.host, let cut = final.absoluteString.range(of: "/player_api.php") {
+			base = String(final.absoluteString[..<cut.lowerBound])
+		}
+		return Panel(base: base, dispatcharr: dispatcharr)
+	}
+
 	/// One get_live_streams entry. TS, not m3u8: some servers (Dispatcharr) answer m3u8 with HTTP 500.
-	static func live(_ src: Source, _ o: [String: String], _ cats: [String: String]) -> Channel {
+	static func live(_ src: Source, _ o: [String: String], _ cats: [String: String], _ panel: Panel? = nil) -> Channel {
 		let id = o["stream_id"] ?? ""
 		var attrs: [String: String] = [:]
+		if panel?.dispatcharr == true { attrs[Channel.dispatcharrAttr] = "1" }
 		if o["tv_archive"] == "1" { attrs["catchup"] = "xc"; attrs["catchup-days"] = o["tv_archive_duration"] ?? "" }
 		if let n = o["num"], !n.trimmingCharacters(in: .whitespaces).isEmpty, n != "null" { attrs[Channel.chno] = n }
 		let epg = o["epg_channel_id"]
 		return Channel(
 			sourceId: src.id, itemId: id, name: o["name"] ?? "", group: cats[o["category_id"] ?? ""] ?? ungrouped,
-			url: "\(src.url)/live/\(Source.pathEnc(src.username))/\(Source.pathEnc(src.password))/\(id).ts",
+			url: "\(panel?.base ?? src.url)/live/\(Source.pathEnc(src.username))/\(Source.pathEnc(src.password))/\(id).ts",
 			tvgId: epg == "null" ? "" : epg ?? "", attrs: attrs
 		)
 	}

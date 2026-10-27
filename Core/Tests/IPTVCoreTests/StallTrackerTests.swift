@@ -15,6 +15,23 @@ final class StallTrackerTests: XCTestCase {
 		XCTAssertEqual(Cushion.openSeconds(base: 25, max: 30, stalls: 9, reopened: true), 30)
 		// A saved cushion under the quick start is the whole wait either way.
 		XCTAssertEqual(Cushion.openSeconds(base: 0.25, max: 30, stalls: 0, reopened: false), 0.25)
+		// Dispatcharr opens with the whole saved cushion, and its stalls never grow it.
+		XCTAssertEqual(Cushion.openSeconds(base: 25, max: 30, stalls: 0, reopened: false, dispatcharr: true), 25)
+	}
+
+	func testDeadlinesWaitForTheServerStartupOnTopOfTheCacheFill() {
+		var t = tracker()
+		t.prepared(caching: 25)
+		// 18 s of server startup plus a 25 s fill: still waiting, not restarted.
+		now = 44
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .none)
+		now = 50
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .restart)
+		t.prepared(caching: 25)
+		now = 54
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .none)
+		now = 55
+		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .giveUp)
 	}
 
 	func testNoMediaRestartsAt25SecondsAndNeverPlayedGivesUpAt30() {
@@ -129,9 +146,9 @@ final class StallTrackerTests: XCTestCase {
 		t.playing()
 		now = 100
 		t.prepared(caching: 25)
-		now = 125
+		now = 149
 		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .none)
-		now = 137
+		now = 150
 		XCTAssertEqual(t.tick(buffering: true, frozen: 0), .restart)
 	}
 
