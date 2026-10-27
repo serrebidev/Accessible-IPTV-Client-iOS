@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.6
+
+- Channels start in a couple of seconds again. The new playback engine was waiting until a full 25 seconds of the channel had arrived before showing the first picture — that is what its buffer setting means at join time — so every channel change took about 20 seconds. Live channels now join the fast way, starting on the first picture the source sends, the same quick start the app has always used on its other players. Stream probing at open is capped too, so a slow source cannot stretch the wait either.
+
 ## 0.6.5
 
 - Live transport-stream channels (the kind Dispatcharr and Xtream live channels use) now play through a new playback engine, AetherEngine, instead of VLC. The new engine holds one long-lived connection and keeps your saved Buffer seconds as a cushion on the live edge that refills after a stutter, where VLC's fixed network cache read a bursty channel as starved and kept rebuffering no matter how large the buffer was set — channels like KCPQ should now ride out the short gaps at their source. If a channel fails on the new engine before its first picture, the app falls back to VLC for that channel automatically. Subtitles are still shown and spoken, audio track choice still applies, and everything else is unchanged: Apple's player still takes the streams it can play, and VLC still takes files and the remaining formats.

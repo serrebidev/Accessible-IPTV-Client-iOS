@@ -416,10 +416,20 @@ final class PlayerController: NSObject, ObservableObject {
 		}
 		var httpHeaders = ["User-Agent": headers["User-Agent"] ?? Net.userAgent]
 		if let ref = headers["Referer"] { httpHeaders["Referer"] = ref }
+		// Join like the other platforms: start on the first keyframes, never buy the
+		// buffer with waiting. In this engine liveEdgeCushionSeconds is a join gate —
+		// a join holds until that much media stands behind the edge, at 1x on a raw
+		// TS — and .standard's own holdback floor is 18 s, so passing the saved buffer
+		// (25 s) made every channel change wait ~20 s before the first frame. fastZap
+		// collapses the holdback to the source's keyframe cadence. The probe budgets
+		// are also tightened from the engine defaults (50 MB / 60 s) so stream-info
+		// probing cannot read a slow source for tens of seconds before a load returns.
 		let options = LoadOptions(
 			httpHeaders: httpHeaders,
 			isLive: live,
-			liveEdgeCushionSeconds: live ? cacheSeconds : nil
+			liveJoinProfile: live ? .fastZap : .standard,
+			probesize: 10_000_000,
+			maxAnalyzeDuration: 10_000_000
 		)
 		hasPlayed = false
 		buffering = false

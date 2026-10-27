@@ -28,9 +28,12 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
 ## Rules
 
 - AVPlayer prefers compatible streams; raw MPEG-TS goes to AetherEngine 7.48.0 (pinned by revision in
-  project.yml; FFmpeg demux, VideoToolbox decode, `liveEdgeCushionSeconds` = the saved cushion) since
-  0.6.5 — libVLC's fixed network cache rebuffered on bursty restreamed sources (KCPQ). An AetherEngine
-  failure before the first frame demotes the screen to libVLC once. libVLC 4 still handles the
+  project.yml; FFmpeg demux, VideoToolbox decode) since 0.6.5 — libVLC's fixed network cache rebuffered
+  on bursty restreamed sources (KCPQ). Live joins use `liveJoinProfile: .fastZap` and NEVER pass
+  `liveEdgeCushionSeconds`: in this engine the cushion is a join gate (a join holds until that much
+  media stands behind the edge, 1x on raw TS; .standard's own holdback floor is 18 s), so the saved
+  25 s buffer made every tune wait ~20 s in 0.6.5 — fixed in 0.6.6, with probe budgets tightened to
+  10 MB / 10 s. An AetherEngine failure before the first frame demotes the screen to libVLC once. libVLC 4 still handles the
   compatibility formats and fallback through SwiftVLC, pinned in project.yml to the serrebidev/SwiftVLC
   fork (branch accessible-iptv), which only adds `Player.setVideoEnabled`. Rebase that one commit to
   update. One `VLCInstance.app` with application-managed audio session; warmed at launch.
