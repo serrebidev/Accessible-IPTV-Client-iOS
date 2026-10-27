@@ -132,18 +132,21 @@ enum GuideSpeech {
 /// suggestions learn what to offer. Donating is fire-and-forget.
 enum Donations {
 	static func tuned(_ channel: Channel) {
-		let intent = TuneChannelIntent(channel: TVChannelEntity(channel))
-		Task { IntentDonationManager.shared.donate(intent: intent) }
+		var intent = TuneChannelIntent()
+		intent.channel = TVChannelEntity(channel)
+		Task { try? await IntentDonationManager.shared.donate(intent: intent) }
 	}
 
 	static func guideOpened(_ channel: Channel) {
-		let intent = OpenChannelGuideIntent(channel: TVChannelEntity(channel))
-		Task { IntentDonationManager.shared.donate(intent: intent) }
+		var intent = OpenChannelGuideIntent()
+		intent.channel = TVChannelEntity(channel)
+		Task { try? await IntentDonationManager.shared.donate(intent: intent) }
 	}
 
 	static func recordScheduled(_ programme: Programme, _ channel: Channel) {
-		let intent = RecordProgrammeIntent(programme: ProgrammeEntity(programme, channel))
-		Task { IntentDonationManager.shared.donate(intent: intent) }
+		var intent = RecordProgrammeIntent()
+		intent.programme = ProgrammeEntity(programme, channel)
+		Task { try? await IntentDonationManager.shared.donate(intent: intent) }
 	}
 }
 
@@ -170,9 +173,6 @@ struct RecordProgrammeIntent: AppIntent {
 	static var description: IntentDescription? = IntentDescription("record_programme_desc")
 	@Parameter(title: "programme", description: "programme_parameter_desc") var programme: ProgrammeEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$programme)") }
-
-	init() {}
-	init(programme: ProgrammeEntity) { self.programme = programme }
 
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<ProgrammeEntity> & ProvidesDialog {
 		let (p, ch) = try await SiriLibrary.programme(programme)
