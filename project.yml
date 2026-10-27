@@ -17,8 +17,8 @@ packages:
     revision: 76b74b0e6114deff686a8bed78800aef7d1aaba7
 settings:
   base:
-    MARKETING_VERSION: 0.6.2
-    CURRENT_PROJECT_VERSION: 31
+    MARKETING_VERSION: 0.6.3
+    CURRENT_PROJECT_VERSION: 32
     SWIFT_VERSION: "5.0"
 targets:
   AccessibleIPTV:

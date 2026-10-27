@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.3
+
+- Dispatcharr is now recognised behind an Xtream login too, not only from its M3U playlist, so 0.6.2’s whole-buffer start applies to Xtream logins. Refresh sources once to pick it up straight away; otherwise it applies at the next automatic refresh, within 12 hours.
+- When an Xtream server redirects http to https on the same address, live channels now connect over https directly instead of being redirected on every tune and reconnect.
+- Fixed a channel that was playing being restarted after 25 seconds and given up after 30 (“Stream lost”). The player sometimes missed the moment playback started; it now checks the player’s state every second.
+
+0.6.2 was not released: its build failed the same playback test this fixes.
+
 ## 0.6.2
 
 - Dispatcharr channels now start with your whole saved buffer, as Android does after its first rebuffer. They used to start with half a second, and the player cannot add to its buffer once a channel is open, so every short pause at the source was heard as buffering. Starting takes longer: about the buffer setting in seconds, after the server is ready. Lower Buffer seconds in Settings for a faster start with less protection.
