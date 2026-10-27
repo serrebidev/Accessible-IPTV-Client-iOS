@@ -1,15 +1,19 @@
 import Foundation
 
 /// Prefer Apple's player without probing the provider or rewriting a raw transport-stream URL.
+/// Transport streams go to AetherEngine (FFmpeg demux, one long-lived connection, a live
+/// cushion that refills): libVLC's fixed network cache read a bursty restreamed source as
+/// starvation and rebuffered no matter how large the cache was set (KCPQ, 2026-10-26).
+/// AetherEngine failures before the first frame demote to libVLC for the session.
 public enum PlaybackBackend {
-	case native, vlc
+	case native, vlc, aether
 
 	public static func preferred(for raw: String) -> PlaybackBackend {
 		let (plain, headers) = M3U.splitHeaders(raw)
 		// AVURLAsset has a public user-agent option, but no general HTTP-header option.
 		guard headers.keys.allSatisfy({ $0.lowercased() == "user-agent" }),
 			let url = URL(string: plain), ["http", "https", "file"].contains(url.scheme?.lowercased() ?? "") else { return .vlc }
-		if StreamOptions.isTransportStream(url) { return .vlc }
+		if StreamOptions.isTransportStream(url) { return .aether }
 		let compatibility = ["m2ts", "mts", "mkv", "avi", "flv", "wmv", "asf", "vob", "ogg", "ogv"]
 		return compatibility.contains(url.pathExtension.lowercased()) ? .vlc : .native
 	}

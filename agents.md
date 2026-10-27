@@ -27,10 +27,13 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
 
 ## Rules
 
-- AVPlayer prefers compatible streams; libVLC 4 handles raw MPEG-TS and compatibility fallback through
-  SwiftVLC, pinned in project.yml to the serrebidev/SwiftVLC fork (branch accessible-iptv), which only
-  adds `Player.setVideoEnabled`. Rebase that one commit to update. One `VLCInstance.app` with
-  application-managed audio session; warmed at launch.
+- AVPlayer prefers compatible streams; raw MPEG-TS goes to AetherEngine 7.48.0 (pinned by revision in
+  project.yml; FFmpeg demux, VideoToolbox decode, `liveEdgeCushionSeconds` = the saved cushion) since
+  0.6.5 — libVLC's fixed network cache rebuffered on bursty restreamed sources (KCPQ). An AetherEngine
+  failure before the first frame demotes the screen to libVLC once. libVLC 4 still handles the
+  compatibility formats and fallback through SwiftVLC, pinned in project.yml to the serrebidev/SwiftVLC
+  fork (branch accessible-iptv), which only adds `Player.setVideoEnabled`. Rebase that one commit to
+  update. One `VLCInstance.app` with application-managed audio session; warmed at launch.
 - libVLC 4 options (`StreamOptions` in Playback.swift): `:http-reconnect` is dead (legacy HTTP module
   only); live `.ts` uses `:http-continuous=1` (reconnect in place, never on HLS or files: it refetches a
   finished body forever). HLS through VLC ignores network-caching: `:adaptive-livedelay` (15 s floor).
@@ -43,7 +46,9 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
   files on disk. libVLC 4 has no public cookie API: a playlist Cookie header is not sent.
 - Text subtitles come out of libVLC as text (`Player.textSubtitleStream`, enabled before the first
   play): closed captions, teletext, ASS and stream tracks are shown by the app and spoken; libVLC no
-  longer draws them. Loaded SRT/WebVTT files keep their own cue reader (also spoken while relaying).
+  longer draws them. On the AetherEngine path the same text arrives as the engine's published
+  subtitle cues; the first subtitle track is selected as soon as tracks are known so cues flow.
+  Loaded SRT/WebVTT files keep their own cue reader (also spoken while relaying).
   Bitmap subtitles (DVB, PGS) stay in the picture and cannot be spoken.
 - Live buffer: `Cushion` in Playback.swift - quick start 0.5 s, the saved setting plus a second per
   stall. The player never sets a rate below 1 (2026-10-17, the desktop's rule): filling the buffer must

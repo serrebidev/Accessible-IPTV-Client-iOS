@@ -1,8 +1,10 @@
 import AVFoundation
+import Combine
 import MediaPlayer
 import SwiftUI
 import UIKit
 import SwiftVLC
+import AetherEngine
 import IPTVCore
 import GroupActivities
 import OSLog
@@ -19,6 +21,7 @@ final class PlayerController: NSObject, ObservableObject {
 	@Published var fullscreen = false
 	@Published private(set) var isPaused = false
 	@Published private(set) var usesNative: Bool
+	@Published private(set) var usesAether: Bool
 	@Published private(set) var nativeVideoAttached = true
 	let nativePlayer = AVPlayer()
 	private var nativeObservations: [NSKeyValueObservation] = []
@@ -42,6 +45,13 @@ final class PlayerController: NSObject, ObservableObject {
 	let player = Player(instance: .app)
 	private var vlcEvents: Task<Void, Never>?
 	private var subtitleText: Task<Void, Never>?
+	/// Transport streams play through AetherEngine instead of libVLC (PlaybackBackend).
+	let aether = AetherEngine()
+	private var aetherEvents: Set<AnyCancellable> = []
+	private var aetherLoad: Task<Void, Never>?
+	/// An AetherEngine failure before the first frame demotes this screen to libVLC,
+	/// the same compatibility fallback native playback has; it never demotes twice.
+	private var aetherDemoted = false
 	let request: PlayRequest
 	private let model = AppModel.shared
 	private var prefs: Prefs { model.prefs }
@@ -110,6 +120,7 @@ final class PlayerController: NSObject, ObservableObject {
 	init(request: PlayRequest) {
 		self.request = request
 		usesNative = PlaybackBackend.preferred(for: request.url) == .native
+		usesAether = PlaybackBackend.preferred(for: request.url) == .aether
 		let ch = request.channel
 		channel = ch
 		live = !request.catchup && ch?.isLive == true
@@ -131,6 +142,7 @@ final class PlayerController: NSObject, ObservableObject {
 		observeAudioSession()
 		registerRemoteCommands()
 		observeVLC()
+		observeAether()
 		let audioReady = activateAudio()
 		UIApplication.shared.isIdleTimerDisabled = true
 		showProgramme(announce: false)
@@ -170,9 +182,9 @@ final class PlayerController: NSObject, ObservableObject {
 				guard let self else { return }
 				switch event {
 				case .stateChanged(let state):
-					if !self.usesNative && !self.preparingVideo && self.openingTask == nil && self.player.state == state { self.stateChanged(state) }
+					if !self.usesNative && !self.usesAether && !self.preparingVideo && self.openingTask == nil && self.player.state == state { self.stateChanged(state) }
 				case .bufferingProgress(let fill):
-					if !self.usesNative && !self.preparingVideo { self.vlcBuffering(fill) }
+					if !self.usesNative && !self.usesAether && !self.preparingVideo { self.vlcBuffering(fill) }
 				default: break
 				}
 			}
@@ -184,6 +196,77 @@ final class PlayerController: NSObject, ObservableObject {
 				self.captionChanged(snapshot.text)
 			}
 		}
+	}
+
+	/// AetherEngine's published state, folded into the same handlers the other backends
+	/// feed. The engine's own reconnect rides a drop first; a live reset is its word that
+	/// the session cannot be revived in place, so it joins the app's reconnect budget.
+	private func observeAether() {
+		aether.$state.receive(on: DispatchQueue.main).sink { [weak self] state in
+			guard let self, self.usesAether, !self.closing else { return }
+			switch state {
+			case .playing:
+				self.bufferingChanged(1)
+				self.stateChanged(.playing)
+			case .paused:
+				self.isPlaying = false
+				self.nowPlayingInfo()
+			case .ended:
+				self.stateChanged(.stopped)
+			case .error(let message):
+				self.aetherError(message)
+			default: break
+			}
+		}.store(in: &aetherEvents)
+		aether.$playbackPhase.receive(on: DispatchQueue.main).sink { [weak self] phase in
+			guard let self, self.usesAether, !self.closing else { return }
+			switch phase {
+			case .rebuffering, .stalled: self.bufferingChanged(0)
+			default: break
+			}
+		}.store(in: &aetherEvents)
+		aether.liveSourceReset.receive(on: DispatchQueue.main).sink { [weak self] _ in
+			guard let self, self.usesAether, !self.closing else { return }
+			self.note("aether live reset")
+			_ = self.recover(grow: false, reason: "aether live reset")
+		}.store(in: &aetherEvents)
+		aether.$subtitleCues.receive(on: DispatchQueue.main).sink { [weak self] cues in
+			guard let self, self.usesAether, !self.closing else { return }
+			let now = self.aether.clock.sourceTime
+			guard let cue = cues.last(where: { $0.startTime <= now && now < $0.endTime }) else { return }
+			switch cue.body {
+			case .text(let text): self.captionChanged(text)
+			case .richText(let runs): self.captionChanged(runs.map(\.text).joined())
+			case .image: break
+			}
+		}.store(in: &aetherEvents)
+		aether.$subtitleTracks.receive(on: DispatchQueue.main).sink { [weak self] tracks in
+			guard let self, self.usesAether, !self.closing, !tracks.isEmpty,
+				self.aether.activeSubtitleTrackIndex == nil, self.cues.isEmpty else { return }
+			// Cues flow only once a track is selected, as they did from libVLC's stream.
+			self.aether.selectSubtitleTrack(index: tracks[0].id)
+		}.store(in: &aetherEvents)
+	}
+
+	/// The engine published a terminal failure. Before the first frame that means this
+	/// source is not one it can carry here: demote to libVLC once, like the native
+	/// fallback. After playback, the ordinary reconnect loop owns it.
+	private func aetherError(_ message: String) {
+		note("aether error: \(message)")
+		if !hasPlayed && !aetherDemoted {
+			aetherDemoted = true
+			usesAether = false
+			aetherLoad?.cancel()
+			aether.stop()
+			health.reset()
+			restartTrackSelection()
+			failed = !intent.canPlay
+			say(L("compatibility_playback"), 2)
+			_ = activateAudio()
+			open()
+			return
+		}
+		stateChanged(.error)
 	}
 
 	func close() {
@@ -208,6 +291,9 @@ final class PlayerController: NSObject, ObservableObject {
 		videoRelay?.stop()
 		videoRelay = nil
 		#endif
+		aetherLoad?.cancel()
+		aether.stop()
+		aetherEvents.removeAll()
 		PlaybackTeardown.stop(player)
 		vlcEvents?.cancel()
 		subtitleText?.cancel()
@@ -282,8 +368,9 @@ final class PlayerController: NSObject, ObservableObject {
 		health.prepared(caching: cacheSeconds)
 		bufferingSince = nil
 		lastStats = nil
-		note("open \(usesNative ? "native" : "libVLC"), cache \(cacheSeconds) s\(reopened ? ", reopen" : "")")
+		note("open \(usesNative ? "native" : usesAether ? "AetherEngine" : "libVLC"), cache \(cacheSeconds) s\(reopened ? ", reopen" : "")")
 		if usesNative { openNative(); return }
+		if usesAether { openAether(); return }
 		let (plain, headers) = M3U.splitHeaders(playbackURL)
 		guard let url = URL(string: plain) ?? (try? Net.url(plain)), let media = try? Media(url: url) else {
 			say(L("play_failed", plain), 1)
@@ -312,6 +399,39 @@ final class PlayerController: NSObject, ObservableObject {
 		#else
 		PlaybackTeardown.play(player, media)
 		#endif
+	}
+
+	/// A transport stream through AetherEngine: the saved cushion is held on the live
+	/// edge (the cushion a rebuffer refills before resuming), where libVLC's network
+	/// cache could only be set once at the open and read bursts as starvation.
+	private func openAether() {
+		let (plain, headers) = M3U.splitHeaders(playbackURL)
+		guard let url = URL(string: plain) ?? (try? Net.url(plain)) else {
+			say(L("play_failed", plain), 1)
+			failed = true
+			return
+		}
+		var httpHeaders = ["User-Agent": headers["User-Agent"] ?? Net.userAgent]
+		if let ref = headers["Referer"] { httpHeaders["Referer"] = ref }
+		let options = LoadOptions(
+			httpHeaders: httpHeaders,
+			isLive: live,
+			liveEdgeCushionSeconds: live ? cacheSeconds : nil
+		)
+		hasPlayed = false
+		buffering = false
+		aetherLoad?.cancel()
+		aetherLoad = Task { [weak self] in
+			guard let self else { return }
+			do {
+				_ = try await self.aether.load(url: url, options: options)
+				if self.intent.canPlay { self.aether.play() }
+			} catch is CancellationError {
+				// A newer load or a stop superseded this one; the successor owns the session.
+			} catch {
+				// The same failure arrives as .error on the state publisher; it is handled there.
+			}
+		}
 	}
 
 	// MARK: native playback
@@ -460,7 +580,10 @@ final class PlayerController: NSObject, ObservableObject {
 	}
 
 	private func chooseTrack(_ choice: TrackChoice) {
-		if usesNative, let group = choice.group { nativePlayer.currentItem?.select(choice.option, in: group) }
+		if let id = choice.aetherID {
+			if choice.aetherAudio { aether.selectAudioTrack(index: id) } else { aether.selectSubtitleTrack(index: id) }
+		}
+		else if usesNative, let group = choice.group { nativePlayer.currentItem?.select(choice.option, in: group) }
 		else if let track = choice.track, let owner = choice.owner {
 			if track.type == .audio { owner.selectedAudioTrack = track } else { owner.selectedSubtitleTrack = track }
 		}
@@ -484,13 +607,17 @@ final class PlayerController: NSObject, ObservableObject {
 		guard !closing else { return }
 		if s == .playing { health.playing() }
 		if s == .playing {
-			if !usesNative, let file = pendingSubtitle {
+			if !usesNative && !usesAether, let file = pendingSubtitle {
 				try? player.addExternalTrack(from: file, type: .subtitle, select: true)
 				pendingSubtitle = nil
 			}
-			if !usesNative, let time = fallbackTime, player.isSeekable {
+			if !usesNative && !usesAether, let time = fallbackTime, player.isSeekable {
 				try? player.seek(to: .milliseconds(Int64(time * 1000)))
 				fallbackTime = nil
+			}
+			if usesAether, let time = fallbackTime, !live {
+				fallbackTime = nil
+				Task { [weak self] in await self?.aether.seek(to: time) }
 			}
 			let becameReady = !hasPlayed
 			hasPlayed = true
@@ -499,7 +626,7 @@ final class PlayerController: NSObject, ObservableObject {
 			if becameReady { sharePlayback?.reapply() }
 		}
 		if s == .playing && !intent.canPlay {
-			if usesNative { nativePlayer.pause() } else { player.pause() }
+			if usesNative { nativePlayer.pause() } else if usesAether { aether.pause() } else { player.pause() }
 			return
 		}
 		let playing = s == .playing
@@ -510,7 +637,7 @@ final class PlayerController: NSObject, ObservableObject {
 		}
 		switch s {
 		case .playing:
-			if videoOff { player.setVideoEnabled(false) }
+			if videoOff && !usesAether { player.setVideoEnabled(false) }
 			hasPlayed = true
 			failed = false
 		case .error:
@@ -588,7 +715,7 @@ final class PlayerController: NSObject, ObservableObject {
 		retryTask?.cancel()
 		retryTask = nil
 		failed = true
-		if usesNative { nativePlayer.pause() } else { PlaybackTeardown.stop(player) }
+		if usesNative { nativePlayer.pause() } else if usesAether { aether.stop() } else { PlaybackTeardown.stop(player) }
 		isPlaying = false
 		nowPlayingInfo()
 		say(L("stream_lost"), 1)
@@ -603,7 +730,8 @@ final class PlayerController: NSObject, ObservableObject {
 		// the real failure (a busy provider, a teardown timeout). While casting or
 		// relaying, the receiver owns playback, as with Android's remote device check.
 		guard !closing, !failed, intent.canPlay, sharePlayback == nil, retryTask == nil, openingTask == nil, !preparingVideo, casting == nil, !isRelayingVideo else { return }
-		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing : player.state == .playing
+		let playingNow = usesNative ? nativePlayer.timeControlStatus == .playing
+			: usesAether ? aether.state == .playing : player.state == .playing
 		// observeVLC drops a Playing event that arrives before player.state matches it (its
 		// stale-event filter), and then nothing marks the channel played: it was restarted at
 		// 25 s and given up at 30 s while audibly playing (CI 2026-10-27; KitBoga the same night).
@@ -615,8 +743,9 @@ final class PlayerController: NSObject, ObservableObject {
 		var frozen = 0.0
 		if playingNow {
 			// Preserve invalid timestamps: sharedPlaybackTime clamps them for UI and SharePlay.
-			let position = usesNative ? nativePlayer.currentTime().seconds : vlcSeconds
-			if !usesNative, let stats = player.statistics {
+			let position = usesNative ? nativePlayer.currentTime().seconds
+				: usesAether ? aether.clock.currentTime : vlcSeconds
+			if !usesNative && !usesAether, let stats = player.statistics {
 				// Read only while playing, as before the playback log: with the read also running
 				// during an open, the v0.6.0 tag failed the "reaches Playing" integration tests.
 				logStats(stats)
@@ -627,6 +756,7 @@ final class PlayerController: NSObject, ObservableObject {
 		} else { progress.reset() }
 		// VLC's buffering state exists only before the first frame: a later stall is the buffering flag.
 		let waiting = usesNative ? nativePlayer.timeControlStatus == .waitingToPlayAtSpecifiedRate
+			: usesAether ? buffering || aether.state == .loading
 			: buffering || player.state == .opening || player.state == .buffering
 		switch health.tick(buffering: waiting, frozen: frozen) {
 		case .none: break
@@ -693,6 +823,7 @@ final class PlayerController: NSObject, ObservableObject {
 		openingTask = nil
 		retryTask = nil
 		player.pause()
+		if usesAether { aether.pause() }
 		if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
 		#if os(iOS)
 		if !live, !preparingVideo { videoRelay?.player.pause() }
@@ -742,6 +873,24 @@ final class PlayerController: NSObject, ObservableObject {
 				open()
 			}
 			else { nativePlayer.play(); armNativeTimeout() }
+			return
+		}
+		if usesAether {
+			var engineError = false
+			if case .error = aether.state { engineError = true }
+			if failed || engineError || aether.state == .idle || aether.state == .ended {
+				// Retry after a failure: a fresh start — quick start, saved buffer, full budget.
+				retryTask?.cancel()
+				retryTask = nil
+				reconnect.reset()
+				health.reset()
+				stalls = 0
+				reopened = false
+				failed = false
+				open()
+				return
+			}
+			aether.play()
 			return
 		}
 		if failed || player.state == .stopped || player.state == .stopping || player.state == .error {
@@ -794,6 +943,9 @@ final class PlayerController: NSObject, ObservableObject {
 		var owner: Player?
 		var option: AVMediaSelectionOption?
 		var group: AVMediaSelectionGroup?
+		/// An AetherEngine stream index, with whether it came from the audio list.
+		var aetherID: Int?
+		var aetherAudio = false
 		var selected = false
 		var isSelected: Bool { track?.isSelected ?? selected }
 	}
@@ -802,13 +954,26 @@ final class PlayerController: NSObject, ObservableObject {
 		#if os(iOS)
 		if let relay = videoRelay { return named(relay.player.audioTracks, on: relay.player) }
 		#endif
+		if usesAether { return aether.audioTracks.enumerated().map { i, t in aetherChoice(t, index: i, audio: true) } }
 		return usesNative ? selectedNativeTracks(nativeAudio) : named(player.audioTracks, on: player)
 	}
 	func textTracks() -> [TrackChoice] {
 		#if os(iOS)
 		if let relay = videoRelay { return named(relay.player.subtitleTracks, on: relay.player) }
 		#endif
+		if usesAether { return aether.subtitleTracks.enumerated().map { i, t in aetherChoice(t, index: i, audio: false) } }
 		return usesNative ? selectedNativeTracks(nativeText) : named(player.subtitleTracks, on: player)
+	}
+
+	private func aetherChoice(_ t: TrackInfo, index: Int, audio: Bool) -> TrackChoice {
+		var parts = [t.name]
+		if let l = t.language, !l.isEmpty { parts.append(Locale.current.localizedString(forLanguageCode: l) ?? l) }
+		let name = parts.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.joined(separator: ", ")
+		var choice = TrackChoice(name: name.isEmpty ? L("track_n", index + 1) : name)
+		choice.aetherID = t.id
+		choice.aetherAudio = audio
+		choice.selected = audio ? aether.activeAudioTrackIndex == t.id : aether.activeSubtitleTrackIndex == t.id
+		return choice
 	}
 
 	private func named(_ tracks: [Track], on owner: Player) -> [TrackChoice] {
@@ -871,6 +1036,7 @@ final class PlayerController: NSObject, ObservableObject {
 			say(L("subtitles_set", c.name), 2)
 		} else {
 			if usesNative, let group = nativeText.first?.group { nativePlayer.currentItem?.select(nil, in: group) }
+			if usesAether { aether.clearSubtitle() }
 			player.selectedSubtitleTrack = nil
 			#if os(iOS)
 			videoRelay?.player.selectedSubtitleTrack = nil
@@ -893,17 +1059,22 @@ final class PlayerController: NSObject, ObservableObject {
 			say(L("play_failed", error.localizedDescription), 1)
 			return
 		}
-		// External subtitle files use VLC's existing renderer and spoken-cue path.
+		// External subtitle files use the active engine's renderer and spoken-cue path.
 		loadedSubtitleFile = copy
 		selectedSubtitleName = picked.lastPathComponent
 		if usesNative && !isRelayingVideo { fallbackToVLC() }
-		#if os(iOS)
-		let subtitlePlayer = videoRelay?.player ?? player
-		#else
-		let subtitlePlayer = player
-		#endif
-		if subtitlePlayer.isPlaying { try? subtitlePlayer.addExternalTrack(from: copy, type: .subtitle, select: true) }
-		else { pendingSubtitle = copy }
+		if usesAether {
+			let track = aether.addExternalSubtitleTrack(ExternalSubtitleTrack(url: copy, name: picked.lastPathComponent, language: nil))
+			aether.selectSubtitleTrack(index: track.id)
+		} else {
+			#if os(iOS)
+			let subtitlePlayer = videoRelay?.player ?? player
+			#else
+			let subtitlePlayer = player
+			#endif
+			if subtitlePlayer.isPlaying { try? subtitlePlayer.addExternalTrack(from: copy, type: .subtitle, select: true) }
+			else { pendingSubtitle = copy }
+		}
 		say(L("subtitles_set", picked.lastPathComponent), 2)
 		cues = []
 		cueIndex = nil
@@ -926,8 +1097,8 @@ final class PlayerController: NSObject, ObservableObject {
 	private func cueTick() {
 		guard !cues.isEmpty else { return }
 		let off = !textTracks().contains { $0.isSelected }
-		// A positive delay shows cues later.
-		let ms = Int64(sharedPlaybackTime * 1000) - player.subtitleDelay.milliseconds
+		// A positive delay shows cues later. The delay is libVLC's; the engine has none.
+		let ms = Int64(sharedPlaybackTime * 1000) - (usesAether ? 0 : player.subtitleDelay.milliseconds)
 		let index = off || ms < 0 ? nil : SubtitleCues.active(cues, ms)
 		guard index != cueIndex else { return }
 		cueIndex = index
@@ -949,7 +1120,15 @@ final class PlayerController: NSObject, ObservableObject {
 	/// Moves playback to a Chromecast (libVLC's renderer), or back to this device.
 	func cast(to r: Renderer?) {
 		guard !closing else { return }
-		if let r { prepareVideoRelay(renderer: r); return }
+		if let r {
+			if usesAether {
+				// Conversion reads libVLC's tracks: demote first, then the relay flow opens it.
+				usesAether = false
+				aetherLoad?.cancel()
+				aether.stop()
+			}
+			prepareVideoRelay(renderer: r); return
+		}
 		if sharePlayback != nil { SharePlayCenter.shared.leave() }
 		let time = sharedPlaybackTime
 		castPreparation?.cancel()
@@ -961,6 +1140,7 @@ final class PlayerController: NSObject, ObservableObject {
 		videoRelay = nil
 		casting = nil
 		usesNative = PlaybackBackend.preferred(for: request.url) == .native
+		usesAether = PlaybackBackend.preferred(for: request.url) == .aether
 		if !live && time > 0 { fallbackTime = time }
 		preparingVideo = false
 		open()
@@ -969,6 +1149,7 @@ final class PlayerController: NSObject, ObservableObject {
 
 	/// The route picker keeps the same AVPlayer while an incompatible source is converted.
 	func prepareAirPlay() {
+		guard !usesAether else { return }
 		guard !usesNative || casting != nil else { return }
 		prepareVideoRelay(renderer: nil)
 	}
@@ -976,7 +1157,7 @@ final class PlayerController: NSObject, ObservableObject {
 	/// Picking an AirPlay device starts conversion automatically; no Prepare step.
 	/// Compatible streams already play natively, and audio-only routes need no video.
 	func airPlayDevicePicked() {
-		guard !usesNative else { return }
+		guard !usesNative, !usesAether else { return }
 		guard AVAudioSession.sharedInstance().currentRoute.outputs.contains(where: { $0.portType == .airPlay }) else { return }
 		prepareAirPlay()
 	}
@@ -1094,7 +1275,7 @@ final class PlayerController: NSObject, ObservableObject {
 		UIApplication.shared.isIdleTimerDisabled = phase == .active && !isPaused
 		if phase == .active { progress.reset() }
 		nativeVideoAttached = phase != .background
-		if usesNative { return }
+		if usesNative || usesAether { return }
 		if phase == .background && casting == nil && !videoOff {
 			videoOff = true
 			player.setVideoEnabled(false)
@@ -1158,6 +1339,7 @@ final class PlayerController: NSObject, ObservableObject {
 			retryTask?.cancel()
 			retryTask = nil
 			player.pause()
+			if usesAether { aether.pause() }
 			if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
 			isPlaying = false
 			nowPlayingInfo()
@@ -1177,7 +1359,8 @@ final class PlayerController: NSObject, ObservableObject {
 
 	var isSharingPlayback: Bool { sharePlayback != nil }
 	var sharedPlaybackTime: Double {
-		let time = usesNative ? nativePlayer.currentTime().seconds : vlcSeconds
+		let time = usesNative ? nativePlayer.currentTime().seconds
+			: usesAether ? aether.clock.currentTime : vlcSeconds
 		return time.isFinite ? max(0, time) + (isRelayingVideo && !live ? relayStartTime : 0) : 0
 	}
 	var sharedPlaybackRate: Float { isPaused ? 0 : 1 }
@@ -1186,6 +1369,8 @@ final class PlayerController: NSObject, ObservableObject {
 		guard hasPlayed, !buffering, !failed, !closing, retryTask == nil else { return false }
 		if usesNative {
 			guard nativePlayer.currentItem?.status == .readyToPlay else { return false }
+		} else if usesAether {
+			guard aether.state == .playing || aether.state == .paused else { return false }
 		} else if player.state != .playing && player.state != .paused { return false }
 		if let target = sharedSeekTarget {
 			guard abs(sharedPlaybackTime - target) < 0.5 else { return false }
@@ -1193,7 +1378,7 @@ final class PlayerController: NSObject, ObservableObject {
 		}
 		return true
 	}
-	var sharedPlaybackSeekable: Bool { !live && !isRelayingVideo && (usesNative ? nativePlayer.currentItem?.seekableTimeRanges.isEmpty == false : player.isSeekable) }
+	var sharedPlaybackSeekable: Bool { !live && !isRelayingVideo && (usesNative ? nativePlayer.currentItem?.seekableTimeRanges.isEmpty == false : usesAether ? true : player.isSeekable) }
 	var sharedPlaybackFailed: Bool { failed || closing }
 
 	func joinSharePlay(_ session: GroupSession<WatchTVActivity>, identifier: String) {
@@ -1223,6 +1408,7 @@ final class PlayerController: NSObject, ObservableObject {
 		if hasPlayed {
 			if temporary {
 				player.pause()
+				if usesAether { aether.pause() }
 				if usesNative { nativePlayer.pause(); nativeTimeout?.cancel() }
 				isPlaying = false
 				nowPlayingInfo()
@@ -1235,6 +1421,7 @@ final class PlayerController: NSObject, ObservableObject {
 		sharedPausePending = false
 		resumeLocally()
 		try? player.setPlaybackRate(PlaybackRate(rate))
+		if usesAether { aether.setRate(rate) }
 		if usesNative { nativePlayer.rate = rate }
 	}
 
@@ -1244,6 +1431,7 @@ final class PlayerController: NSObject, ObservableObject {
 		guard abs(sharedPlaybackTime - target) > 0.2 else { return }
 		sharedSeekTarget = target
 		if usesNative { nativePlayer.seek(to: CMTime(seconds: target, preferredTimescale: 1000), toleranceBefore: .zero, toleranceAfter: .zero) }
+		else if usesAether { Task { [weak self] in await self?.aether.seek(to: target) } }
 		else { try? player.seek(to: .milliseconds(Int64(target * 1000))) }
 	}
 

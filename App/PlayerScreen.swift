@@ -1,6 +1,7 @@
 import SwiftUI
 import UIKit
 import SwiftVLC
+import AetherEngine
 import IPTVCore
 import AVKit
 
@@ -48,6 +49,7 @@ private struct VideoView: View {
 	@ObservedObject var controller: PlayerController
 	var body: some View {
 		if controller.usesNative { NativeVideoView(controller: controller) }
+		else if controller.usesAether { AetherPlayerSurface(engine: controller.aether).accessibilityHidden(true) }
 		else { SwiftVLC.VideoView(controller.player).accessibilityHidden(true) }
 	}
 }

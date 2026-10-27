@@ -8,8 +8,14 @@ final class PlaybackBackendTests: XCTestCase {
 		}
 	}
 
-	func testTransportStreamsAndCompatibilityFormatsStayUnchanged() {
-		for url in ["https://tv.test/live/user/pass/1.ts", "https://tv.test/live/user/pass/123", "file:///recording.ts", "https://tv.test/movie.mkv", "https://tv.test/movie.avi"] {
+	func testTransportStreamsUseAether() {
+		for url in ["https://tv.test/live/user/pass/1.ts", "https://tv.test/live/user/pass/123", "file:///recording.ts"] {
+			XCTAssertEqual(PlaybackBackend.preferred(for: url), .aether, url)
+		}
+	}
+
+	func testCompatibilityFormatsStayOnVlc() {
+		for url in ["https://tv.test/movie.mkv", "https://tv.test/movie.avi"] {
 			XCTAssertEqual(PlaybackBackend.preferred(for: url), .vlc, url)
 		}
 	}

@@ -15,10 +15,14 @@ packages:
   SwiftVLC:
     url: https://github.com/serrebidev/SwiftVLC.git
     revision: 76b74b0e6114deff686a8bed78800aef7d1aaba7
+  # AetherEngine 7.48.0: transport-stream playback (FFmpeg demux, VideoToolbox decode).
+  AetherEngine:
+    url: https://github.com/superuser404notfound/AetherEngine.git
+    revision: 263dc11579274e83458bd3839715caf99f3d8969
 settings:
   base:
-    MARKETING_VERSION: 0.6.4
-    CURRENT_PROJECT_VERSION: 33
+    MARKETING_VERSION: 0.6.5
+    CURRENT_PROJECT_VERSION: 34
     SWIFT_VERSION: "5.0"
 targets:
   AccessibleIPTV:
@@ -33,6 +37,7 @@ targets:
     dependencies:
       - package: IPTVCore
       - package: SwiftVLC
+      - package: AetherEngine
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: dev.serrebi.accessibleiptv

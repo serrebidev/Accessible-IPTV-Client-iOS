@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.5
+
+- Live transport-stream channels (the kind Dispatcharr and Xtream live channels use) now play through a new playback engine, AetherEngine, instead of VLC. The new engine holds one long-lived connection and keeps your saved Buffer seconds as a cushion on the live edge that refills after a stutter, where VLC's fixed network cache read a bursty channel as starved and kept rebuffering no matter how large the buffer was set — channels like KCPQ should now ride out the short gaps at their source. If a channel fails on the new engine before its first picture, the app falls back to VLC for that channel automatically. Subtitles are still shown and spoken, audio track choice still applies, and everything else is unchanged: Apple's player still takes the streams it can play, and VLC still takes files and the remaining formats.
+
 ## 0.6.4
 
 Everything in 0.6.3, plus:
