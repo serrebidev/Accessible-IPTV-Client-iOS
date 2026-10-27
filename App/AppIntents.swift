@@ -325,7 +325,7 @@ struct IPTVShortcuts: AppShortcutsProvider {
 			"Record \(\.$programme) in \(.applicationName)"
 		], shortTitle: "record_programme", systemImageName: "record.circle")
 		AppShortcut(intent: OpenProgrammeIntent(), phrases: [
-			"Open \(\.$programme) in \(.applicationName)"
+			"Open \(\.$target) in \(.applicationName)"
 		], shortTitle: "open_programme", systemImageName: "calendar.badge.clock")
 		AppShortcut(intent: RemindProgrammeIntent(), phrases: [
 			"Remind me about \(\.$programme) in \(.applicationName)"
