@@ -1,4 +1,3 @@
-#if os(iOS)
 import Foundation
 import IPTVCore
 
@@ -101,5 +100,4 @@ private enum OnDeviceParser {
 		return spec.isEmpty ? nil : spec
 	}
 }
-#endif
 #endif
