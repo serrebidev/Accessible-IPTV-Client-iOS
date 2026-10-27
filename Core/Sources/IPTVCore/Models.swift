@@ -117,9 +117,11 @@ public struct Channel: Hashable, Identifiable {
 	}
 
 	/// Dispatcharr marks its XC playlist with this header attribute, and buffers server-side.
+	/// Channels from a Dispatcharr Xtream login carry [dispatcharrAttr] instead (Xtream.panel).
 	public var isDispatcharr: Bool {
-		!(attrs["catchup-timezone"] ?? "").trimmingCharacters(in: .whitespaces).isEmpty
+		attrs[Channel.dispatcharrAttr] == "1" || !(attrs["catchup-timezone"] ?? "").trimmingCharacters(in: .whitespaces).isEmpty
 	}
+	public static let dispatcharrAttr = "x-dispatcharr"
 
 	/// The provider's channel number (M3U tvg-chno, Xtream num, Stalker number), or "".
 	public var number: String { attrs[Channel.chno] ?? "" }

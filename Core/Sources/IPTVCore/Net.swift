@@ -51,6 +51,11 @@ public enum Net {
 
 	/// A small body, gzip unwrapped by sniffing the magic bytes.
 	public static func data(_ s: String, headers: [String: String] = [:]) async throws -> Data {
+		try await response(s, headers: headers).body
+	}
+
+	/// A small body and the address it finally came from, after redirects.
+	public static func response(_ s: String, headers: [String: String] = [:]) async throws -> (body: Data, url: URL?) {
 		let r = try request(s, headers: headers)
 		let (d, resp): (Data, URLResponse?) = try await withCheckedThrowingContinuation { cont in
 			session.dataTask(with: r) { d, resp, err in
@@ -58,7 +63,7 @@ public enum Net {
 			}.resume()
 		}
 		try check(resp)
-		return try gunzipIfNeeded(d)
+		return (try gunzipIfNeeded(d), resp?.url)
 	}
 
 	public static func text(_ s: String, headers: [String: String] = [:]) async throws -> String {

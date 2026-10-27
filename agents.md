@@ -48,7 +48,8 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
 - Live buffer: `Cushion` in Playback.swift - quick start 0.5 s, the saved setting plus a second per
   stall. The player never sets a rate below 1 (2026-10-17, the desktop's rule): filling the buffer must
   not slow playback down, and the buffer only grows from what the server hands over ahead of real time.
-  Dispatcharr channels (`Channel.isDispatcharr`, the header's `catchup-timezone`) open with the whole
+  Dispatcharr channels (`Channel.isDispatcharr`: the M3U header's `catchup-timezone`, or `x-dispatcharr`
+  set by `Xtream.panel` when player_api's server_info lacks https_port and rtmp_port) open with the whole
   saved buffer, no quick start (2026-10-27, Android parity: ExoPlayer resumes only with the saved
   buffer after a rebuffer; libVLC cannot grow its cache after the open, so 0.5 s stayed 0.5 s and every
   short source gap was heard). A stall does not grow it. Startup deadlines (`StallTracker`) are the
