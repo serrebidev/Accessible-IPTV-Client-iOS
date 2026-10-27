@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2
+
+- Channels start sooner: while you browse the channel list, the app warms a connection to the stream server in the background, so picking a channel no longer waits on a name lookup and a secure-connection handshake before the first picture can arrive. Nothing about the stream itself changes — the request that does the warming goes to the server's front door only, opens no channel, and the buffer settings are exactly as they were. The win is biggest for channels Apple's player handles; VLC channels gain the name lookup, because VLC keeps its own connection machinery.
+
+
 ## 0.6.1
 
 0.6.0 was not released: its build failed the playback tests.

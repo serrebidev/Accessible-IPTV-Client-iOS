@@ -49,6 +49,45 @@ public enum Net {
 		if let h = resp as? HTTPURLResponse, !(200...299).contains(h.statusCode) { throw NetError.status(h.statusCode) }
 	}
 
+	/// Stream hosts worth a warm connection, capped: the first ones seen win.
+	public static func warmHosts(_ urls: [String], max: Int = 2) -> [URL] {
+		var seen = Set<String>()
+		var roots: [URL] = []
+		for raw in urls {
+			// A playlist entry can carry its headers behind a pipe; they are not part of the address.
+			let (plain, _) = M3U.splitHeaders(raw)
+			guard let u = URL(string: plain), let scheme = u.scheme?.lowercased(),
+			      scheme == "http" || scheme == "https", let host = u.host, !host.isEmpty else { continue }
+			let key = "\(scheme)://\(host):\(u.port ?? (scheme == "https" ? 443 : 80))"
+			guard seen.insert(key).inserted else { continue }
+			var c = URLComponents()
+			c.scheme = scheme
+			c.host = host
+			c.port = u.port
+			c.path = "/"
+			if let root = c.url { roots.append(root) }
+			if roots.count >= max { break }
+		}
+		return roots
+	}
+
+	/// Warms one idle connection per stream host on the shared session, plus the host's
+	/// name in the system resolver, while the user browses: picking a channel then starts
+	/// nearer the first byte instead of paying DNS + TCP + TLS up front. Android's player
+	/// shares its HTTP client with the app, so there the whole handshake is saved; here
+	/// libVLC keeps its own stack, so VLC playback gains the resolved name, and playback
+	/// on Apple's stack (AVPlayer) gains the pooled connection too. The request goes to
+	/// the host's root — it opens no channel and no provider stream — and its answer is
+	/// dropped. The caches (network-caching) are untouched.
+	public static func warmUp(_ urls: [String]) {
+		for root in warmHosts(urls) {
+			var r = URLRequest(url: root)
+			r.timeoutInterval = 10
+			r.setValue(userAgent, forHTTPHeaderField: "User-Agent")
+			session.dataTask(with: r) { _, _, _ in }.resume()
+		}
+	}
+
 	/// A small body, gzip unwrapped by sniffing the magic bytes.
 	public static func data(_ s: String, headers: [String: String] = [:]) async throws -> Data {
 		let r = try request(s, headers: headers)

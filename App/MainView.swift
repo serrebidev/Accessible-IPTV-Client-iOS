@@ -167,6 +167,8 @@ struct MainView: View {
 			if nowMs() - prefs.lastUpdateCheck > 86_400_000 { checkUpdates(quiet: true) }
 		}
 		.onAppear {
+			// The connection warmed earlier was spent by the last channel watched.
+			Net.warmUp(channels.map { $0.url })
 			if model.sourcesChanged {
 				model.sourcesChanged = false
 				load(force: false, all: true)
@@ -509,6 +511,9 @@ struct MainView: View {
 			favs = prefs.favorites
 			await refreshGroupCounts()
 			await showChannels()
+			// Warm the stream hosts while the user browses: picking a channel then
+			// starts nearer the first byte, not at a DNS lookup and a handshake.
+			Net.warmUp(library.list(Library.live).map { $0.url })
 			SwitchTiming.before(nowMs() - t0)
 			model.setStatus(errors.isEmpty ? countText(library.list(section).count) : L("load_errors", errors.joined(separator: "; ")))
 			// Guide older than a day, or built for a different channel list: fetch it now.
