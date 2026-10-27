@@ -23,6 +23,6 @@ final class NetTests: XCTestCase {
 		]).map { $0.absoluteString }
 		// Same host on http and https are two hosts worth warming; the pipe tail is ignored.
 		XCTAssertEqual(["http://h.example/", "https://h.example/"], hosts)
-		XCTAssertTrue(Net.warmHosts([]).isEmpty())
+		XCTAssertTrue(Net.warmHosts([]).isEmpty)
 	}
 }
