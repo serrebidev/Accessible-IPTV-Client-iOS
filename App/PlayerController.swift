@@ -46,7 +46,7 @@ final class PlayerController: NSObject, ObservableObject {
 	private var vlcEvents: Task<Void, Never>?
 	private var subtitleText: Task<Void, Never>?
 	/// Transport streams play through AetherEngine instead of libVLC (PlaybackBackend).
-	let aether = AetherEngine()
+	let aether: AetherEngine
 	private var aetherEvents: Set<AnyCancellable> = []
 	private var aetherLoad: Task<Void, Never>?
 	/// An AetherEngine failure before the first frame demotes this screen to libVLC,
@@ -121,6 +121,9 @@ final class PlayerController: NSObject, ObservableObject {
 		self.request = request
 		usesNative = PlaybackBackend.preferred(for: request.url) == .native
 		usesAether = PlaybackBackend.preferred(for: request.url) == .aether
+		// The engine's init installs its FFmpeg log bridge and observers; it declares
+		// throws but has no failure a host can act on (its own examples treat it the same).
+		aether = try! AetherEngine()
 		let ch = request.channel
 		channel = ch
 		live = !request.catchup && ch?.isLive == true
