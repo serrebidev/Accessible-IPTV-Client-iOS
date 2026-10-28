@@ -263,10 +263,14 @@
 "stream_lost" = "Stream lost";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Subtitle file";
+"subtitle_generated" = "%1$@, generated";
 "subtitle_speech_needs_text" = "Speech needs an SRT or WebVTT file.";
+"subtitle_translated" = "%1$@, translated";
 "subtitles" = "Subtitles";
+"subtitles_enabled" = "Enable subtitles";
 "subtitles_off" = "Off";
 "subtitles_set" = "Subtitles: %1$@";
+"system_subtitles" = "System subtitles";
 "track_n" = "Track %1$ld";
 "tune_channel" = "Tune channel";
 "tune_channel_desc" = "Plays a live channel from your playlist by name or number.";

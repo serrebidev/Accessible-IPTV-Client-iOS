@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.1
+
+- Subtitles are now off until you turn them on. A new Enable subtitles switch in Settings is off on a fresh install, and Speak subtitles is off by default too. Nothing is selected, shown or spoken before that: transport-stream channels no longer pick their first subtitle track on their own, and on Apple's player your system caption preferences no longer switch subtitles on by themselves. Picking a subtitle track or a subtitle file in the player still works at any time — that pick turns subtitles on for that session, and choosing Off turns them back off.
+- Apple's own subtitle features are reachable on the channels Apple's player handles, once subtitles are enabled. On iOS 27, subtitles the system generates from the audio, and subtitles it translates into other languages, appear in the Subtitles list, marked as generated or translated. A new System subtitles button (iOS 26.4 or later) opens Apple's own subtitle menu for the playing channel, including caption style preview, so you can try the system's caption styles — like Large Text or your own custom style — and pick one without leaving the player; the style you pick applies across the system, as in Settings.
+
 ## 0.7.0
 
 - Siri and Spotlight now know programmes, not just channels. Upcoming programmes are indexed, so a show title searched from the Home screen or asked about by name can be opened in its channel guide, recorded, or given a start-time reminder — including as follow-ups to "what's on" and guide searches, which now hand Shortcuts the programmes themselves. Asking Siri to record a programme schedules it in Recordings, and the app teaches Siri from what you do: tuning a channel, opening a guide, and scheduling a recording are donated.

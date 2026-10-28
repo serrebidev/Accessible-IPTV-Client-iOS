@@ -263,10 +263,14 @@
 "stream_lost" = "ストリームが失われました";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "字幕ファイル";
+"subtitle_generated" = "%1$@、生成";
 "subtitle_speech_needs_text" = "読み上げには SRT か WebVTT ファイルが必要です。";
+"subtitle_translated" = "%1$@、翻訳";
 "subtitles" = "字幕";
+"subtitles_enabled" = "字幕を有効にする";
 "subtitles_off" = "オフ";
 "subtitles_set" = "字幕: %1$@";
+"system_subtitles" = "システム字幕";
 "track_n" = "トラック %1$ld";
 "tune_channel" = "チャンネルを再生";
 "tune_channel_desc" = "リストのライブチャンネルを名前または番号で再生します。";

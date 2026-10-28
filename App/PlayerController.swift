@@ -57,6 +57,11 @@ final class PlayerController: NSObject, ObservableObject {
 	let request: PlayRequest
 	private let model = AppModel.shared
 	private var prefs: Prefs { model.prefs }
+	/// The Settings opt-in for subtitles, read by the player screen for its system menu.
+	var subtitlesEnabled: Bool { prefs.subtitlesEnabled }
+	/// Subtitles show only when the user opted in, or picked a track or a subtitle file
+	/// in this session (selectedSubtitleName is that pick; choosing Off clears it).
+	private var subtitlesAllowed: Bool { prefs.subtitlesEnabled || selectedSubtitleName != nil }
 	private var playbackURL: String {
 		#if os(iOS)
 		if let url = videoRelay?.url { return url.absoluteString }
@@ -131,6 +136,9 @@ final class PlayerController: NSObject, ObservableObject {
 		live = !request.catchup && ch?.isLive == true
 		localFile = request.url.hasPrefix("file:")
 		super.init()
+		// Off until openNative applies the user's subtitle opt-in: the system's caption
+		// preferences must never turn subtitles on by themselves.
+		nativePlayer.appliesMediaSelectionCriteriaAutomatically = false
 	}
 
 	/// Looked up once: Library.channel scans every loaded list, movies included.
@@ -247,8 +255,10 @@ final class PlayerController: NSObject, ObservableObject {
 		}.store(in: &aetherEvents)
 		aether.$subtitleTracks.receive(on: DispatchQueue.main).sink { [weak self] tracks in
 			guard let self, self.usesAether, !self.closing, !tracks.isEmpty,
-				self.aether.activeSubtitleTrackIndex == nil, self.cues.isEmpty else { return }
+				self.aether.activeSubtitleTrackIndex == nil, self.cues.isEmpty, self.subtitlesAllowed else { return }
 			// Cues flow only once a track is selected, as they did from libVLC's stream.
+			// Subtitles are opt-in, so the first track is picked only when the user
+			// turned subtitles on or already picked one this session.
 			self.aether.selectSubtitleTrack(index: tracks[0].id)
 		}.store(in: &aetherEvents)
 	}
@@ -461,6 +471,11 @@ final class PlayerController: NSObject, ObservableObject {
 		item.preferredForwardBufferDuration = cacheSeconds
 		// After a stall, live HLS skips ahead to its distance from the live edge instead of drifting behind.
 		item.automaticallyPreservesTimeOffsetFromLive = live
+		// Subtitles are opt-in: with the setting off, the player must not apply the
+		// system's caption preferences (on iOS 27 those would also switch on generated
+		// subtitles unasked). With it on, the system criteria apply, so the user's
+		// caption language and generated-subtitle choices reach playback.
+		nativePlayer.appliesMediaSelectionCriteriaAutomatically = prefs.subtitlesEnabled
 		hasPlayed = false
 		buffering = false
 		#if !os(visionOS)
@@ -581,7 +596,17 @@ final class PlayerController: NSObject, ObservableObject {
 
 	private func nativeChoices(_ group: AVMediaSelectionGroup?) -> [TrackChoice] {
 		guard let group else { return [] }
-		return group.options.map { TrackChoice(name: $0.displayName, option: $0, group: group) }
+		return group.options.map { option in
+			var name = option.displayName
+			// AVKit's own menu names OS-generated and translated options itself; a
+			// custom list derives the suffix from the option's media characteristics.
+			if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *), option.hasMediaCharacteristic(.machineGenerated) {
+				name = L("subtitle_generated", name)
+			} else if option.hasMediaCharacteristic(.languageTranslation) {
+				name = L("subtitle_translated", name)
+			}
+			return TrackChoice(name: name, option: option, group: group)
+		}
 	}
 
 	private func selectedNativeTracks(_ choices: [TrackChoice]) -> [TrackChoice] {
@@ -1105,14 +1130,14 @@ final class PlayerController: NSObject, ObservableObject {
 	/// Every other text subtitle libVLC decodes (closed captions, teletext, ASS and the
 	/// stream's own tracks) arrives as text: libVLC no longer draws it, the screen shows it.
 	private func captionChanged(_ text: String) {
-		guard cues.isEmpty, !usesNative, text != subtitle else { return }
+		guard cues.isEmpty, !usesNative, subtitlesAllowed, text != subtitle else { return }
 		subtitle = text
 		if !text.isEmpty && prefs.speakSubtitles && isPlaying { announce(text) }
 	}
 
 	private func cueTick() {
 		guard !cues.isEmpty else { return }
-		let off = !textTracks().contains { $0.isSelected }
+		let off = !subtitlesAllowed || !textTracks().contains { $0.isSelected }
 		// A positive delay shows cues later. The delay is libVLC's; the engine has none.
 		let ms = Int64(sharedPlaybackTime * 1000) - (usesAether ? 0 : player.subtitleDelay.milliseconds)
 		let index = off || ms < 0 ? nil : SubtitleCues.active(cues, ms)

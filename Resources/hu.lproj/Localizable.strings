@@ -263,10 +263,14 @@
 "stream_lost" = "Az adás megszakadt";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Feliratfájl";
+"subtitle_generated" = "%1$@, létrehozott";
 "subtitle_speech_needs_text" = "A felolvasáshoz SRT vagy WebVTT fájl kell.";
+"subtitle_translated" = "%1$@, lefordított";
 "subtitles" = "Feliratok";
+"subtitles_enabled" = "Feliratok engedélyezése";
 "subtitles_off" = "Ki";
 "subtitles_set" = "Feliratok: %1$@";
+"system_subtitles" = "Rendszerfeliratok";
 "track_n" = "%1$ld. sáv";
 "tune_channel" = "Csatorna lejátszása";
 "tune_channel_desc" = "Élő csatornát indít a listájáról név vagy szám alapján.";

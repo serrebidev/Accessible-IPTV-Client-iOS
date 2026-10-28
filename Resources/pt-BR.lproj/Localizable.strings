@@ -263,10 +263,14 @@
 "stream_lost" = "Transmissão perdida";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Arquivo de legendas";
+"subtitle_generated" = "%1$@, geradas";
 "subtitle_speech_needs_text" = "A leitura precisa de um arquivo SRT ou WebVTT.";
+"subtitle_translated" = "%1$@, traduzidas";
 "subtitles" = "Legendas";
+"subtitles_enabled" = "Ativar legendas";
 "subtitles_off" = "Desligadas";
 "subtitles_set" = "Legendas: %1$@";
+"system_subtitles" = "Legendas do sistema";
 "track_n" = "Faixa %1$ld";
 "tune_channel" = "Sintonizar canal";
 "tune_channel_desc" = "Reproduz um canal ao vivo da sua lista por nome ou número.";

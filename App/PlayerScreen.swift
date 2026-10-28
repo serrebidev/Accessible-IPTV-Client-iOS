@@ -3,7 +3,45 @@ import UIKit
 import SwiftVLC
 import AetherEngine
 import IPTVCore
+import AVFoundation
 import AVKit
+
+#if os(iOS)
+/// The system's own subtitle menu for the native player (iOS 26.4+): track selection —
+/// including the subtitles iOS generates or translates on iOS 27 — plus caption style
+/// preview, all implemented by AVLegibleMediaOptionsMenuController.
+@available(iOS 26.4, *)
+private struct SystemSubtitleMenuButton: UIViewRepresentable {
+	let player: AVPlayer
+	let title: String
+
+	func makeCoordinator() -> Coordinator { Coordinator() }
+
+	final class Coordinator {
+		var menuController: AVLegibleMediaOptionsMenuController?
+	}
+
+	func makeUIView(context: Context) -> UIButton {
+		let controller = AVLegibleMediaOptionsMenuController(player: player)
+		context.coordinator.menuController = controller
+		let button = UIButton(type: .system)
+		var config = UIButton.Configuration.bordered()
+		config.title = title
+		config.buttonSize = .large
+		button.configuration = config
+		button.menu = controller.menu(contents: .all)
+		button.showsMenuAsPrimaryAction = true
+		button.accessibilityLabel = title
+		return button
+	}
+
+	func updateUIView(_ button: UIButton, context: Context) {
+		context.coordinator.menuController?.player = player
+		button.configuration?.title = title
+		button.accessibilityLabel = title
+	}
+}
+#endif
 
 #if os(iOS)
 /// Apple's own AirPlay and Bluetooth route picker. The system draws the button and the list of
@@ -262,6 +300,9 @@ struct PlayerScreen: View {
 				.focused($focus, equals: .pause).accessibilityFocused($voFocus, equals: .pause)
 			Button(L("audio_track")) { chooseAudio() }.key("a")
 			Button(L("subtitles")) { chooseSubtitles() }.key("s")
+			if c.usesNative && c.subtitlesEnabled, #available(iOS 26.4, *) {
+				SystemSubtitleMenuButton(player: c.nativePlayer, title: L("system_subtitles"))
+			}
 			Button(L("record")) { record() }
 			Button(L("cast")) { destination() }
 			Button(L("full_screen")) { setFullscreen(true) }.key("f")

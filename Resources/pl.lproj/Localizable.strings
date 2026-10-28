@@ -263,10 +263,14 @@
 "stream_lost" = "Utracono strumień";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Plik napisów";
+"subtitle_generated" = "%1$@, wygenerowane";
 "subtitle_speech_needs_text" = "Czytanie wymaga pliku SRT lub WebVTT.";
+"subtitle_translated" = "%1$@, przetłumaczone";
 "subtitles" = "Napisy";
+"subtitles_enabled" = "Włącz napisy";
 "subtitles_off" = "Wyłączone";
 "subtitles_set" = "Napisy: %1$@";
+"system_subtitles" = "Napisy systemowe";
 "track_n" = "Ścieżka %1$ld";
 "tune_channel" = "Włącz kanał";
 "tune_channel_desc" = "Odtwarza kanał na żywo z Twojej listy po nazwie lub numerze.";

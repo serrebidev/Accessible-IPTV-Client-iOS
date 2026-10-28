@@ -263,10 +263,14 @@
 "stream_lost" = "Stream verloren";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Untertiteldatei";
+"subtitle_generated" = "%1$@, generiert";
 "subtitle_speech_needs_text" = "Sprachausgabe braucht eine SRT- oder WebVTT-Datei.";
+"subtitle_translated" = "%1$@, übersetzt";
 "subtitles" = "Untertitel";
+"subtitles_enabled" = "Untertitel aktivieren";
 "subtitles_off" = "Aus";
 "subtitles_set" = "Untertitel: %1$@";
+"system_subtitles" = "Systemuntertitel";
 "track_n" = "Spur %1$ld";
 "tune_channel" = "Sender einschalten";
 "tune_channel_desc" = "Spielt einen Live-Sender aus deiner Liste nach Name oder Nummer.";

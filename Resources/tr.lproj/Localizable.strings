@@ -263,10 +263,14 @@
 "stream_lost" = "Yayın kaybedildi";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Altyazı dosyası";
+"subtitle_generated" = "%1$@, oluşturuldu";
 "subtitle_speech_needs_text" = "Seslendirme için SRT veya WebVTT dosyası gerekir.";
+"subtitle_translated" = "%1$@, çevrildi";
 "subtitles" = "Altyazı";
+"subtitles_enabled" = "Altyazıları etkinleştir";
 "subtitles_off" = "Kapalı";
 "subtitles_set" = "Altyazı: %1$@";
+"system_subtitles" = "Sistem altyazıları";
 "track_n" = "Parça %1$ld";
 "tune_channel" = "Kanalı aç";
 "tune_channel_desc" = "Listenizdeki canlı kanalı ad veya numarayla oynatır.";

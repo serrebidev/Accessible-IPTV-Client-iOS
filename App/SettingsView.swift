@@ -12,7 +12,8 @@ struct SettingsView: View {
 	@State private var keywords = ""
 	@State private var external = false
 	@State private var showUrl = false
-	@State private var speakSubs = true
+	@State private var subtitlesOn = false
+	@State private var speakSubs = false
 	@State private var announceLevel = 2
 	@State private var days = ""
 	@State private var buffer = ""
@@ -55,6 +56,7 @@ struct SettingsView: View {
 			Section {
 				Toggle(L("use_external_player"), isOn: $external).accessibilityLabel(L("use_external_player"))
 				Toggle(L("show_stream_url"), isOn: $showUrl).accessibilityLabel(L("show_stream_url"))
+				Toggle(L("subtitles_enabled"), isOn: $subtitlesOn).accessibilityLabel(L("subtitles_enabled"))
 				Toggle(L("speak_subtitles"), isOn: $speakSubs).accessibilityLabel(L("speak_subtitles"))
 				Picker(L("announcements"), selection: $announceLevel) {
 					Text(L("announce_none")).tag(0)
@@ -156,6 +158,7 @@ struct SettingsView: View {
 		keywords = prefs.audioKeywords
 		external = prefs.useExternalPlayer
 		showUrl = prefs.showStreamUrl
+		subtitlesOn = prefs.subtitlesEnabled
 		speakSubs = prefs.speakSubtitles
 		announceLevel = min(3, max(0, prefs.announceLevel))
 		days = String(prefs.epgDaysAhead)
@@ -170,6 +173,7 @@ struct SettingsView: View {
 		prefs.audioKeywords = keywords.trimmingCharacters(in: .whitespaces)
 		prefs.useExternalPlayer = external
 		prefs.showStreamUrl = showUrl
+		prefs.subtitlesEnabled = subtitlesOn
 		prefs.speakSubtitles = speakSubs
 		prefs.announceLevel = announceLevel
 		let d = Int(days.trimmingCharacters(in: .whitespaces)).map { min(14, max(1, $0)) } ?? 2

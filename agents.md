@@ -50,7 +50,17 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
 - Text subtitles come out of libVLC as text (`Player.textSubtitleStream`, enabled before the first
   play): closed captions, teletext, ASS and stream tracks are shown by the app and spoken; libVLC no
   longer draws them. On the AetherEngine path the same text arrives as the engine's published
-  subtitle cues; the first subtitle track is selected as soon as tracks are known so cues flow.
+  subtitle cues; the first subtitle track is selected as soon as tracks are known so cues flow —
+  but only when subtitles are on: subtitles are opt-in (`Prefs.subtitlesEnabled`, default off, and
+  `speakSubtitles` defaults off too). Picking a track or a subtitle file in the player counts as
+  opting in for that session (`PlayerController.subtitlesAllowed`); choosing Off clears it. On the
+  native path `appliesMediaSelectionCriteriaAutomatically` follows the opt-in, so system caption
+  preferences (and iOS 27 generated subtitles) never switch subtitles on unasked; when opted in,
+  the criteria apply and the iOS 26.4+ player shows a System subtitles button
+  (`AVLegibleMediaOptionsMenuController`: track selection incl. generated/translated options,
+  plus caption style preview). Native track names gain a generated/translated suffix from the
+  option's media characteristics, which AVKit's own menu adds automatically but a custom list
+  must derive itself.
   Loaded SRT/WebVTT files keep their own cue reader (also spoken while relaying).
   Bitmap subtitles (DVB, PGS) stay in the picture and cannot be spoken.
 - Live buffer: `Cushion` in Playback.swift - quick start 0.5 s, the saved setting plus a second per

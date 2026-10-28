@@ -263,10 +263,14 @@
 "stream_lost" = "Flusso perso";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "File di sottotitoli";
+"subtitle_generated" = "%1$@, generati";
 "subtitle_speech_needs_text" = "La lettura richiede un file SRT o WebVTT.";
+"subtitle_translated" = "%1$@, tradotti";
 "subtitles" = "Sottotitoli";
+"subtitles_enabled" = "Attiva sottotitoli";
 "subtitles_off" = "Disattivati";
 "subtitles_set" = "Sottotitoli: %1$@";
+"system_subtitles" = "Sottotitoli di sistema";
 "track_n" = "Traccia %1$ld";
 "tune_channel" = "Riproduci canale";
 "tune_channel_desc" = "Riproduce un canale in diretta dalla tua lista per nome o numero.";

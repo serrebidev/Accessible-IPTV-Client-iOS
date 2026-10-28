@@ -108,6 +108,17 @@ final class PrefsTests: XCTestCase {
 		XCTAssertFalse(prefs.speakSubtitles)
 	}
 
+	/// Subtitles are opt-in: a fresh install has them off, spoken subtitles included.
+	func testSubtitlesAreOptInAndOffByDefault() throws {
+		XCTAssertFalse(prefs.subtitlesEnabled)
+		XCTAssertFalse(prefs.speakSubtitles)
+		prefs.subtitlesEnabled = true
+		let file = try prefs.export()
+		prefs.subtitlesEnabled = false
+		try prefs.importSettings(file)
+		XCTAssertTrue(prefs.subtitlesEnabled, "the opt-in survives a settings round trip")
+	}
+
 	func testFavouritesToggle() {
 		XCTAssertTrue(prefs.toggleFavorite("k"))
 		XCTAssertEqual(prefs.favorites, ["k"])

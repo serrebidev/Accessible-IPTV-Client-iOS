@@ -263,10 +263,14 @@
 "stream_lost" = "Поток потерян";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "Файл субтитров";
+"subtitle_generated" = "%1$@, сгенерированные";
 "subtitle_speech_needs_text" = "Для озвучивания нужен файл SRT или WebVTT.";
+"subtitle_translated" = "%1$@, переведённые";
 "subtitles" = "Субтитры";
+"subtitles_enabled" = "Включить субтитры";
 "subtitles_off" = "Выключены";
 "subtitles_set" = "Субтитры: %1$@";
+"system_subtitles" = "Системные субтитры";
 "track_n" = "Дорожка %1$ld";
 "tune_channel" = "Включить канал";
 "tune_channel_desc" = "Включает прямой канал из вашего списка по названию или номеру.";

@@ -65,8 +65,11 @@ public final class Prefs {
 
 	/// Desktop "Automatic Announcements": 0 none, 1 errors only, 2 important events, 3 detailed status.
 	public var announceLevel: Int { get { int("announceLevel", 2) } set { d.set(newValue, forKey: "announceLevel") } }
+	/// Subtitles are opt-in: nothing is selected, shown or spoken until this is on.
+	/// Picking a track or a subtitle file in the player turns them on for that session only.
+	public var subtitlesEnabled: Bool { get { bool("subtitlesEnabled", false) } set { d.set(newValue, forKey: "subtitlesEnabled") } }
 	/// Subtitle text is spoken as it appears.
-	public var speakSubtitles: Bool { get { bool("speakSubtitles", true) } set { d.set(newValue, forKey: "speakSubtitles") } }
+	public var speakSubtitles: Bool { get { bool("speakSubtitles", false) } set { d.set(newValue, forKey: "speakSubtitles") } }
 
 	/// Live channels played, newest first; [0] is the one on now, [1] the previous channel.
 	public var recent: [String] {
@@ -90,7 +93,7 @@ public final class Prefs {
 		"sources": "s", "favorites": "set", "preferAd": "b", "audioKeywords": "s", "externalPlayer": "b",
 		"showStreamUrl": "b", "bufferSeconds": "f", "maxBufferSeconds": "f", "epgDaysAhead": "i",
 		"guideFingerprint": "i", "lastUpdateCheck": "l", "lastEpgImport": "l", "lastGroup": "s",
-		"prePad": "i", "postPad": "i", "announceLevel": "i", "speakSubtitles": "b", "recent": "s", "channelTracks": "s",
+		"prePad": "i", "postPad": "i", "announceLevel": "i", "subtitlesEnabled": "b", "speakSubtitles": "b", "recent": "s", "channelTracks": "s",
 	]
 	public static let exportApp = "AccessibleIPTV-iOS"
 	private static let importable: Set<String> = [exportApp, "AccessibleIPTV-Android"]

@@ -263,10 +263,14 @@
 "stream_lost" = "流已丢失";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "字幕文件";
+"subtitle_generated" = "%1$@，已生成";
 "subtitle_speech_needs_text" = "朗读需要 SRT 或 WebVTT 文件。";
+"subtitle_translated" = "%1$@，已翻译";
 "subtitles" = "字幕";
+"subtitles_enabled" = "启用字幕";
 "subtitles_off" = "关闭";
 "subtitles_set" = "字幕: %1$@";
+"system_subtitles" = "系统字幕";
 "track_n" = "音轨 %1$ld";
 "tune_channel" = "播放频道";
 "tune_channel_desc" = "按名称或编号播放列表中的直播频道。";

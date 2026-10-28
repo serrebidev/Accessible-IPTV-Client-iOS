@@ -263,10 +263,14 @@
 "stream_lost" = "स्ट्रीम खो गई";
 "stream_url_is" = "URL: %1$@";
 "subtitle_file" = "उपशीर्षक फ़ाइल";
+"subtitle_generated" = "%1$@, बनाए गए";
 "subtitle_speech_needs_text" = "बोलने के लिए SRT या WebVTT फ़ाइल चाहिए।";
+"subtitle_translated" = "%1$@, अनुवादित";
 "subtitles" = "उपशीर्षक";
+"subtitles_enabled" = "उपशीर्षक चालू करें";
 "subtitles_off" = "बंद";
 "subtitles_set" = "उपशीर्षक: %1$@";
+"system_subtitles" = "सिस्टम उपशीर्षक";
 "track_n" = "ट्रैक %1$ld";
 "tune_channel" = "चैनल चलाएँ";
 "tune_channel_desc" = "आपकी सूची से नाम या नंबर से लाइव चैनल चलाता है।";
