@@ -147,6 +147,7 @@
 "open_programme" = "कार्यक्रम खोलें";
 "open_programme_desc" = "किसी कार्यक्रम को उसके चैनल गाइड में खोलता है।";
 "pause" = "रोकें";
+"picture_in_picture" = "पिक्चर इन पिक्चर";
 "play" = "चलाएँ";
 "play_external" = "दूसरे ऐप में चलाएँ";
 "play_failed" = "विफल: %1$@";

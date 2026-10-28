@@ -147,6 +147,7 @@
 "open_programme" = "Sendung öffnen";
 "open_programme_desc" = "Öffnet eine Sendung in ihrem Senderprogramm.";
 "pause" = "Pause";
+"picture_in_picture" = "Bild in Bild";
 "play" = "Abspielen";
 "play_external" = "In anderer App abspielen";
 "play_failed" = "Fehler: %1$@";

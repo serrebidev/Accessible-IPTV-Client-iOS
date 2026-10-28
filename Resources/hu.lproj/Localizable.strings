@@ -147,6 +147,7 @@
 "open_programme" = "Műsor megnyitása";
 "open_programme_desc" = "Megnyit egy műsort a csatornája műsorújságában.";
 "pause" = "Szünet";
+"picture_in_picture" = "Kép a képben";
 "play" = "Lejátszás";
 "play_external" = "Lejátszás másik alkalmazásban";
 "play_failed" = "Hiba: %1$@";

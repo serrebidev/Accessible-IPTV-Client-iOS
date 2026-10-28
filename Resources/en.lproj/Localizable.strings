@@ -147,6 +147,7 @@
 "open_programme" = "Open programme";
 "open_programme_desc" = "Opens a programme in its channel guide.";
 "pause" = "Pause";
+"picture_in_picture" = "Picture in Picture";
 "play" = "Play";
 "play_external" = "Play in another app";
 "play_failed" = "Failed: %1$@";

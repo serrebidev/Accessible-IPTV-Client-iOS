@@ -74,6 +74,16 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
   cache fill plus 25 s / 30 s, since the server's own startup comes first. Never read
   `player.statistics` before Playing: it stalls libVLC's open.
 - Background: UIBackgroundModes audio. Playback continues with the screen locked (video track off).
+- Picture in Picture (0.7.2): the native AVPlayerViewController allows PiP and starts it
+  automatically from inline when the app backgrounds; its window's transport controls work
+  through the player, and its delegate restores the full player screen. The controller's
+  `scene()` keeps the native surface attached while PiP is active (detaching kills the
+  window). On the AetherEngine path the controller owns an AVPictureInPictureController
+  over the engine's `softwarePiPSource` (rebuilt per session), starts it from the player's
+  Picture in Picture button or as the app resigns active, sets
+  `aether.pictureInPictureActive` from the PiP delegate (the engine's keepalive and its
+  in-window subtitle compositor hang off it), and answers the window's play/pause and
+  skip from the source. libVLC has no PiP; its sessions keep background audio only.
   Recording keeps the app awake with a silent looping sound while recording or a schedule is within 6 h;
   otherwise a local notification at start time asks to open the app. iOS cannot wake an app on time.
 - tvOS: data and recordings live in Caches (no persistent storage); no file picker, voice or notifications.

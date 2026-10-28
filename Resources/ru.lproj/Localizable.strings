@@ -147,6 +147,7 @@
 "open_programme" = "Открыть программу";
 "open_programme_desc" = "Открывает программу в гиде её канала.";
 "pause" = "Пауза";
+"picture_in_picture" = "Картинка в картинке";
 "play" = "Играть";
 "play_external" = "Открыть в другом приложении";
 "play_failed" = "Ошибка: %1$@";

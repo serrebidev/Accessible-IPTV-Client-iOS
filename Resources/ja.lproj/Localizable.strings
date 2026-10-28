@@ -147,6 +147,7 @@
 "open_programme" = "番組を開く";
 "open_programme_desc" = "チャンネルの番組表で番組を開きます。";
 "pause" = "一時停止";
+"picture_in_picture" = "ピクチャ・イン・ピクチャ";
 "play" = "再生";
 "play_external" = "他のアプリで再生";
 "play_failed" = "失敗: %1$@";

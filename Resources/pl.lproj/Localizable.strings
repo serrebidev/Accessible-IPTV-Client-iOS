@@ -147,6 +147,7 @@
 "open_programme" = "Otwórz program";
 "open_programme_desc" = "Otwiera program w przewodniku jego kanału.";
 "pause" = "Pauza";
+"picture_in_picture" = "Obraz w obrazie";
 "play" = "Odtwórz";
 "play_external" = "Odtwórz w innej aplikacji";
 "play_failed" = "Błąd: %1$@";

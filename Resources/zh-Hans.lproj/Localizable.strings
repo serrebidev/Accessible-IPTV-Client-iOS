@@ -147,6 +147,7 @@
 "open_programme" = "打开节目";
 "open_programme_desc" = "在其频道指南中打开节目。";
 "pause" = "暂停";
+"picture_in_picture" = "画中画";
 "play" = "播放";
 "play_external" = "用其他应用播放";
 "play_failed" = "失败: %1$@";

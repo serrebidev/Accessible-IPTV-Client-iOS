@@ -1,4 +1,5 @@
 import AVFoundation
+import AVKit
 import Combine
 import MediaPlayer
 import SwiftUI
@@ -25,7 +26,14 @@ final class PlayerController: NSObject, ObservableObject {
 	@Published private(set) var usesNative: Bool
 	@Published private(set) var usesAether: Bool
 	@Published private(set) var nativeVideoAttached = true
+	/// Picture in Picture is running, on either engine that supports it.
+	@Published private(set) var pipActive = false
+	/// An AetherEngine session has a PiP source, so the PiP button can be offered.
+	@Published private(set) var aetherPiPReady = false
 	let nativePlayer = AVPlayer()
+	/// The AetherEngine sample-buffer PiP controller, rebuilt for each session's source.
+	private var pipController: AVPictureInPictureController?
+	private let pipBridge = PiPBridge()
 	private var nativeObservations: [NSKeyValueObservation] = []
 	private var nativeNotifications: [NSObjectProtocol] = []
 	private var nativeTimeout: Task<Void, Never>?
@@ -139,7 +147,45 @@ final class PlayerController: NSObject, ObservableObject {
 		// Off until openNative applies the user's subtitle opt-in: the system's caption
 		// preferences must never turn subtitles on by themselves.
 		nativePlayer.appliesMediaSelectionCriteriaAutomatically = false
+		pipBridge.owner = self
 	}
+
+	// MARK: picture in picture
+
+	/// A Picture in Picture button can be offered: an AetherEngine session whose PiP
+	/// source exists. The native player's PiP needs no button — AVKit starts it itself
+	/// when the app backgrounds — and libVLC has no PiP at all.
+	var pipStartable: Bool { usesAether && aetherPiPReady }
+
+	/// Starts PiP on the AetherEngine path (the button, or the app backgrounding).
+	func startPiP() {
+		guard let pipController, pipController.isPictureInPicturePossible, !pipActive else { return }
+		pipController.startPictureInPicture()
+	}
+
+	private func rebuildPiP(_ source: SoftwarePiPSource?) {
+		pipController?.stopPictureInPicture()
+		pipController = nil
+		aetherPiPReady = false
+		guard usesAether, let source, AVPictureInPictureController.isPictureInPictureSupported() else { return }
+		let controller = AVPictureInPictureController(contentSource: .init(sampleBufferDisplayLayer: source.layer, playbackDelegate: pipBridge))
+		controller.delegate = pipBridge
+		pipController = controller
+		aetherPiPReady = true
+	}
+
+	func pipStarted() {
+		pipActive = true
+		if usesAether { aether.pictureInPictureActive = true }
+	}
+
+	func pipStopped() {
+		pipActive = false
+		if usesAether { aether.pictureInPictureActive = false }
+	}
+
+	/// PiP's own restore affordance: bring the full player screen back.
+	func restoreFromPiP() { model.playerPresented = true }
 
 	/// Looked up once: Library.channel scans every loaded list, movies included.
 	let channel: Channel?
@@ -253,6 +299,10 @@ final class PlayerController: NSObject, ObservableObject {
 			case .image: break
 			}
 		}.store(in: &aetherEvents)
+		aether.$softwarePiPSource.receive(on: DispatchQueue.main).sink { [weak self] source in
+			guard let self, !self.closing else { return }
+			self.rebuildPiP(source)
+		}.store(in: &aetherEvents)
 		aether.$subtitleTracks.receive(on: DispatchQueue.main).sink { [weak self] tracks in
 			guard let self, self.usesAether, !self.closing, !tracks.isEmpty,
 				self.aether.activeSubtitleTrackIndex == nil, self.cues.isEmpty, self.subtitlesAllowed else { return }
@@ -307,6 +357,10 @@ final class PlayerController: NSObject, ObservableObject {
 		videoRelay = nil
 		#endif
 		aetherLoad?.cancel()
+		pipController?.stopPictureInPicture()
+		pipController = nil
+		aetherPiPReady = false
+		if usesAether { aether.pictureInPictureActive = false }
 		aether.stop()
 		aetherEvents.removeAll()
 		PlaybackTeardown.stop(player)
@@ -1315,7 +1369,12 @@ final class PlayerController: NSObject, ObservableObject {
 	func scene(_ phase: ScenePhase) {
 		UIApplication.shared.isIdleTimerDisabled = phase == .active && !isPaused
 		if phase == .active { progress.reset() }
-		nativeVideoAttached = phase != .background
+		// While PiP runs, the native surface stays attached: detaching the player from
+		// its view controller would kill the PiP window.
+		nativeVideoAttached = phase != .background || pipActive
+		// AetherEngine PiP starts as the app resigns active, the same moment AVKit
+		// starts the native player's own PiP.
+		if usesAether, phase == .inactive, isPlaying { startPiP() }
 		if usesNative || usesAether { return }
 		if phase == .background && casting == nil && !videoOff {
 			videoOff = true
@@ -1517,5 +1576,44 @@ final class PlayerController: NSObject, ObservableObject {
 			MPNowPlayingInfoPropertyIsLiveStream: live,
 			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(usesNative ? nativePlayer.rate : player.rate) : 0.0,
 		]
+	}
+}
+
+/// AVKit's PiP callbacks for the AetherEngine sample-buffer path: lifecycle goes to the
+/// controller (which arms the engine's keepalive), and the PiP window's own transport
+/// controls — play/pause and skip — are answered by the engine's PiP source, whose
+/// enqueued-frame time axis is the only honest one.
+@MainActor
+final class PiPBridge: NSObject, @preconcurrency AVPictureInPictureControllerDelegate, @preconcurrency AVPictureInPictureSampleBufferPlaybackDelegate {
+	weak var owner: PlayerController?
+
+	func pictureInPictureControllerDidStartPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+		owner?.pipStarted()
+	}
+
+	func pictureInPictureControllerDidStopPictureInPicture(_ pictureInPictureController: AVPictureInPictureController) {
+		owner?.pipStopped()
+	}
+
+	func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+		owner?.restoreFromPiP()
+		completionHandler(true)
+	}
+
+	func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, setPlaying playing: Bool) {
+		owner?.aether.softwarePiPSource?.setPlaying(playing)
+	}
+
+	func pictureInPictureControllerTimeRangeForPlayback(_ pictureInPictureController: AVPictureInPictureController) -> CMTimeRange {
+		owner?.aether.softwarePiPSource?.timeRange() ?? CMTimeRange(start: .negativeInfinity, duration: .positiveInfinity)
+	}
+
+	func pictureInPictureControllerIsPlaybackPaused(_ pictureInPictureController: AVPictureInPictureController) -> Bool {
+		owner?.aether.softwarePiPSource?.isPaused ?? true
+	}
+
+	func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, skipByInterval skipInterval: CMTime, completion completionHandler: @escaping () -> Void) {
+		owner?.aether.softwarePiPSource?.skip(by: skipInterval.seconds)
+		completionHandler()
 	}
 }

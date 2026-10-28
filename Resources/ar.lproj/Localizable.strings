@@ -147,6 +147,7 @@
 "open_programme" = "فتح برنامج";
 "open_programme_desc" = "يفتح برنامجًا في دليل قناته.";
 "pause" = "إيقاف مؤقت";
+"picture_in_picture" = "صورة في صورة";
 "play" = "تشغيل";
 "play_external" = "تشغيل في تطبيق آخر";
 "play_failed" = "فشل: %1$@";

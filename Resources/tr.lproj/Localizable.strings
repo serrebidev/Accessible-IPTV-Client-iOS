@@ -147,6 +147,7 @@
 "open_programme" = "Programı aç";
 "open_programme_desc" = "Bir programı kanal rehberinde açar.";
 "pause" = "Duraklat";
+"picture_in_picture" = "Resim içinde resim";
 "play" = "Oynat";
 "play_external" = "Başka uygulamada oynat";
 "play_failed" = "Başarısız: %1$@";

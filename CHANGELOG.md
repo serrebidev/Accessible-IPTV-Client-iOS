@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.2
+
+- Picture in Picture now works, with controls in the PiP window itself. On channels Apple's player handles, leaving the app while a channel plays pops the video into a floating Picture in Picture window instead of dropping the picture, and the window's own buttons pause, resume and skip. On transport-stream channels (the AetherEngine ones, like most live TV), a Picture in Picture button in the player starts it, it also starts on its own when you leave the app mid-channel, and its buttons work the same way — subtitles you turned on keep showing inside the window. Tapping the window's restore button brings the full player back. VLC-handled formats still cannot float — no version of VLC on iOS offers Picture in Picture — but their sound keeps playing in the background as before, like every other format.
+
 ## 0.7.1
 
 - Subtitles are now off until you turn them on. A new Enable subtitles switch in Settings is off on a fresh install, and Speak subtitles is off by default too. Nothing is selected, shown or spoken before that: transport-stream channels no longer pick their first subtitle track on their own, and on Apple's player your system caption preferences no longer switch subtitles on by themselves. Picking a subtitle track or a subtitle file in the player still works at any time — that pick turns subtitles on for that session, and choosing Off turns them back off.

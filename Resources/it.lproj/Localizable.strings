@@ -147,6 +147,7 @@
 "open_programme" = "Apri programma";
 "open_programme_desc" = "Apre un programma nella guida del suo canale.";
 "pause" = "Pausa";
+"picture_in_picture" = "Picture in Picture";
 "play" = "Riproduci";
 "play_external" = "Riproduci in un’altra app";
 "play_failed" = "Errore: %1$@";

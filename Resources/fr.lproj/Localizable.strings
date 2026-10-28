@@ -147,6 +147,7 @@
 "open_programme" = "Ouvrir l'émission";
 "open_programme_desc" = "Ouvre une émission dans le guide de sa chaîne.";
 "pause" = "Pause";
+"picture_in_picture" = "Image dans l’image";
 "play" = "Lecture";
 "play_external" = "Lire dans une autre app";
 "play_failed" = "Échec : %1$@";

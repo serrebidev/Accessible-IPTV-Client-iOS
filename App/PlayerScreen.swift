@@ -68,10 +68,28 @@ private struct RoutePicker: UIViewRepresentable {
 
 private struct NativeVideoView: UIViewControllerRepresentable {
 	@ObservedObject var controller: PlayerController
+	func makeCoordinator() -> Coordinator { Coordinator(controller) }
+	@MainActor final class Coordinator: NSObject, @preconcurrency AVPlayerViewControllerDelegate {
+		let controller: PlayerController
+		init(_ controller: PlayerController) { self.controller = controller }
+		func playerViewControllerDidStartPictureInPicture(_ playerViewController: AVPlayerViewController) { controller.pipStarted() }
+		func playerViewControllerDidStopPictureInPicture(_ playerViewController: AVPlayerViewController) { controller.pipStopped() }
+		func playerViewController(_ playerViewController: AVPlayerViewController, restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
+			controller.restoreFromPiP()
+			completionHandler(true)
+		}
+	}
 	func makeUIViewController(context: Context) -> AVPlayerViewController {
 		let view = AVPlayerViewController()
 		// Keep the app's labelled, always-visible controls and single Now Playing owner.
 		view.showsPlaybackControls = false
+		view.delegate = context.coordinator
+		// Picture in Picture: AVKit starts it itself when the app backgrounds, and its
+		// window carries working play/pause (and skip, for recordings) controls.
+		view.allowsPictureInPicturePlayback = true
+		#if os(iOS) || os(tvOS)
+		view.canStartPictureInPictureAutomaticallyFromInline = true
+		#endif
 		#if !os(tvOS)
 		view.updatesNowPlayingInfoCenter = false
 		#endif
@@ -303,6 +321,9 @@ struct PlayerScreen: View {
 			if c.usesNative && c.subtitlesEnabled, #available(iOS 26.4, *) {
 				SystemSubtitleMenuButton(player: c.nativePlayer, title: L("system_subtitles"))
 			}
+			if c.pipStartable {
+				Button(L("picture_in_picture")) { c.startPiP() }
+			}
 			Button(L("record")) { record() }
 			Button(L("cast")) { destination() }
 			Button(L("full_screen")) { setFullscreen(true) }.key("f")
@@ -352,6 +373,9 @@ struct PlayerScreen: View {
 					.key("a")
 				Button(L("subtitles")) { chooseSubtitles() }
 					.key("s")
+				if c.pipStartable {
+					Button(L("picture_in_picture")) { c.startPiP() }
+				}
 				Button(L("record")) { record() }
 				#if os(iOS)
 				Button(L("cast")) { destination() }
