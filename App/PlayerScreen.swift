@@ -87,7 +87,9 @@ private struct NativeVideoView: UIViewControllerRepresentable {
 		// Picture in Picture: AVKit starts it itself when the app backgrounds, and its
 		// window carries working play/pause (and skip, for recordings) controls.
 		view.allowsPictureInPicturePlayback = true
-		#if os(iOS) || os(tvOS)
+		#if os(iOS)
+		// iOS only: the property is marked unavailable on tvOS, whose
+		// player starts PiP from its own transport controls instead.
 		view.canStartPictureInPictureAutomaticallyFromInline = true
 		#endif
 		#if !os(tvOS)
