@@ -1616,4 +1616,10 @@ final class PiPBridge: NSObject, @preconcurrency AVPictureInPictureControllerDel
 		owner?.aether.softwarePiPSource?.skip(by: skipInterval.seconds)
 		completionHandler()
 	}
+
+	/// The render size is the engine's business; the window's aspect follows the layer.
+	func pictureInPictureController(_ pictureInPictureController: AVPictureInPictureController, didTransitionToRenderSize newRenderSize: CMVideoDimensions) {}
+
+	/// Background audio is a feature of this app, never prohibited for PiP's sake.
+	func pictureInPictureControllerShouldProhibitBackgroundAudioPlayback(_ pictureInPictureController: AVPictureInPictureController) -> Bool { false }
 }
