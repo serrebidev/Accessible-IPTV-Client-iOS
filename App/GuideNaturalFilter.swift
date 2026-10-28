@@ -1,7 +1,7 @@
 import Foundation
 import IPTVCore
 
-#if canImport(FoundationModels)
+#if os(iOS) && canImport(FoundationModels)
 import FoundationModels
 #endif
 
@@ -33,7 +33,7 @@ struct GuideFilterSpec: Equatable {
 
 enum GuideNaturalFilter {
 	static var isAvailable: Bool {
-		#if canImport(FoundationModels)
+		#if os(iOS) && canImport(FoundationModels)
 		if #available(iOS 26.0, *) {
 			return SystemLanguageModel.default.availability == .available
 		}
@@ -58,7 +58,7 @@ enum GuideNaturalFilter {
 	}
 
 	static func parse(_ text: String) async -> GuideFilterSpec? {
-		#if canImport(FoundationModels)
+		#if os(iOS) && canImport(FoundationModels)
 		if #available(iOS 26.0, *) {
 			return await OnDeviceParser.parse(text)
 		}
@@ -67,7 +67,10 @@ enum GuideNaturalFilter {
 	}
 }
 
-#if canImport(FoundationModels)
+// The parser is iOS-only: FoundationModels' GeneratedContent conversion is
+// unavailable in the tvOS SDK, so the @Generable code cannot compile there.
+// The spec and its application above stay cross-platform for ProgrammesView.
+#if os(iOS) && canImport(FoundationModels)
 @available(iOS 26.0, *)
 private enum OnDeviceParser {
 	@Generable
