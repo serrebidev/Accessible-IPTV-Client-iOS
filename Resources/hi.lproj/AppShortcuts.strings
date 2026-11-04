@@ -1,10 +1,8 @@
-"Open ${programme} in ${applicationName}" = "${applicationName} में ${programme} खोलें";
-"Pause playback in ${applicationName}" = "${applicationName} में चलाना रोकें";
 "Play ${channel} in ${applicationName}" = "${applicationName} में ${channel} चलाएँ";
 "Play TV in ${applicationName}" = "${applicationName} में टीवी चलाएँ";
 "Record ${programme} in ${applicationName}" = "${applicationName} में ${programme} रिकॉर्ड करें";
+"Record channel ${channel} in ${applicationName}" = "${applicationName} में चैनल ${channel} रिकॉर्ड करो";
 "Remind me about ${programme} in ${applicationName}" = "${applicationName} में ${programme} की याद दिलाएँ";
-"Resume playback in ${applicationName}" = "${applicationName} में चलाना जारी रखें";
 "Search the guide in ${applicationName}" = "${applicationName} में गाइड खोजें";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName} में ${channel} की गाइड दिखाएँ";
 "Stop playback in ${applicationName}" = "${applicationName} में चलाना बंद करें";
@@ -12,4 +10,6 @@
 "Tune to a channel in ${applicationName}" = "${applicationName} में चैनल लगाएँ";
 "Watch ${channel} in ${applicationName}" = "${applicationName} में ${channel} देखें";
 "Watch TV in ${applicationName}" = "${applicationName} में टीवी देखें";
+"What am I watching in ${applicationName}" = "${applicationName} में मैं क्या देख रहा हूं";
 "What is on ${channel} in ${applicationName}" = "${applicationName} में ${channel} पर क्या चल रहा है";
+"What is on later on ${channel} in ${applicationName}" = "${applicationName} में ${channel} पर बाद में क्या है";

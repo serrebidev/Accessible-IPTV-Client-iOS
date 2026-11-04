@@ -39,6 +39,8 @@ public final class Library {
 	public var openGuide: (String) async throws -> ByteSource = { try await Net.source($0) }
 	/// Platform integrations refresh only after the live list has been replaced.
 	public var liveChannelsDidLoad: (([Channel], [Source]) -> Void)?
+	/// A guide import finished: anything built from programmes is now out of date.
+	public var guideDidImport: (() -> Void)?
 
 	/// Opens the guide database but does not read its channel index: this runs before the app's
 	/// first frame, and a national guide's index is tens of thousands of rows. [load] reads it on
@@ -273,6 +275,7 @@ public final class Library {
 		lastGuideFailure = 0
 		prefs.lastEpgImport = now
 		prefs.guideFingerprint = guideFingerprint()
+		guideDidImport?()
 		return n
 	}
 

@@ -55,7 +55,10 @@ struct ProgrammeEntity: AppEntity, Transferable {
 		DisplayRepresentation(title: "\(title)", subtitle: "\(Format.sentences([channelName, Format.dateTime(startMs)]))")
 	}
 
-	static var transferRepresentation: some TransferRepresentation { ProxyRepresentation(exporting: \.title) }
+	/// What travels to another app: enough to act on, and never a stream address.
+	var shareText: String { Format.sentences([title, channelName, Format.dateTime(startMs)]) }
+
+	static var transferRepresentation: some TransferRepresentation { ProxyRepresentation(exporting: \.shareText) }
 }
 
 @available(iOS 18, *)
@@ -123,6 +126,16 @@ enum GuideSpeech {
 		return sentences.joined(separator: " ")
 	}
 
+	/// Time alone today; with the date when it is another day, or "at 8" would mislead.
+	static func when(_ ms: Int64, now: Int64 = nowMs()) -> String {
+		Format.date(ms) == Format.date(now) ? Format.time(ms) : Format.dateTime(ms)
+	}
+
+	/// One channel's upcoming programmes: the channel once, then a sentence per programme.
+	static func schedule(_ channelName: String, _ programmes: [Programme], limit: Int = 4) -> String {
+		Format.sentences([channelName] + programmes.prefix(limit).map { "\($0.title), \(when($0.start))" })
+	}
+
 	static func full(_ pairs: [(Programme, Channel)], limit: Int = 5) -> String {
 		pairs.prefix(limit).map { p, ch in
 			"\(TVChannelEntity(ch).name). \(p.title). \(Format.dateTime(p.start)). \(Format.time(p.stop))"
@@ -150,6 +163,19 @@ enum Donations {
 		intent.programme = ProgrammeEntity(programme, channel)
 		Task { try? await IntentDonationManager.shared.donate(intent: intent) }
 	}
+
+	static func favorite(_ channel: Channel, _ isFavorite: Bool) {
+		var intent = SetFavoriteIntent()
+		intent.channel = TVChannelEntity(channel)
+		intent.isFavorite = isFavorite
+		Task { try? await IntentDonationManager.shared.donate(intent: intent) }
+	}
+
+	static func recordedChannel(_ channel: Channel) {
+		var intent = RecordChannelIntent()
+		intent.channel = TVChannelEntity(channel)
+		Task { try? await IntentDonationManager.shared.donate(intent: intent) }
+	}
 }
 
 struct OpenProgrammeIntent: OpenIntent {
@@ -161,11 +187,7 @@ struct OpenProgrammeIntent: OpenIntent {
 
 	@MainActor func perform() async throws -> some IntentResult {
 		let (_, ch) = try await SiriLibrary.programme(target)
-		let model = AppModel.shared
-		model.minimizePlayer()
-		model.selectedTab = 1
-		model.guidePath = [.channelGuide(ch.key)]
-		model.programmeFocus = ProgrammeFocus(channelKey: ch.key, startMs: target.startMs)
+		AppModel.shared.openProgramme(ch.key, startMs: target.startMs)
 		return .result()
 	}
 }
@@ -179,7 +201,11 @@ struct RecordProgrammeIntent: AppIntent {
 	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<ProgrammeEntity> & ProvidesDialog {
 		let (p, ch) = try await SiriLibrary.programme(programme)
 		guard p.stop > nowMs() else { throw SiriLibrary.ActionError.message(L("programme_ended")) }
-		AppModel.shared.recorder.schedule(ch, title: p.title, start: p.start, end: p.stop)
+		// A repeated request must not record the same programme twice.
+		let recorder = AppModel.shared.recorder
+		if !GuideWindow.alreadyScheduled(recorder.scheduled, channelKey: ch.key, start: p.start, end: p.stop) {
+			recorder.schedule(ch, title: p.title, start: p.start, end: p.stop)
+		}
 		let text = L("recording_scheduled", p.title, Format.dateTime(p.start))
 		return .result(value: ProgrammeEntity(p, ch), dialog: "\(text)")
 	}
@@ -191,6 +217,8 @@ struct RemindProgrammeIntent: AppIntent {
 	@Parameter(title: "programme", description: "programme_parameter_desc") var programme: ProgrammeEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$programme)") }
 
+	static func notificationID(_ p: Programme) -> String { "programme-\(p.channelKey)-\(p.start)" }
+
 	@MainActor func perform() async throws -> some IntentResult & ProvidesDialog {
 		let (p, ch) = try await SiriLibrary.programme(programme)
 		guard p.start > nowMs() else { throw SiriLibrary.ActionError.message(L("programme_started")) }
@@ -200,9 +228,13 @@ struct RemindProgrammeIntent: AppIntent {
 		content.title = p.title
 		content.body = "\(TVChannelEntity(ch).name), \(Format.time(p.start))"
 		content.sound = .default
+		// Announced on AirPods, Siri knows which programme this is: "record it".
+		if #available(iOS 27.0, *) {
+			content.appEntityIdentifiers = [EntityIdentifier(for: ProgrammeEntity.self, identifier: ProgrammeEntity.identifier(p))]
+		}
 		let interval = max(1, TimeInterval(p.start - nowMs()) / 1000)
 		let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
-		let request = UNNotificationRequest(identifier: "programme-\(p.channelKey)-\(p.start)", content: content, trigger: trigger)
+		let request = UNNotificationRequest(identifier: Self.notificationID(p), content: content, trigger: trigger)
 		try await center.add(request)
 		let text = L("reminder_set", p.title, Format.dateTime(p.start))
 		return .result(dialog: "\(text)")

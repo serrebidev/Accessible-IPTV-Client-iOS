@@ -149,13 +149,13 @@ enum SiriLibrary {
 		return channel
 	}
 
-	static func tune(_ entity: TVChannelEntity) async throws -> TVChannelEntity {
+	static func tune(_ entity: TVChannelEntity, internalPlayer: Bool = false) async throws -> TVChannelEntity {
 		let ch = try await channel(entity)
 		let model = AppModel.shared
 		guard let url = try? await model.library.resolveUrl(ch) else { throw ActionError.message(L("siri_failed")) }
 		let current = TVChannelEntity(ch)
 		model.rememberChannel(ch)
-		model.play(url, title: current.name, key: ch.key, channel: ch)
+		model.play(url, title: current.name, key: ch.key, channel: ch, internalPlayer: internalPlayer)
 		return current
 	}
 
@@ -216,7 +216,7 @@ struct WhatsOnChannelIntent: AppIntent {
 	@Parameter(title: "channel", description: "channel_parameter_desc") var channel: TVChannelEntity
 	static var parameterSummary: some ParameterSummary { Summary("\(\.$channel)") }
 
-	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<[ProgrammeEntity]> & ProvidesDialog {
+	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<[ProgrammeEntity]> & ProvidesDialog & ShowsSnippetView {
 		let ch = try await SiriLibrary.channel(channel)
 		let guide = AppModel.shared.library.epg.nowNext(ch)
 		var parts = [channel.name]
@@ -224,8 +224,8 @@ struct WhatsOnChannelIntent: AppIntent {
 		if let next = guide.next { parts.append(L("next_programme", Format.programme(next))) }
 		if guide.isEmpty { parts.append(L("no_guide_for", channel.name)) }
 		let text = Format.sentences(parts)
-		let entities = [guide.now, guide.next].compactMap { $0 }.map { ProgrammeEntity($0, ch) }
-		return .result(value: entities, dialog: "\(text)")
+		let pairs = [guide.now, guide.next].compactMap { $0 }.map { ($0, ch) }
+		return .result(value: ProgrammeQuery.entities(from: pairs), dialog: "\(text)", view: GuideSnippet(heading: channel.name, pairs: pairs))
 	}
 }
 
@@ -233,22 +233,28 @@ struct SearchGuideIntent: AppIntent {
 	static var title: LocalizedStringResource = "search_guide"
 	static var description: IntentDescription? = IntentDescription("search_guide_desc")
 	@Parameter(title: "search", description: "search_parameter_desc") var query: String
-	static var parameterSummary: some ParameterSummary { Summary("\(\.$query)") }
+	@Parameter(title: "from_time", description: "from_time_desc") var from: Date?
+	@Parameter(title: "to_time", description: "to_time_desc") var to: Date?
+	@Parameter(title: "groups", description: "category_parameter_desc") var category: String?
+	static var parameterSummary: some ParameterSummary {
+		Summary("\(\.$query)") {
+			\.$from
+			\.$to
+			\.$category
+		}
+	}
 
-	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<[ProgrammeEntity]> & ProvidesDialog {
+	@MainActor func perform() async throws -> some IntentResult & ReturnsValue<[ProgrammeEntity]> & ProvidesDialog & ShowsSnippetView {
 		let channels = try await SiriLibrary.live()
 		let epg = AppModel.shared.library.epg
 		let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
 		guard !term.isEmpty else { throw SiriLibrary.ActionError.message(L("no_matches")) }
-		let results = await Task.detached { epg.search(term, channels) }.value
+		let start = SiriLibrary.ms(from), end = SiriLibrary.ms(to), group = category
+		let pairs = await Task.detached { GuideWindow.filter(epg.search(term, channels), from: start, to: end, group: group) }.value
 		// The dialog is built for listening (one sentence per result, three at
 		// most); Shortcuts gets the entities, usable for follow-ups and actions.
-		if results.isEmpty {
-			let text = L(epg.hasGuide ? "no_matches" : "no_guide")
-			return .result(value: [ProgrammeEntity](), dialog: "\(text)")
-		}
-		let pairs = Array(results)
-		return .result(value: ProgrammeQuery.entities(from: pairs), dialog: "\(GuideSpeech.spoken(pairs))")
+		let text = pairs.isEmpty ? L(epg.hasGuide ? "no_matches" : "no_guide") : GuideSpeech.spoken(pairs)
+		return .result(value: ProgrammeQuery.entities(from: pairs), dialog: "\(text)", view: GuideSnippet(heading: term, pairs: pairs))
 	}
 }
 
@@ -296,6 +302,9 @@ struct StopTVIntent: AudioPlaybackIntent {
 	}
 }
 
+/// Apple allows ten App Shortcuts per app, so these are the ten worth a fixed phrase on devices
+/// without Siri AI. Pause and resume are not among them: "Hey Siri, pause" reaches the player
+/// through Now Playing. Every other action stays in Shortcuts, and is a tool on iOS 27.3.
 struct IPTVShortcuts: AppShortcutsProvider {
 	static var appShortcuts: [AppShortcut] {
 		AppShortcut(intent: TuneChannelIntent(), phrases: [
@@ -313,6 +322,9 @@ struct IPTVShortcuts: AppShortcutsProvider {
 			"What is on \(\.$channel) in \(.applicationName)",
 			"What is playing on \(\.$channel) in \(.applicationName)"
 		], shortTitle: "whats_on_channel", systemImageName: "list.bullet.rectangle")
+		AppShortcut(intent: ChannelScheduleIntent(), phrases: [
+			"What is on later on \(\.$channel) in \(.applicationName)"
+		], shortTitle: "channel_schedule", systemImageName: "clock")
 		AppShortcut(intent: SearchGuideIntent(), phrases: [
 			"Search the guide in \(.applicationName)",
 			"Search the TV guide in \(.applicationName)"
@@ -324,14 +336,15 @@ struct IPTVShortcuts: AppShortcutsProvider {
 		AppShortcut(intent: RecordProgrammeIntent(), phrases: [
 			"Record \(\.$programme) in \(.applicationName)"
 		], shortTitle: "record_programme", systemImageName: "record.circle")
-		AppShortcut(intent: OpenProgrammeIntent(), phrases: [
-			"Open \(\.$target) in \(.applicationName)"
-		], shortTitle: "open_programme", systemImageName: "calendar.badge.clock")
+		AppShortcut(intent: RecordChannelIntent(), phrases: [
+			"Record channel \(\.$channel) in \(.applicationName)"
+		], shortTitle: "record_channel", systemImageName: "dot.radiowaves.left.and.right")
 		AppShortcut(intent: RemindProgrammeIntent(), phrases: [
 			"Remind me about \(\.$programme) in \(.applicationName)"
 		], shortTitle: "remind_programme", systemImageName: "bell")
-		AppShortcut(intent: PauseTVIntent(), phrases: ["Pause playback in \(.applicationName)"], shortTitle: "pause", systemImageName: "pause")
-		AppShortcut(intent: ResumeTVIntent(), phrases: ["Resume playback in \(.applicationName)"], shortTitle: "play", systemImageName: "play")
+		AppShortcut(intent: NowPlayingIntent(), phrases: [
+			"What am I watching in \(.applicationName)"
+		], shortTitle: "now_watching", systemImageName: "questionmark.circle")
 		AppShortcut(intent: StopTVIntent(), phrases: ["Stop playback in \(.applicationName)"], shortTitle: "stop_playback", systemImageName: "stop")
 	}
 }
@@ -363,6 +376,18 @@ extension View {
 				activity.appEntityIdentifier = EntityIdentifier(for: entity)
 				activity.isEligibleForHandoff = false
 			}
+		} else { self }
+		#else
+		self
+		#endif
+	}
+
+	/// On-screen context for one channel row (the iOS 27 view annotations API), so "play the
+	/// third one" has a target. Metadata only, like siriProgramme: VoiceOver output is unchanged.
+	@ViewBuilder func siriChannelRow(_ channel: Channel) -> some View {
+		#if os(iOS)
+		if #available(iOS 27.0, *) {
+			appEntityIdentifier(EntityIdentifier(for: TVChannelEntity.self, identifier: TVChannelEntity.identifier(channel)))
 		} else { self }
 		#else
 		self

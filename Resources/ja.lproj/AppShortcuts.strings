@@ -1,10 +1,8 @@
-"Open ${programme} in ${applicationName}" = "${applicationName}で${programme}を開く";
-"Pause playback in ${applicationName}" = "${applicationName}で一時停止";
 "Play ${channel} in ${applicationName}" = "${applicationName}で${channel}を再生";
 "Play TV in ${applicationName}" = "${applicationName}でテレビを再生";
 "Record ${programme} in ${applicationName}" = "${applicationName}で${programme}を録画";
+"Record channel ${channel} in ${applicationName}" = "${applicationName}でチャンネル${channel}を録画";
 "Remind me about ${programme} in ${applicationName}" = "${applicationName}で${programme}をリマインド";
-"Resume playback in ${applicationName}" = "${applicationName}で再生を再開";
 "Search the guide in ${applicationName}" = "${applicationName}で番組表を検索";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組表を表示";
 "Stop playback in ${applicationName}" = "${applicationName}で再生を停止";
@@ -12,4 +10,6 @@
 "Tune to a channel in ${applicationName}" = "${applicationName}でチャンネルに切り替え";
 "Watch ${channel} in ${applicationName}" = "${applicationName}で${channel}を見る";
 "Watch TV in ${applicationName}" = "${applicationName}でテレビを見る";
+"What am I watching in ${applicationName}" = "${applicationName}で何を見ていますか";
 "What is on ${channel} in ${applicationName}" = "${applicationName}で${channel}の番組を確認";
+"What is on later on ${channel} in ${applicationName}" = "${applicationName}で${channel}のこの後の番組は";

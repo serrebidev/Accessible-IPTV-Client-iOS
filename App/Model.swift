@@ -127,6 +127,7 @@ final class AppModel: ObservableObject {
 		}
 	}
 	private var opening: Task<Void, Never>?
+	private var sleepTimer: Task<Void, Never>?
 
 	/// Where lists, the guide and (tvOS) recordings live. tvOS has no persistent app storage
 	/// beyond the cache, so it re-downloads after the system clears it.
@@ -164,6 +165,14 @@ final class AppModel: ObservableObject {
 				self.refreshSystemDiscovery(channels, sources: sources)
 			}
 		}
+		// Programmes change with the guide, not with the channel list.
+		library.guideDidImport = { [weak self] in
+			Task { @MainActor in
+				guard let self else { return }
+				let snapshot = self.library.liveSnapshot
+				self.refreshSystemDiscovery(snapshot.channels, sources: snapshot.sources)
+			}
+		}
 		#endif
 	}
 
@@ -192,6 +201,26 @@ final class AppModel: ObservableObject {
 		selectedTab = 1
 		guidePath = [.guideSearch]
 		pendingGuideSearch = term
+	}
+
+	/// Lands on one programme inside its channel's guide.
+	func openProgramme(_ channelKey: String, startMs: Int64) {
+		minimizePlayer()
+		selectedTab = 1
+		guidePath = [.channelGuide(channelKey)]
+		programmeFocus = ProgrammeFocus(channelKey: channelKey, startMs: startMs)
+	}
+
+	/// Stops playback after [minutes]; zero or less cancels a running timer.
+	func setSleepTimer(minutes: Int) {
+		sleepTimer?.cancel()
+		sleepTimer = nil
+		guard minutes > 0 else { return }
+		sleepTimer = Task { [weak self] in
+			try? await Task.sleep(nanoseconds: UInt64(minutes) * 60_000_000_000)
+			guard !Task.isCancelled else { return }
+			self?.stopPlayback()
+		}
 	}
 	#endif
 	func rememberChannel(_ channel: Channel) {
@@ -232,8 +261,8 @@ final class AppModel: ObservableObject {
 	}
 
 	func play(_ url: String, title: String, key: String, catchup: Bool = false, channel: Channel? = nil,
-		archiveStart: Int64? = nil, archiveStop: Int64? = nil, fromSharePlay: Bool = false) {
-		if prefs.useExternalPlayer && !fromSharePlay && !SharePlayCenter.shared.isActive { ExternalPlayers.offer(url, title: title); return }
+		archiveStart: Int64? = nil, archiveStop: Int64? = nil, fromSharePlay: Bool = false, internalPlayer: Bool = false) {
+		if prefs.useExternalPlayer && !fromSharePlay && !internalPlayer && !SharePlayCenter.shared.isActive { ExternalPlayers.offer(url, title: title); return }
 		stopPlayback(leavingSharePlay: false)
 		let request = PlayRequest(url: url, title: title, channelKey: key, catchup: catchup,
 			channel: channel ?? library.channel(key), archiveStart: archiveStart, archiveStop: archiveStop)

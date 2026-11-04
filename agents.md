@@ -93,6 +93,14 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
   there, error announced. Blunt wording, explanations in Help.
 - Settings keys and JSON shapes match the Android app, so its export imports here.
 
+## Siri and Apple Intelligence
+
+- Actions live in `App/AppIntents.swift` (channels), `ProgrammeIntents.swift`, `GuideIntents.swift`, `PlayerIntents.swift`, `RecordingIntents.swift`. Time rules are in `Core/.../GuideWindow.swift` so Windows can test them. Audit and decisions: `research_notes/Apple Intelligence iOS 27.3/audit.md`.
+- A new action: title and description keys in `tools/siri_strings.py` (14 languages; the description says what it does for someone who has never seen the app, because Siri’s model reads it), a line in `App/SiriAITools.swift`, a test if it has logic. Never put a stream URL, login or key in an entity, dialog or shared text: entity text goes through `ChannelDiscovery.publicText`.
+- Apple allows ten `AppShortcut`s and `IPTVShortcuts` is at ten (`SiriActionsTests` enforces it). A new phrase replaces one. Phrase slots take entities and enums, not String. Translate phrases in `SIRI_SHORTCUTS`.
+- `App/SiriAITools.swift` compiles only when the Build workflow finds `protocol ToolIntent` in the selected SDK and defines `SIRI_AI_SDK` (run notice says ON or OFF). It has never compiled yet: Xcode 27.3 is not on the runner. When the notice first says ON, expect to fix this file, then adopt `.video.playContent` and `@Property(description:)`, and check `Resources/Skills.skillsbundle` was compiled rather than copied.
+- Actions that begin a recording or need a window open the app (`openAppWhenRun`); the keep-alive sound cannot start in the background. `ListenToChannelIntent` and player controls are `AudioPlaybackIntent` and run without opening it.
+
 ## Release
 
 1. Bump `MARKETING_VERSION` (and `CURRENT_PROJECT_VERSION`) in project.yml, add a `## X.Y.Z` section to

@@ -84,4 +84,11 @@ final class ChannelDiscoveryTests: XCTestCase {
 		XCTAssertTrue(ChannelDiscovery.resolve(numbered, "  \n ").isEmpty)
 		XCTAssertTrue(ChannelDiscovery.resolve(numbered, "missing").isEmpty)
 	}
+
+	func testCommandWordsLeaveTheChannelName() {
+		XCTAssertEqual(ChannelDiscovery.withoutCommandWords("play sky mix in Accessible IPTV"), "sky mix")
+		XCTAssertEqual(ChannelDiscovery.withoutCommandWords("Tune to BBC One"), "BBC One")
+		XCTAssertEqual(ChannelDiscovery.withoutCommandWords("Sky Mix"), "Sky Mix")
+		XCTAssertEqual(ChannelDiscovery.withoutCommandWords("Player One"), "Player One")
+	}
 }

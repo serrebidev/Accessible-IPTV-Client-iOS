@@ -56,13 +56,18 @@ enum ExternalPlayers {
 
 	#if os(iOS) || os(visionOS)
 	/// Hands a saved recording to another app through the share sheet.
-	@MainActor static func share(_ file: URL) {
-		let vc = UIActivityViewController(activityItems: [file], applicationActivities: nil)
-		guard let root = UIApplication.shared.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.keyWindow }).first?.rootViewController else { return }
+	@MainActor static func share(_ file: URL) { share(items: [file]) }
+
+	/// The share sheet for anything; false when there is no window to show it in yet.
+	@discardableResult
+	@MainActor static func share(items: [Any]) -> Bool {
+		let vc = UIActivityViewController(activityItems: items, applicationActivities: nil)
+		guard let root = UIApplication.shared.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.keyWindow }).first?.rootViewController else { return false }
 		var top = root
 		while let p = top.presentedViewController { top = p }
 		vc.popoverPresentationController?.sourceView = top.view
 		top.present(vc, animated: true)
+		return true
 	}
 	#endif
 }

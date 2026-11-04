@@ -1,10 +1,8 @@
-"Open ${programme} in ${applicationName}" = "Abrir ${programme} no ${applicationName}";
-"Pause playback in ${applicationName}" = "Pausar reprodução no ${applicationName}";
 "Play ${channel} in ${applicationName}" = "Reproduzir ${channel} no ${applicationName}";
 "Play TV in ${applicationName}" = "Reproduzir TV no ${applicationName}";
 "Record ${programme} in ${applicationName}" = "Gravar ${programme} no ${applicationName}";
+"Record channel ${channel} in ${applicationName}" = "Grave o canal ${channel} no ${applicationName}";
 "Remind me about ${programme} in ${applicationName}" = "Lembre-me de ${programme} no ${applicationName}";
-"Resume playback in ${applicationName}" = "Retomar reprodução no ${applicationName}";
 "Search the guide in ${applicationName}" = "Pesquisar no guia do ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "Mostrar o guia de ${channel} no ${applicationName}";
 "Stop playback in ${applicationName}" = "Parar reprodução no ${applicationName}";
@@ -12,4 +10,6 @@
 "Tune to a channel in ${applicationName}" = "Sintonizar um canal no ${applicationName}";
 "Watch ${channel} in ${applicationName}" = "Assistir ${channel} no ${applicationName}";
 "Watch TV in ${applicationName}" = "Assistir TV no ${applicationName}";
+"What am I watching in ${applicationName}" = "O que estou assistindo no ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "O que passa em ${channel} no ${applicationName}";
+"What is on later on ${channel} in ${applicationName}" = "O que passa mais tarde em ${channel} no ${applicationName}";

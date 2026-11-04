@@ -101,6 +101,12 @@ struct ProgrammesView: View {
 					filter = term
 				}
 			}
+			.onChange(of: model.pendingGuideSearch) { _, term in
+				// The search screen is already open: its .task above will not run again.
+				guard mode == .search, loaded, let term else { return }
+				model.pendingGuideSearch = nil
+				filter = term
+			}
 			.onChange(of: model.programmeFocus) { _, newValue in
 				guard let newValue, case .channel(let key) = mode, newValue.channelKey == key else { return }
 				focusProgramme(newValue, proxy)

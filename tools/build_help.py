@@ -10,7 +10,7 @@ from pathlib import Path
 from android_strings import EXTRA, ORDER
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_RES = ROOT.parent / "accessible IPTV client Android" / "app" / "src" / "main" / "res"
+DEFAULT_RES = ROOT.parent / "accessible-IPTV-client-Android" / "app" / "src" / "main" / "res"
 LANGS = {"": "en", "ar": "ar", "de": "de", "es": "es", "fr": "fr", "hi": "hi", "hu": "hu", "it": "it",
          "ja": "ja", "pl": "pl", "pt-rBR": "pt-BR", "ru": "ru", "tr": "tr", "zh-rCN": "zh-Hans"}
 

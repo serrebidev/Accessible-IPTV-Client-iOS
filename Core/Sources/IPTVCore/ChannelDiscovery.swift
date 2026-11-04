@@ -62,6 +62,14 @@ public enum ChannelDiscovery {
 		return Array(matching(channels, query).prefix(limit))
 	}
 
+	/// A structured search from Siri can still carry its own words ("play sky mix in Accessible
+	/// IPTV"). Tried only after the words as given find nothing: a channel can be called "Play".
+	public static func withoutCommandWords(_ text: String) -> String {
+		text.trimmingCharacters(in: .whitespacesAndNewlines)
+			.replacingOccurrences(of: #"^(?i:play|watch|tune to|put on|start|listen to|open)\s+"#, with: "", options: .regularExpression)
+			.replacingOccurrences(of: #"\s+(?i:on|in)\s+(?i:accessible iptv)$"#, with: "", options: .regularExpression)
+	}
+
 	public static func suggestions(_ channels: [Channel], favorites: Set<String>, recent: [String]) -> [Channel] {
 		let byKey = Dictionary(channels.map { ($0.key, $0) }, uniquingKeysWith: { first, _ in first })
 		var seen = Set<String>()

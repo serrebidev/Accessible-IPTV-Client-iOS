@@ -44,7 +44,7 @@ struct SettingsView: View {
 			} header: {
 				Text(L("siri_shortcuts")).accessibilityAddTraits(.isHeader)
 			} footer: {
-				Text(L("siri_tuning_help"))
+				Text("\(L("siri_tuning_help"))\n\n\(L("siri_ai_help"))")
 			}
 			#endif
 

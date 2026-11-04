@@ -1,10 +1,8 @@
-"Open ${programme} in ${applicationName}" = "${applicationName} içinde ${programme} programını aç";
-"Pause playback in ${applicationName}" = "${applicationName} içinde oynatmayı duraklat";
 "Play ${channel} in ${applicationName}" = "${applicationName} ile ${channel} oynat";
 "Play TV in ${applicationName}" = "${applicationName} içinde televizyon oynat";
 "Record ${programme} in ${applicationName}" = "${applicationName} içinde ${programme} programını kaydet";
+"Record channel ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalını kaydet";
 "Remind me about ${programme} in ${applicationName}" = "${applicationName} içinde ${programme} programını hatırlat";
-"Resume playback in ${applicationName}" = "${applicationName} içinde oynatmaya devam et";
 "Search the guide in ${applicationName}" = "${applicationName} içinde rehberde ara";
 "Show the guide for ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} rehberini göster";
 "Stop playback in ${applicationName}" = "${applicationName} içinde oynatmayı durdur";
@@ -12,4 +10,6 @@
 "Tune to a channel in ${applicationName}" = "${applicationName} içinde bir kanala geç";
 "Watch ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} izle";
 "Watch TV in ${applicationName}" = "${applicationName} içinde televizyon izle";
+"What am I watching in ${applicationName}" = "${applicationName} içinde ne izliyorum";
 "What is on ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalında ne var";
+"What is on later on ${channel} in ${applicationName}" = "${applicationName} içinde ${channel} kanalında sonra ne var";

@@ -35,7 +35,8 @@ enum GuideNaturalFilter {
 	static var isAvailable: Bool {
 		#if os(iOS) && canImport(FoundationModels)
 		if #available(iOS 26.0, *) {
-			return SystemLanguageModel.default.availability == .available
+			// A language the model does not speak throws at respond time, which would read as "No results".
+			return SystemLanguageModel.default.availability == .available && SystemLanguageModel.default.supportsLocale()
 		}
 		#endif
 		return false

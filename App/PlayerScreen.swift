@@ -420,6 +420,9 @@ struct PlayerScreen: View {
 	private func record() {
 		guard !c.request.catchup, let ch = c.channel, ch.isLive else { c.say(L("cannot_record_this"), 1); return }
 		model.recorder.start(ch, title: model.library.epg.nowNext(ch).now?.title ?? "")
+		#if os(iOS)
+		Donations.recordedChannel(ch)
+		#endif
 		c.say(L("recording_channel", ch.name), 2)
 	}
 

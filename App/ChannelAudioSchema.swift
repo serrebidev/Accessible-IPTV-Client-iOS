@@ -1,6 +1,7 @@
 #if os(iOS) && canImport(MediaIntents)
 import AppIntents
 import IPTVCore
+import MediaIntents
 
 // The audio-domain schemas are Apple's contract for "play this content" through Siri AI: without
 // a schema the system answers that the app does not support playing content. They are iOS 27 APIs,
@@ -84,6 +85,31 @@ extension ChannelAudioItem {
 		switch self {
 		case .liveRadioStation(let station): return station.id
 		}
+	}
+}
+
+/// The other half of Apple's playback use-case group: playAudio asks this query what a spoken
+/// request means. A bare "play Accessible IPTV" carries no name and gets the channel last on.
+@available(iOS 27.0, *)
+struct ChannelAudioValueQuery: IntentValueQuery {
+	@MainActor func values(for input: AudioSearch) async throws -> [ChannelAudioItem] {
+		let channels = try await SiriLibrary.live()
+		let prefs = AppModel.shared.prefs
+		let favorites = prefs.favorites, recent = prefs.recent
+		let found: [Channel] = await Task.detached {
+			switch input.criteria {
+			case .searchQuery(let text):
+				let asSaid = ChannelDiscovery.resolve(channels, text)
+				return asSaid.isEmpty ? ChannelDiscovery.resolve(channels, ChannelDiscovery.withoutCommandWords(text)) : asSaid
+			case .unspecified:
+				return ChannelDiscovery.suggestions(channels, favorites: favorites, recent: recent)
+			case .url:
+				return []
+			@unknown default:
+				return []
+			}
+		}.value
+		return found.map { .liveRadioStation(LiveChannelSchemaEntity($0)) }
 	}
 }
 

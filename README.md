@@ -25,7 +25,7 @@ This is the iOS port of [Accessible IPTV Client for Android](https://github.com/
 - Export and import every setting, source and favourite as one file, including a file exported from the Android app.
 - 14 languages: English, Spanish, Arabic, Portuguese (Brazilian), French, German, Russian, Turkish, Italian, Polish, Hindi, Chinese (Simplified), Japanese and Hungarian.
 - CarPlay lists favourite and recently watched channels and plays their sound (needs a build signed with Apple's CarPlay audio permission).
-- On iPhone, App Intents expose channel tuning, now/next guide answers, guide search, channel-guide navigation, and pause/resume/stop to Siri and Shortcuts. Focused channel rows and the player provide onscreen entity context on iOS 18.2 or later.
+- On iPhone, App Intents expose channels, the guide, recording, playback, sharing and settings to Siri and Shortcuts: see Siri and Apple Intelligence below. Focused channel rows and the player provide onscreen entity context on iOS 18.2 or later.
 
 ## Siri and Apple Intelligence
 
@@ -38,7 +38,18 @@ Add a source and open the app once to import its guide. Then try:
 - “What is on BBC One in Accessible IPTV?” Reads the current and next programme from the imported guide.
 - “Search the guide in Accessible IPTV.” Siri asks for the search text and reads up to five current or upcoming matches.
 - “Show the guide for BBC One in Accessible IPTV.” Opens that channel’s guide while keeping existing playback in the miniplayer.
-- “Pause playback in Accessible IPTV”, “Resume playback in Accessible IPTV”, or “Stop playback in Accessible IPTV”.
+- “What is on later on BBC One in Accessible IPTV?” Reads what starts after now from the guide.
+- “Record channel BBC One in Accessible IPTV.” Starts recording now.
+- “What am I watching in Accessible IPTV?”
+- “Stop playback in Accessible IPTV.” “Hey Siri, pause” and “Hey Siri, resume” reach the player through Now Playing.
+
+Apple allows ten sets of fixed phrases, so everything else is an action in the Shortcuts app: programme details and schedule by time, watch or download a programme, reminders, finding channels and favourites, previous channel, listen without opening the app, movies and series, scheduling and cancelling recordings, saved recordings, skip, audio track, subtitles, Picture in Picture, Chromecast, sleep timer, playback settings, SharePlay, sharing, refresh, account status, and opening a screen.
+
+### Siri AI on iOS 27.3
+
+Apple’s Siri AI Developer Preview, new in the iOS 27.3 beta, lets Siri call an app’s actions from a natural request with no fixed phrase: “what’s on BBC One tonight in Accessible IPTV”, “record the football”, “send what I’m watching to Sam”. Name the app unless it is on screen.
+
+The app is prepared for this (`App/SiriAITools.swift` and `Resources/Skills.skillsbundle`), but it only takes effect in a build made with Apple’s iOS 27.3 SDK. The Build workflow turns it on by itself when its Xcode has that SDK and says which on each run. Current builds predate that. The preview also needs a device that supports Apple Intelligence on the 27.3 beta, in a language Siri AI supports, outside the EU, and a development-signed install: it does not work from the App Store. AltStore installs use development signing, which should qualify, but this has not been tested. See `research_notes/Apple Intelligence iOS 27.3/audit.md`.
 
 The playback and guide actions also appear in Shortcuts and can be combined with its Apple Intelligence actions on supported devices. Find Channels supports filters for name, group and channel number, sorting and a result limit. Pass a found channel into Tune channel or a guide action. Tune channel returns the selected channel for later steps. Existing saved channel IDs remain valid, and multi-channel inputs keep their requested order. Channel entities can also be converted to their names as text.
 

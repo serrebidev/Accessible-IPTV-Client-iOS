@@ -1,3 +1,4 @@
+import AppIntents
 import AVFoundation
 import AVKit
 import Combine
@@ -1535,6 +1536,13 @@ final class PlayerController: NSObject, ObservableObject {
 		else { try? player.seek(to: .milliseconds(Int64(target * 1000))) }
 	}
 
+	/// Seconds forward or back in a catch-up programme or a recording; false on a live stream.
+	func skip(by seconds: Double) -> Bool {
+		guard sharedPlaybackSeekable, let target = GuideWindow.skipped(from: sharedPlaybackTime, by: seconds) else { return false }
+		performSharedSeek(seconds: target)
+		return true
+	}
+
 	func recoverSharedPlayback() {
 		guard !closing, sharePlayback != nil else { return }
 		intent.play()
@@ -1571,11 +1579,20 @@ final class PlayerController: NSObject, ObservableObject {
 
 	private func nowPlayingInfo() {
 		guard !closing else { return }
-		MPNowPlayingInfoCenter.default().nowPlayingInfo = [
+		var info: [String: Any] = [
 			MPMediaItemPropertyTitle: nowPlaying.isEmpty ? request.title : nowPlaying,
 			MPNowPlayingInfoPropertyIsLiveStream: live,
 			MPNowPlayingInfoPropertyPlaybackRate: isPlaying ? Double(usesNative ? nativePlayer.rate : player.rate) : 0.0,
 		]
+		#if os(iOS)
+		// Most specific first: from the Lock Screen, "record this" means this programme.
+		if #available(iOS 27.0, *), let channel {
+			let programme = currentProgramme.map { EntityIdentifier(for: ProgrammeEntity.self, identifier: ProgrammeEntity.identifier($0)) }
+			let identifiers = [programme, EntityIdentifier(for: TVChannelEntity.self, identifier: TVChannelEntity.identifier(channel))].compactMap { $0 }
+			info[MPNowPlayingInfoPropertyAppEntityIdentifiers] = identifiers.compactMap { MPAppEntityIdentifier(entityIdentifier: $0) }
+		}
+		#endif
+		MPNowPlayingInfoCenter.default().nowPlayingInfo = info
 	}
 }
 

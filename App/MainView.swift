@@ -419,6 +419,7 @@ struct MainView: View {
 			let now = prefs.toggleFavorite(ch.key)
 			#if os(iOS)
 			IPTVShortcuts.updateAppShortcutParameters()
+			if ch.isLive { Donations.favorite(ch, now) }
 			#endif
 			model.setStatus(L(now ? "added_favorite" : "removed_favorite", ch.name))
 			favs = prefs.favorites
@@ -439,6 +440,9 @@ struct MainView: View {
 			} else {
 				out.append(RowAction(L("record_now")) {
 					model.recorder.start(ch, title: library.epg.nowNext(ch).now?.title ?? "")
+					#if os(iOS)
+					Donations.recordedChannel(ch)
+					#endif
 					model.setStatus(L("recording_channel", ch.name))
 				})
 			}
@@ -777,6 +781,7 @@ private struct ChannelRows: View, Equatable {
 		}
 		.row(speech, actions: actions(ch, fav))
 		.siriChannel(ch, active: focusedKey.wrappedValue == ch.key || voFocus.wrappedValue == ch.key)
+		.siriChannelRow(ch)
 		.focused(focusedKey, equals: ch.key)
 		.accessibilityFocused(voFocus, equals: ch.key)
 	}

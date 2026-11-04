@@ -32,6 +32,19 @@ jobs:
           xcodebuild -version
           xcodebuild -showsdks
 
+      - name: Siri AI SDK check
+        run: |
+          # ToolIntent ships in the iOS 27.3 SDK. With an older Xcode the app still builds, without the
+          # Siri AI tools (App/SiriAITools.swift), and this notice says so on the run.
+          SDK="$(xcrun --sdk iphoneos --show-sdk-path)"
+          if grep -rqs 'protocol ToolIntent' "$SDK/System/Library/Frameworks/AppIntents.framework" --include='*.swiftinterface'; then
+            echo "SIRI_AI_CONDITION=SWIFT_ACTIVE_COMPILATION_CONDITIONS=\$(inherited) SIRI_AI_SDK" >> "$GITHUB_ENV"
+            echo "::notice::Siri AI tools ON: $(basename "$SDK")"
+          else
+            echo "::notice::Siri AI tools OFF: $(basename "$SDK") has no ToolIntent"
+          fi
+          python3 tools/check_skills.py
+
       - name: Core tests
         working-directory: Core
         run: |
@@ -75,7 +88,7 @@ jobs:
           xcodebuild -project AccessibleIPTV.xcodeproj -scheme AccessibleIPTV -configuration Debug \
             -destination "platform=iOS Simulator,id=$DEVICE" -derivedDataPath TestBuild \
             -clonedSourcePackagesDirPath SourcePackages -resultBundlePath PlaybackTests.xcresult \
-            CODE_SIGNING_ALLOWED=NO -parallel-testing-enabled NO -collect-test-diagnostics never test 2>&1 | tee playback-integration.log | tail -60
+            CODE_SIGNING_ALLOWED=NO -parallel-testing-enabled NO -collect-test-diagnostics never ${SIRI_AI_CONDITION:+"$SIRI_AI_CONDITION"} test 2>&1 | tee playback-integration.log | tail -60
 
       # The owner's Apple Development certificate (the one AltStore made), from repo secrets.
       # No provisioning profile: AltStore re-signs with its own on install.
@@ -128,7 +141,7 @@ jobs:
           build() { # platform, products folder, file suffix
             xcodebuild -project AccessibleIPTV.xcodeproj -scheme AccessibleIPTV -configuration Release \
               -destination "generic/platform=$1" -derivedDataPath build -clonedSourcePackagesDirPath SourcePackages \
-              CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -60
+              CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" ${SIRI_AI_CONDITION:+"$SIRI_AI_CONDITION"} build | tail -60
             rm -rf Payload && mkdir Payload
             cp -R "build/Build/Products/Release-$2/AccessibleIPTV.app" Payload/
             sign Payload/AccessibleIPTV.app

@@ -1,10 +1,8 @@
-"Open ${programme} in ${applicationName}" = "افتح ${programme} في ${applicationName}";
-"Pause playback in ${applicationName}" = "أوقف التشغيل مؤقتًا في ${applicationName}";
 "Play ${channel} in ${applicationName}" = "شغّل ${channel} في ${applicationName}";
 "Play TV in ${applicationName}" = "شغّل التلفزيون في ${applicationName}";
 "Record ${programme} in ${applicationName}" = "سجّل ${programme} في ${applicationName}";
+"Record channel ${channel} in ${applicationName}" = "سجّل القناة ${channel} في ${applicationName}";
 "Remind me about ${programme} in ${applicationName}" = "ذكّرني بـ ${programme} في ${applicationName}";
-"Resume playback in ${applicationName}" = "استأنف التشغيل في ${applicationName}";
 "Search the guide in ${applicationName}" = "ابحث في الدليل في ${applicationName}";
 "Show the guide for ${channel} in ${applicationName}" = "اعرض دليل ${channel} في ${applicationName}";
 "Stop playback in ${applicationName}" = "أوقف التشغيل في ${applicationName}";
@@ -12,4 +10,6 @@
 "Tune to a channel in ${applicationName}" = "انتقل إلى قناة في ${applicationName}";
 "Watch ${channel} in ${applicationName}" = "شاهد ${channel} في ${applicationName}";
 "Watch TV in ${applicationName}" = "شاهد التلفزيون في ${applicationName}";
+"What am I watching in ${applicationName}" = "ماذا أشاهد في ${applicationName}";
 "What is on ${channel} in ${applicationName}" = "ماذا يُعرض على ${channel} في ${applicationName}";
+"What is on later on ${channel} in ${applicationName}" = "ماذا يُعرض لاحقًا على ${channel} في ${applicationName}";
