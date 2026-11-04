@@ -104,6 +104,9 @@ final class VideoRelayTests: XCTestCase {
 		let stopped = await PlaybackTeardown.ready()
 		XCTAssertTrue(stopped)
 		XCTAssertFalse(source.isPlaying)
+		// The published state follows stopAndWait by an event: on a slow runner it can still read stopping.
+		let settled = Date().addingTimeInterval(5)
+		while source.state != .stopped, Date() < settled { try await Task.sleep(nanoseconds: 50_000_000) }
 		XCTAssertEqual(source.state, .stopped)
 	}
 }
