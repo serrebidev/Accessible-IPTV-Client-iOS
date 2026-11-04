@@ -134,7 +134,12 @@ developer index; the star and date sort could not be applied to every feature:
 11. [BleepingSwift/app-intents-siri-shortcuts](https://github.com/BleepingSwift/app-intents-siri-shortcuts)
 12. [erykkruk/flutter_assistant_intents](https://github.com/erykkruk/flutter_assistant_intents)
 13. [MateoCentis/ShelfLife](https://github.com/MateoCentis/ShelfLife)
-14. [jonzey231/AerioTV](https://github.com/jonzey231/AerioTV): 123 stars, pushed today, the closest app (IPTV with Dispatcharr). Its tree shows no App Intents code, so no prior art for TV actions.
+14. [jonzey231/AerioTV](https://github.com/jonzey231/AerioTV): 123 stars, pushed the same day, the closest app (IPTV with Dispatcharr).
+15. [brandomoore/Plozz](https://github.com/brandomoore/Plozz), [wattsjs/buffer](https://github.com/wattsjs/buffer), [bilipp/Lume](https://github.com/bilipp/Lume), [mikehouse/Apple-TV-Player](https://github.com/mikehouse/Apple-TV-Player), [bsogulcan/another-iptv-player](https://github.com/bsogulcan/another-iptv-player): the top Swift IPTV repositories by recency and by stars. None has App Intents files in its tree (file names only checked), so there is no prior art for TV actions.
+16. [mralexhay/Booky](https://github.com/mralexhay/Booky): 230 stars, top App Intents result by stars, 2022, property query shape.
+17. [igorcferreira/TransactionHistory](https://github.com/igorcferreira/TransactionHistory), [junghongseop/AppIntents](https://github.com/junghongseop/AppIntents), [ahmetbostanciklioglu/InteractiveSnippetsSwiftUI](https://github.com/ahmetbostanciklioglu/InteractiveSnippetsSwiftUI): most recently pushed App Intents and SnippetIntent samples. Tree only.
+
+How much was read: Apple items 1 to 29 in full. Item 30, and GitHub items 5 and 9 to 13 and 16 to 17, in excerpt or by search hit only. Per-feature GitHub code search did not complete: the search API returned rate-limit errors, then empty output. A `.video.playContent` or `.tool` adoption beyond item 1 may exist that this did not find.
 
 Earlier adoption notes still apply: `research_notes/Siri channel playback/`, `research_notes/Spotlight and Shortcuts/`.
 

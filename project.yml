@@ -3,6 +3,11 @@
 name: AccessibleIPTV
 options:
   bundleIdPrefix: dev.serrebi
+  # One resource to Xcode: the three SKILL.md files inside must not be copied flat.
+  fileTypes:
+    skillsbundle:
+      file: true
+      buildPhase: resources
   developmentLanguage: en
   deploymentTarget:
     iOS: "18.0"
