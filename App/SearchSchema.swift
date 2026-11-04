@@ -24,36 +24,4 @@ struct GuideSearchSchemaIntent: ShowInAppSearchResultsIntent {
 		return .result()
 	}
 }
-
-// The system open schema: what Siri AI calls for "open this" on a found channel or programme.
-// New types because the macro makes its type iOS 27-only, and the plain OpenIntents serve older systems.
-
-@available(iOS 27.0, *)
-@AppIntent(schema: .system.open)
-struct OpenChannelSchemaIntent: OpenIntent {
-	static var supportedModes: IntentModes { .foreground }
-	static var allowedExecutionTargets: IntentExecutionTargets { .main }
-
-	var target: TVChannelEntity
-
-	@MainActor func perform() async throws -> some IntentResult {
-		_ = try await SiriLibrary.tune(target)
-		return .result()
-	}
-}
-
-@available(iOS 27.0, *)
-@AppIntent(schema: .system.open)
-struct OpenProgrammeSchemaIntent: OpenIntent {
-	static var supportedModes: IntentModes { .foreground }
-	static var allowedExecutionTargets: IntentExecutionTargets { .main }
-
-	var target: ProgrammeEntity
-
-	@MainActor func perform() async throws -> some IntentResult {
-		let (_, ch) = try await SiriLibrary.programme(target)
-		AppModel.shared.openProgramme(ch.key, startMs: target.startMs)
-		return .result()
-	}
-}
 #endif

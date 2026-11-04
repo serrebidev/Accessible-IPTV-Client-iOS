@@ -45,7 +45,7 @@ Bugs and gaps in what shipped through 0.7.2, all fixed in 0.8.0 unless marked:
    `appEntityIdentifiers`, so "record this" works from the Lock Screen or an announced notification.
 10. **Channel rows had no per-row annotation**, only the focused row's activity, so "play the third one" had no target.
     Fixed: `siriChannelRow`.
-11. **`.system.open` not adopted.** Fixed: schema open intents for channels and programmes.
+11. **`.system.open` not adopted, and left so.** The metadata processor refuses two OpenIntents on one entity ("OpenIntent targets should be unique"), and the macro makes its type iOS 27-only, so it cannot go on the plain OpenIntents older systems need. A schema entity mirror would work for channels only. The tools cover this on 27.3.
 
 Actions added: guide (schedule, on now, details, watch, download, cancel reminder, share, refresh, account, open screen),
 channels (find, categories, favourites, set favourite, previous, listen, movies and series), recording (record now, schedule by
