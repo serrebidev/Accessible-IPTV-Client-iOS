@@ -1,7 +1,7 @@
 name: Build
 
 # Every push: core tests, accessibility check, and .ipa files for iPhone/iPad,
-# Apple TV and Vision Pro. A v* tag also publishes them as a GitHub release.
+# Apple TV and Vision Pro. A v* tag also publishes them as a Forgejo release.
 # The owner's certificate signs builds; AltStore re-signs with a profile on installation.
 on:
   push:
@@ -28,7 +28,7 @@ jobs:
 
       - name: Xcode
         run: |
-          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          # The Forgejo Mac runner keeps the newest Xcode selected (no sudo on that host).
           xcodebuild -version
           xcodebuild -showsdks
 
@@ -167,7 +167,18 @@ jobs:
       - name: Release
         if: startsWith(github.ref, 'refs/tags/v')
         env:
-          GH_TOKEN: ${{ github.token }}
+          FORGEJO_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+          TITLE: "Accessible IPTV Client for iOS ${{ env.VERSION }}"
         run: |
           awk "/^## $VERSION/{f=1;next}/^## /{f=0}f" CHANGELOG.md > notes.md
-          gh release create "$GITHUB_REF_NAME" *.ipa --title "Accessible IPTV Client for iOS $VERSION" --notes-file notes.md --latest
+          API="$GITHUB_SERVER_URL/api/v1/repos/$GITHUB_REPOSITORY"
+          H="Authorization: token $FORGEJO_TOKEN"
+          id=$(curl -sf -H "$H" "$API/releases/tags/$GITHUB_REF_NAME" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])' || true)
+          if [ -z "$id" ]; then
+            id=$(python3 -c 'import json,os; print(json.dumps({"tag_name": os.environ["GITHUB_REF_NAME"], "name": os.environ["TITLE"], "body": open("notes.md").read()}))' |
+              curl -sf -H "$H" -H 'Content-Type: application/json' -d @- "$API/releases" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')
+          fi
+          for f in *.ipa; do
+            curl -sf -o /dev/null -H "$H" -F "attachment=@$f" "$API/releases/$id/assets?name=$f"
+            echo "Uploaded $f"
+          done
