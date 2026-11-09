@@ -18,8 +18,8 @@ packages:
     path: Core
   # SwiftVLC (libVLC 4) plus Player.setVideoEnabled, which the upstream API lacks.
   SwiftVLC:
-    url: https://github.com/serrebidev/SwiftVLC.git
-    revision: 76b74b0e6114deff686a8bed78800aef7d1aaba7
+    url: https://git.serrebiradio.com/serrebi/SwiftVLC.git
+    revision: 7914865efc83e860ca6a9fc2fd2f7ea073504160
   # AetherEngine 7.48.0: transport-stream playback (FFmpeg demux, VideoToolbox decode).
   AetherEngine:
     url: https://github.com/superuser404notfound/AetherEngine.git

@@ -5,7 +5,7 @@ import Foundation
 public enum Updater {
 	public static let repo = "serrebidev/Accessible-IPTV-Client-iOS"
 	/// The AltStore source this app is published in.
-	public static let altSource = "https://git.serrebiradio.com/serrebi/serrebiALT/raw/branch/main/apps.json"
+	public static let altSource = "https://altstore.serrebiradio.com/apps.json"
 
 	public struct Release {
 		public let version: String

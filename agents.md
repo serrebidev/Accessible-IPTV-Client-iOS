@@ -34,8 +34,8 @@ plus a CarPlay audio scene. iOS 18 / tvOS 18 / visionOS 2 (SwiftVLC's minimum).
   media stands behind the edge, 1x on raw TS; .standard's own holdback floor is 18 s), so the saved
   25 s buffer made every tune wait ~20 s in 0.6.5 — fixed in 0.6.6, with probe budgets tightened to
   10 MB / 10 s. An AetherEngine failure before the first frame demotes the screen to libVLC once. libVLC 4 still handles the
-  compatibility formats and fallback through SwiftVLC, pinned in project.yml to the serrebidev/SwiftVLC
-  fork (branch accessible-iptv), which only adds `Player.setVideoEnabled`. Rebase that one commit to
+  compatibility formats and fallback through SwiftVLC, pinned in project.yml to the serrebi/SwiftVLC
+  fork on git.serrebiradio.com (branch accessible-iptv, on harflabs/SwiftVLC), which only adds `Player.setVideoEnabled`. Rebase that one commit to
   update. One `VLCInstance.app` with application-managed audio session; warmed at launch.
 - libVLC 4 options (`StreamOptions` in Playback.swift): `:http-reconnect` is dead (legacy HTTP module
   only); live `.ts` uses `:http-continuous=1` (reconnect in place, never on HLS or files: it refetches a
