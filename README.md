@@ -90,7 +90,7 @@ Built for VoiceOver following the [CVS Health iOS SwiftUI accessibility techniqu
 
 Add the serrebiALT source to AltStore:
 
-https://git.serrebiradio.com/serrebi/serrebiALT/raw/branch/main/apps.json
+https://altstore.serrebiradio.com/apps.json
 
 then install Accessible IPTV from it. AltStore keeps it updated. The `.ipa` files for iPhone and iPad, Apple TV and Vision Pro are also on the [Releases page](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client-iOS/releases) for other sideloading tools. Needs iOS 18, tvOS 18 or visionOS 2 or later.
 
