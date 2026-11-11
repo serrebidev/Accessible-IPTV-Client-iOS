@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1
+
+- Same app as 0.8.0, new home: releases are now built and published on our own Forgejo (git.serrebiradio.com) instead of GitHub, the video player library comes from our own maintained fork, and the AltStore source now lives at altstore.serrebiradio.com. The build pipeline itself was repaired along the way: the accessibility checker is fetched from our own mirror, and code signing works on the new build machine, so releases can ship from here from now on.
+
 ## 0.8.0
 
 - Almost everything in the app can now be done by asking. New actions, all in the Shortcuts app and for Siri: what is on a channel later or at a named time, what is on now across channels with favourites first, what a programme is about, watch a programme live or from the archive, download a finished programme, cancel a reminder. Find channels, list groups and favourites, add or remove a favourite, go back to the previous channel, play a movie or open a series. Record a channel now, schedule a recording by clock time, stop recordings, hear what is recording and scheduled, cancel a scheduled recording, and play, share or delete saved recordings. Ask what is playing, skip in a recording, change the audio track, turn subtitles on or off, start Picture in Picture, send to a Chromecast and bring it back, set a sleep timer, and change the subtitle and audio description settings. Start or leave SharePlay, and share what you are watching or a programme by name. Refresh the guide or channels, hear your account status and expiry, and open any screen.

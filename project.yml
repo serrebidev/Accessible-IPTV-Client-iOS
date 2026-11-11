@@ -26,7 +26,7 @@ packages:
     revision: 263dc11579274e83458bd3839715caf99f3d8969
 settings:
   base:
-    MARKETING_VERSION: 0.8.0
+    MARKETING_VERSION: 0.8.1
     CURRENT_PROJECT_VERSION: 39
     SWIFT_VERSION: "5.0"
 targets:
