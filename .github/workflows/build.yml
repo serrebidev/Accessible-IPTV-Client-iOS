@@ -53,7 +53,21 @@ jobs:
           swift test 2>&1 | tail -40
 
       - name: a11y-check source
-        run: git clone --depth 1 https://github.com/cvs-health/ios-swiftui-accessibility-techniques.git "$RUNNER_TEMP/cvs"
+        run: |
+          # Clone from the mirror on our own Forgejo: the direct GitHub clone
+          # failed on this runner (2026-11-09, task 17). Retry covers a
+          # momentary gateway hiccup on the mirror.
+          for attempt in 1 2 3; do
+            if git clone --depth 1 https://git.serrebiradio.com/serrebi/ios-swiftui-accessibility-techniques.git "$RUNNER_TEMP/cvs"; then
+              break
+            fi
+            if [ "$attempt" = 3 ]; then
+              echo "a11y-check clone failed after 3 attempts"
+              exit 1
+            fi
+            rm -rf "$RUNNER_TEMP/cvs"
+            sleep $((attempt * 5))
+          done
 
       - name: a11y-check build cache
         uses: actions/cache@v6
