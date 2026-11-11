@@ -92,7 +92,15 @@ jobs:
         with:
           path: SourcePackages
           key: spm-${{ hashFiles('project.yml') }}
-          restore-keys: spm-
+
+      - name: Package state reset
+        run: |
+          # A restored SourcePackages can carry SwiftPM workspace state with
+          # absolute paths from the run that saved the cache; the next run's
+          # work dir differs, so the libVLC XCFramework is "not found" there
+          # (runs 209/210). Dropping the state file makes SwiftPM re-register
+          # the cached artifacts at this run's paths.
+          rm -f SourcePackages/workspace-state.json
 
       # ProviderConnectionTests time out on some runs and pass on others at the same commit (cause not found).
       # A test must fail three times in a row to block a build.
