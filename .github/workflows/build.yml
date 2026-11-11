@@ -131,7 +131,11 @@ jobs:
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k ci "$KC" > /dev/null
           security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
           ID=$(security find-identity -p codesigning "$KC" | awk '/\)/{print $2; exit}')
-          TEAM=$(security find-certificate -c "$ID" -p "$KC" 2>/dev/null | openssl x509 -noout -subject | sed -n 's/.*OU *= *\([A-Z0-9]*\).*/\1/p')
+          NAME=$(security find-identity -p codesigning "$KC" | awk -F'"' '/\)/{print $2; exit}')
+          # find-certificate -c matches by certificate NAME, not by identity hash:
+          # looking the hash up here found nothing and killed the step (run 203).
+          TEAM=$(security find-certificate -c "$NAME" -p "$KC" 2>/dev/null | openssl x509 -noout -subject | sed -n 's/.*OU *= *\([A-Z0-9]*\).*/\1/p') || true
+          [ -n "$TEAM" ] || TEAM=$(printf '%s' "$NAME" | sed -n 's/.*(\([A-Z0-9]*\))$/\1/p')
           [ -n "$TEAM" ] || TEAM=J7645K945T
           echo "Signing with $ID, team $TEAM"
           echo "SIGN_ID=$ID" >> "$GITHUB_ENV"
