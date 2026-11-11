@@ -150,6 +150,11 @@ jobs:
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           sign() { # app bundle: nested code first, then the app with its identifier
             [ -n "$SIGN_ID" ] || { echo "No signing certificate: unsigned"; return; }
+            # Each step runs in its own shell: re-unlock the signing keychain and
+            # re-assert the search list here, or codesign finds the identity but
+            # cannot use its key (errSecInternalComponent, run 206).
+            security unlock-keychain -p ci "$KEYCHAIN"
+            security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"') > /dev/null
             find "$1" -depth \( -name "*.framework" -o -name "*.dylib" -o -name "*.appex" \) -print0 |
               xargs -0 -I{} codesign --force --timestamp=none --keychain "$KEYCHAIN" --sign "$SIGN_ID" {}
             cp App/AccessibleIPTV.entitlements "$RUNNER_TEMP/app.entitlements"
