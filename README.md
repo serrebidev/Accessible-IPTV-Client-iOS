@@ -3,6 +3,8 @@
 A vibe-coded, screen-reader-friendly IPTV player for iPhone, iPad, Apple TV and Apple Vision Pro, with CarPlay audio. Built for VoiceOver, and to handle big playlists and guides without choking.
 
 [![Join SerrebiProjects on Telegram](https://img.shields.io/badge/Telegram-SerrebiProjects-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://t.me/SerrebiProjects)
+
+More serrebi projects: [projects.serrebiradio.com](https://projects.serrebiradio.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
 This is the iOS port of [Accessible IPTV Client for Android](https://github.com/serrebidev/Accessible-IPTV-Client-Android), the companion to [Accessible IPTV Client](https://github.com/serrebidev/Accessible-IPTV-Client) for Windows and Linux.
@@ -114,3 +116,7 @@ The rules (playlists, guide, catch-up, providers) are a Swift package with tests
 ## Contributing
 
 Pull requests are welcome. If Accessible IPTV Client has been useful to you, open a PR with a fix or feature and I'll review it.
+
+## Credits
+
+See [CREDITS.md](CREDITS.md) for where the ideas behind this project came from, and the third-party projects it builds on.
