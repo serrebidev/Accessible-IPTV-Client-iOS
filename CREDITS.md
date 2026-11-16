@@ -12,3 +12,12 @@ Third-party projects it uses:
 Xtream Codes, Stalker Portal, and M3U/M3U Plus are upstream protocols and formats, not code from this project.
 
 Questions and bug reports are welcome in the [SerrebiProjects Telegram group](https://t.me/SerrebiProjects). More serrebi projects: [projects.serrebiradio.com](https://projects.serrebiradio.com).
+
+
+## About this project
+
+- GitHub profile: [serrebidev](https://github.com/serrebidev)
+- Repository (GitHub): [https://github.com/serrebidev/Accessible-IPTV-Client-iOS](https://github.com/serrebidev/Accessible-IPTV-Client-iOS)
+- Repository (Forgejo): [https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client-iOS](https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client-iOS)
+- Projects site: [projects.serrebiradio.com](https://projects.serrebiradio.com)
+- Questions and bug reports: [SerrebiProjects Telegram group](https://t.me/SerrebiProjects)
