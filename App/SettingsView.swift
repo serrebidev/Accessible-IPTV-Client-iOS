@@ -29,6 +29,17 @@ struct SettingsView: View {
 
 	private var prefs: Prefs { model.prefs }
 
+	struct AboutLink: Hashable { let label: String; let url: String }
+	private var aboutLinks: [AboutLink] {
+		[
+			AboutLink(label: "GitHub: serrebidev/Accessible-IPTV-Client-iOS", url: "https://github.com/serrebidev/Accessible-IPTV-Client-iOS"),
+			AboutLink(label: "Forgejo: serrebi/Accessible-IPTV-Client-iOS", url: "https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client-iOS"),
+			AboutLink(label: "Projects: projects.serrebiradio.com", url: "https://projects.serrebiradio.com"),
+			AboutLink(label: "Telegram: SerrebiProjects", url: "https://t.me/SerrebiProjects"),
+			AboutLink(label: "Full credits (CREDITS.md)", url: "https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client-iOS/src/branch/main/CREDITS.md"),
+		]
+	}
+
 	var body: some View {
 		Form {
 			Section {
@@ -82,6 +93,13 @@ struct SettingsView: View {
 				}
 				#endif
 			} header: { Text(L("playback_heading")).accessibilityAddTraits(.isHeader) }
+
+			Section {
+				ForEach(aboutLinks, id: \.url) { item in
+					Link(item.label, destination: URL(string: item.url)!)
+						.accessibilityLabel(item.label)
+				}
+			} header: { Text(L("about")).accessibilityAddTraits(.isHeader) }
 
 			Section {
 				numberField(L("guide_days"), $days)
