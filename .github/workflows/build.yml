@@ -19,16 +19,17 @@ concurrency:
 
 jobs:
   build:
-    # Xcode 27: the audio-domain App Intents schemas that let Siri AI play a channel are iOS 27
-    # APIs, so the SDK has to ship them. The image is a GitHub preview (Xcode 27.0 beta 3).
-    runs-on: xcode-27
+    # GitHub cloud (owner 2026-11-18): macos-15. The image's Xcode is
+    # older than 27, so the Siri AI ToolIntent SDK check below stays
+    # OFF until GitHub ships an iOS 27 SDK; the app still builds.
+    runs-on: macos-15
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
 
       - name: Xcode
         run: |
-          # The Forgejo Mac runner keeps the newest Xcode selected (no sudo on that host).
+          # GitHub's macOS image carries Xcode.app (no sudo needed to run).
           xcodebuild -version
           xcodebuild -showsdks
 
@@ -185,7 +186,7 @@ jobs:
           build visionOS xros visionOS
           ls -la *.ipa
 
-      - uses: https://code.forgejo.org/forgejo/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ipa
@@ -202,7 +203,7 @@ jobs:
           TITLE: "Accessible IPTV Client for iOS ${{ env.VERSION }}"
         run: |
           awk "/^## $VERSION/{f=1;next}/^## /{f=0}f" CHANGELOG.md > notes.md
-          API="$GITHUB_SERVER_URL/api/v1/repos/$GITHUB_REPOSITORY"
+          API="https://git.serrebiradio.com/api/v1/repos/serrebi/Accessible-IPTV-Client-iOS"
           H="Authorization: token $FORGEJO_TOKEN"
           id=$(curl -sf -H "$H" "$API/releases/tags/$GITHUB_REF_NAME" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])' || true)
           if [ -z "$id" ]; then
