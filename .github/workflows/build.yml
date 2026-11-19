@@ -1,13 +1,11 @@
 name: Build
 
-# Every push: core tests, accessibility check, and .ipa files for iPhone/iPad,
-# Apple TV and Vision Pro. A v* tag also publishes them as a Forgejo release.
+# Core tests, accessibility check, and .ipa files for iPhone/iPad, Apple TV and
+# Vision Pro. Run it on a v* tag (--ref vX.Y.Z) to also publish a Forgejo release.
 # The owner's certificate signs builds; AltStore re-signs with a profile on installation.
+# Manual only: the Forgejo-to-GitHub sync disables GitHub workflows with
+# automatic triggers.
 on:
-  push:
-    branches: [main]
-    tags: ["v*"]
-  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -19,17 +17,19 @@ concurrency:
 
 jobs:
   build:
-    # GitHub cloud (owner 2026-11-18): macos-15. The image's Xcode is
-    # older than 27, so the Siri AI ToolIntent SDK check below stays
-    # OFF until GitHub ships an iOS 27 SDK; the app still builds.
-    runs-on: macos-15
+    # GitHub's Xcode 27 image. The Siri AI ToolIntent check below turns on
+    # by itself once the image carries the iOS 27.3 SDK.
+    runs-on: xcode-27
     timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
 
       - name: Xcode
         run: |
-          # GitHub's macOS image carries Xcode.app (no sudo needed to run).
+          # Newest Xcode on the image, so a new SDK is used as soon as GitHub ships it.
+          XCODE="$(ls -d /Applications/Xcode_27*.app | sort -V | tail -1)"
+          export DEVELOPER_DIR="$XCODE/Contents/Developer"
+          echo "DEVELOPER_DIR=$DEVELOPER_DIR" >> "$GITHUB_ENV"
           xcodebuild -version
           xcodebuild -showsdks
 
