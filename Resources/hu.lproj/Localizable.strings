@@ -384,3 +384,6 @@
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Igen";
 "about" = "About";
+"report_issue" = "Probléma bejelentése a GitHubon";
+"report_issue_summary" = "Cím";
+"report_issue_details" = "Leírás";

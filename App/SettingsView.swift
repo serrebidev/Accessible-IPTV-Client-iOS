@@ -23,6 +23,8 @@ struct SettingsView: View {
 	@State private var status = ""
 	@State private var exporting = false
 	@State private var importing = false
+	@State private var issueTitle = ""
+	@State private var issueDetails = ""
 	#if !os(tvOS)
 	@State private var exportDoc = SettingsFile(data: Data())
 	#endif
@@ -39,6 +41,14 @@ struct SettingsView: View {
 			AboutLink(label: "Full credits (CREDITS.md)", url: "https://git.serrebiradio.com/serrebi/Accessible-IPTV-Client-iOS/src/branch/main/CREDITS.md"),
 		]
 	}
+
+	#if !os(tvOS)
+	private var reportIssueURL: URL {
+		let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "?"
+		let device = "\(UIDevice.current.systemName) \(UIDevice.current.systemVersion) \(UIDevice.current.model)"
+		return ReportIssue.url(title: issueTitle, details: issueDetails, appLine: "Accessible IPTV Client \(version) on \(device)")
+	}
+	#endif
 
 	var body: some View {
 		Form {
@@ -99,6 +109,14 @@ struct SettingsView: View {
 					Link(item.label, destination: URL(string: item.url)!)
 						.accessibilityLabel(item.label)
 				}
+				#if !os(tvOS)
+				// Report an issue: GitHub opens with the title, description and version filled in.
+				TextField(L("report_issue_summary"), text: $issueTitle)
+				TextField(L("report_issue_details"), text: $issueDetails, axis: .vertical)
+					.lineLimit(4...12)
+				Link(L("report_issue"), destination: reportIssueURL)
+					.disabled(issueTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+				#endif
 			} header: { Text(L("about")).accessibilityAddTraits(.isHeader) }
 
 			Section {

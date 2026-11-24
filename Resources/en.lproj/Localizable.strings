@@ -384,3 +384,6 @@
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Yes";
 "about" = "About";
+"report_issue" = "Report an issue on GitHub";
+"report_issue_summary" = "Title";
+"report_issue_details" = "Description";

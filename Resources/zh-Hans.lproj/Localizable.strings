@@ -384,3 +384,6 @@
 "xtream_at" = "Xtream,%1$@";
 "yes" = "是";
 "about" = "About";
+"report_issue" = "在 GitHub 上报告问题";
+"report_issue_summary" = "标题";
+"report_issue_details" = "描述";

@@ -384,3 +384,6 @@
 "xtream_at" = "Xtream, %1$@";
 "yes" = "हाँ";
 "about" = "About";
+"report_issue" = "GitHub पर समस्या की रिपोर्ट करें";
+"report_issue_summary" = "शीर्षक";
+"report_issue_details" = "विवरण";

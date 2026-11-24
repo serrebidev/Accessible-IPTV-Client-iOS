@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.3
+
+- Settings, About takes a title and a description, then Report an issue on GitHub opens GitHub's new issue page with both filled in and your app version and device added. Sign in on GitHub and press Create.
+
 ## 0.8.1
 
 - Same app as 0.8.0, new home: releases are now built and published on our own Forgejo (git.serrebiradio.com) instead of GitHub, the video player library comes from our own maintained fork, and the AltStore source now lives at altstore.serrebiradio.com. The build pipeline itself was repaired along the way: the accessibility checker is fetched from our own mirror, and code signing works on the new build machine, so releases can ship from here from now on.

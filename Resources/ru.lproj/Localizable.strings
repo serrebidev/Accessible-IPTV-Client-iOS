@@ -384,3 +384,6 @@
 "xtream_at" = "Xtream, %1$@";
 "yes" = "Да";
 "about" = "About";
+"report_issue" = "Сообщить о проблеме на GitHub";
+"report_issue_summary" = "Заголовок";
+"report_issue_details" = "Описание";

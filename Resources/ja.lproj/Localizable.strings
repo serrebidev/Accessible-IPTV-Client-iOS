@@ -384,3 +384,6 @@
 "xtream_at" = "Xtream、%1$@";
 "yes" = "はい";
 "about" = "About";
+"report_issue" = "GitHub で問題を報告";
+"report_issue_summary" = "タイトル";
+"report_issue_details" = "説明";
