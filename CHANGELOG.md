@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.3
+## 0.8.4
 
 - Settings, About takes a title and a description, then Report an issue on GitHub opens GitHub's new issue page with both filled in and your app version and device added. Sign in on GitHub and press Create.
 

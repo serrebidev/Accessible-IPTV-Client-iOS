@@ -112,8 +112,10 @@ struct SettingsView: View {
 				#if !os(tvOS)
 				// Report an issue: GitHub opens with the title, description and version filled in.
 				TextField(L("report_issue_summary"), text: $issueTitle)
+					.accessibilityLabel(L("report_issue_summary"))
 				TextField(L("report_issue_details"), text: $issueDetails, axis: .vertical)
 					.lineLimit(4...12)
+					.accessibilityLabel(L("report_issue_details"))
 				Link(L("report_issue"), destination: reportIssueURL)
 					.disabled(issueTitle.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
 				#endif
